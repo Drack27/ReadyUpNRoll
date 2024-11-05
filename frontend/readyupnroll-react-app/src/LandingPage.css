@@ -1,0 +1,40 @@
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+  }
+  
+  .landing-page-header   
+   h1 {
+    font-size: 3rem; /* Adjust as needed */
+    margin-bottom: 1rem;
+  }
+  
+  .tagline {
+    font-size: 1.5rem; /* Adjust as needed */
+    margin-bottom: 2rem;
+  }
+  
+  .button-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .login-button,
+  .signup-button {
+    background-color: darkgray;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .blurb-container {
+    width: 80%; /* Adjust as needed */
+    max-width: 600px;
+  }
