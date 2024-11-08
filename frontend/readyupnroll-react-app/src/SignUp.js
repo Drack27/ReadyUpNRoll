@@ -15,6 +15,32 @@ function SignupPage() {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+  
+    // ... (your existing form data extraction and validation) ...
+  
+    try {
+      const response = await fetch('/api/users', { // Send a POST request to your backend API
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, username, password }),
+      });
+  
+      if (response.ok) {
+        // Account creation successful
+        // ... (handle success, e.g., redirect to login page) ...
+      } else {
+        // Account creation failed
+        const errorData = await response.json();
+        // ... (handle error, e.g., display error message) ...
+      }
+    } catch (error) {
+      // ... (handle network or other errors) ...
+    }
+
   return (
     <div   
  className="signup-page">
@@ -97,5 +123,5 @@ function SignupPage() {
     </div>
   );
 }
-
+}
 export default SignupPage;
