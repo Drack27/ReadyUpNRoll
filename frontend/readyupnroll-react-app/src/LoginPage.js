@@ -1,5 +1,6 @@
     import './LoginPage.css'; // Import your CSS file
-    import { useState } from 'react'; 
+    import { useState } from 'react';
+    import { Link } from 'react-router-dom'; 
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -51,6 +52,12 @@ function LoginPage() {
         <button type="submit" className="submit-button">
           LEMME IN
         </button>
+
+        
+        <div className="signup-link">
+          <p>Don't have an account?</p>
+          <Link to="/signup">Sign Up</Link> {/* Link to the signup page */}
+        </div>
       </form>
     </div>
   );

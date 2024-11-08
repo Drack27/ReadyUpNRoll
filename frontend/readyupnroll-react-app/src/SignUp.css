@@ -1,0 +1,65 @@
+.signup-page {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items to the left */
+    padding: 2rem;
+  }
+  
+  .signup-page-header {
+    margin-bottom: 2rem;
+  }
+  
+  .signup-page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .signup-content {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .signup-form {
+    display: flex;
+    flex-direction: column;
+    width: 300px; /* Adjust as needed */
+  }
+  
+  .input-group {
+    margin-bottom: 1rem;
+  }
+  
+  .password-field {
+    display: flex;
+    align-items: center;
+  }
+  
+  .show-password-button {
+    /* Style the "show password" button as needed */
+  }
+  
+  .avatar-container {
+    /* Style the avatar container as needed */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .avatar-container img {
+    width: 100px; /* Adjust as needed */
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+  }
+  
+  .create-account-button {
+    /* Style the large button as needed */
+    background-color: #007bff; /* Example color */
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    align-self: center; /* Center the button */
+  }
