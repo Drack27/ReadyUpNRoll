@@ -39,16 +39,18 @@ function SignupPage() {
   
       if (response.ok) {
         // Account creation successful
-        // ... (handle success, e.g., redirect to login page) ...
+        // Redirect to success page
+        window.location.href = '/success';
       } else {
         // Account creation failed
         const errorData = await response.json();
-        // ... (handle error, e.g., display error message) ...
+        alert(`Error: ${errorData.message || 'Failed to create account'}`);
       }
     } catch (error) {
-      // ... (handle network or other errors) ...
+      console.error('Error:', error);
+      alert('An error occurred. Please try again later.');
     }
-  }
+  };
   return (
     <div   
  className="signup-page">
