@@ -5,10 +5,15 @@ function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);   
 
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword]   
+ = useState('');
 
-  const togglePasswordVisibility = () => {
+  function togglePasswordVisibility() {
     setShowPassword(!showPassword);
-  };
+  }
 
   const toggleConfirmPasswordVisibility   
  = () => {
@@ -18,7 +23,10 @@ function SignupPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
   
-    // ... (your existing form data extraction and validation) ...
+    const email = event.target.email.value;
+    const username = event.target.username.value;
+    const password = event.target.password.value;
+    const confirmPassword = event.target.confirmPassword.value;
   
     try {
       const response = await fetch('/api/users', { // Send a POST request to your backend API
@@ -40,7 +48,7 @@ function SignupPage() {
     } catch (error) {
       // ... (handle network or other errors) ...
     }
-
+  }
   return (
     <div   
  className="signup-page">
@@ -49,15 +57,15 @@ function SignupPage() {
       </header>
 
       <div className="signup-content"> {/* Container for form and avatar */}
-        <form className="signup-form">
-          <div className="input-group">
-            <label htmlFor="email">What's your email?</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="I.E.: coolguy@gmail.com"
-            />
-          </div>
+      <form className="signup-form" onSubmit={handleSubmit}> {/* Moved the closing curly brace */}
+  <div className="input-group">
+    <label htmlFor="email">What's your email?</label>
+    <input
+      type="email"
+      id="email"
+      placeholder="I.E.: coolguy@gmail.com"
+    />
+  </div>
 
           <div className="input-group">
             <label htmlFor="username">
@@ -122,6 +130,5 @@ function SignupPage() {
       </button>
     </div>
   );
-}
 }
 export default SignupPage;
