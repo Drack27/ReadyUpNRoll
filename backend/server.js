@@ -35,6 +35,7 @@ app.listen(port, () => {
 });
 
 app.post('/api/users', async (req, res) => {
+    console.log('Recieved signup request:', req.body); //Log the request
     const { email, username, password } = req.body;
   
     try {
