@@ -1,8 +1,9 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
+const bodyParser = require('body-parser');
 
 const app = express();
-const port = 3001; // Or any port you prefer
+const port = 3000; 
 
 // Connect to the SQLite database
 const db = new sqlite3.Database('./readyupandroll.db');
@@ -33,6 +34,8 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Backend server listening on port ${port}`);
 });
+
+app.use(bodyParser.json()); // This will parse JSON request bodies
 
 app.post('/api/users', async (req, res) => {
     console.log('Recieved signup request:', req.body); //Log the request

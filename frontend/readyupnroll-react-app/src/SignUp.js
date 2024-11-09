@@ -56,95 +56,100 @@ function SignupPage() {
     }
   };
   return (
-    <div   
- className="signup-page">
+    <div className="signup-page">
       <header className="signup-page-header">
         <h1>Create An Account</h1>
       </header>
-
-      <div className="signup-content"> {/* Container for form and avatar */}
-      <form className="signup-form" onSubmit={handleSubmit}> 
-        {
-      <><div className="input-group">
-              <label htmlFor="email">What's your email?</label>
+  
+      <div className="signup-content">
+        {/* Container for form and avatar */}
+        <form className="signup-form" onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label htmlFor="email">What's your email?</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="I.E.: coolguy@gmail.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+  
+          <div className="input-group">
+            <label htmlFor="username">
+              Come up with a username. Bonus points if it's dog related.
+            </label>
+            <input
+              type="text"
+              id="username"
+              placeholder="I.E. DiceDawg27"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+  
+          <div className="input-group">
+            <label htmlFor="password">
+              Come up with a password. Cool Passwords only.
+            </label>
+            <div className="password-field">
               <input
-                type="email"
-                id="email"
-                placeholder="I.E.: coolguy@gmail.com" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                />
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}   
+  
+              />
+              <button
+                type="button"
+                className="show-password-button"
+                onClick={togglePasswordVisibility}   
+  
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
             </div>
-
-            <div className="input-group">
-                <label htmlFor="username">
-                  Come up with a username. Bonus points if it's dog related.
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  placeholder="I.E. DiceDawg27" 
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}/>
-              </div>
-              
-              <div className="input-group">
-                <label htmlFor="password">
-                  Come up with a password. Cool Passwords only.
-                </label>
-                <div className="password-field">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}/>
-                  <button
-                    type="button"
-                    className="show-password-button"
-                    onClick={togglePasswordVisibility}
-                  >
-                    {showPassword ? 'Hide' : 'Show'}
-                  </button>
-                </div>
-              </div>
-              
-              <div className="input-group">
-                <label htmlFor="confirmPassword">
-                  You sure you want that as your password? Prove it - type it again.
-                </label>
-                <div className="password-field">
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    id="confirmPassword" 
-                    value={confirmPassword} // Bind to state
-                    onChange={(e) => setConfirmPassword(e.target.value)} // Update state on change
-                    />
-                  <button
-                    type="button"
-                    className="show-password-button"
-                    onClick={toggleConfirmPasswordVisibility}
-                  >
-                    {showConfirmPassword ? 'Hide' : 'Show'}
-                  </button>
-                </div>
-              </div>
-              <div className="avatar-container">
+          </div>
+  
+          <div className="input-group">
+            <label htmlFor="confirmPassword">
+              You sure you want that as your password? Prove it - type it
+              again.
+            </label>
+            <div className="password-field">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                value={confirmPassword} // Bind to state
+                onChange={(e) => setConfirmPassword(e.target.value)} // Update state on change
+              />
+              <button
+                type="button"
+                className="show-password-button"
+                onClick={toggleConfirmPasswordVisibility}
+              >
+                {showConfirmPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+          </div>
+  
+          <button type="submit" className="create-account-button">
+            BRING ME INTO EXISTENCE! <br />
+            (click to finish & create account)
+          </button>
+        </form>
+  
+        <div className="avatar-container">
           {/* Add your avatar display and upload functionality here */}
-          <img src="default-avatar.png" alt="Avatar" /> {/* Placeholder */}
+          <img src="default-avatar.png" alt="Avatar" />{' '}
+          {/* Placeholder */}
           <button>Upload Avatar</button>
         </div>
-      </div{'>'}
-
-      <button type="submit" className="create-account-button">
-        BRING ME INTO EXISTENCE! <br />
-        (click to finish & create account)
-      </button>
+      </div>
+  
+      {/* This button should be inside the form */}
+      {/* Removed this button, as it was a duplicate */}
     </div>
-    </>
-    }   
-        </form>
-
-        
   );
 }
 export default SignupPage;
