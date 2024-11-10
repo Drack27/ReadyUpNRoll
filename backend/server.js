@@ -1,6 +1,7 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const port = 3000; 
@@ -42,15 +43,26 @@ app.post('/api/users', async (req, res) => {
     const { email, username, password } = req.body;
   
     try {
-      // 1. Data validation and sanitization (important!)
-      // ... (validate email, username, password format, etc.) ...
+      // 1. Data validation and sanitization
+      if (!email || !username || !password) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
   
-      // 2. Hash the password (essential for security!)
-      // const hashedPassword = await bcrypt.hash(password, 10); // Example using bcrypt
+      // Basic email validation (you might want more robust validation)
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ message: 'Invalid email format' });
+      }
+  
+      // ... other validation checks for username, password, etc. ...
+  
+      // 2. Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
   
       // 3. Insert user data into the database
-      const stmt = db.prepare('INSERT INTO users (email, username, password) VALUES (?, ?, ?)');
-      await stmt.run(email, username, hashedPassword); // Use the hashed password
+      const stmt = db.prepare(
+        'INSERT INTO users (email, username, password) VALUES (?, ?, ?)'
+      );
+      await stmt.run(email, username, hashedPassword);
       stmt.finalize();
   
       res.status(201).json({ message: 'User created successfully' });
