@@ -3,6 +3,7 @@ import LoginPage from './LoginPage';
 import SignupPage from './SignUp'; 
 import SuccessPage from './SuccessPage'; 
 import { Routes, Route } from 'react-router-dom';
+import HomeScreen from './HomeScreen';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/success" element={<SuccessPage />} /> 
+      <Route path="/home" element={<HomeScreen />} />
     </Routes>
   );
 }

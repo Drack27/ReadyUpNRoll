@@ -1,0 +1,76 @@
+.home-screen {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+  }
+  
+  .home-screen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+  
+  .logo {
+    width: 100px; /* Adjust as needed */
+    height: auto;
+  }
+  
+  .header-buttons {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .welcome-header {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .view-mode-toggle {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-self: center; /* Center the toggle buttons */
+  }
+  
+  .home-content {
+    display: flex;
+    gap: 2rem;
+  }
+  
+  .gm-section {
+    background-color: #f0f0f5; /* Example color */
+    padding: 1rem;
+    width: 50%; /* Adjust as needed */
+  }
+  
+  .player-section {
+    background-color: #e0f0f0; /* Example color */
+    padding: 1rem;
+    width: 50%; /* Adjust as needed */
+  }
+  
+  .gm-lists,
+  .player-lists {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .list-container {
+    width: 50%; /* Adjust as needed */
+  }
+  
+  .list-container h3 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .list-container ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .list-container li {
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+  }
