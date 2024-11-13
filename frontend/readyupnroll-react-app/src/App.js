@@ -4,6 +4,7 @@ import SignupPage from './SignUp';
 import SuccessPage from './SuccessPage'; 
 import { Routes, Route } from 'react-router-dom';
 import HomeScreen from './HomeScreen';
+import SettingsScreen from './SettingsScreen';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/success" element={<SuccessPage />} /> 
       <Route path="/home" element={<HomeScreen />} />
+      <Route path="/settings" element={<SettingsScreen />} />
     </Routes>
   );
 }

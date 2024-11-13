@@ -1,0 +1,151 @@
+CSS
+.settings-screen {
+  font-family: sans-serif; /* Choose your preferred font */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ensure the screen fills the viewport height */
+}
+
+.settings-screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #f0f0f0; /* Example background color */
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 80px; /* Adjust logo size as needed */
+  margin-right: 20px;
+}
+
+.header-buttons button {
+  margin-left: 10px;
+  padding: 8px 15px;
+  background-color: #4caf50; /* Example button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  height: 80px; /* Adjust avatar size as needed */
+  border-radius: 50%;
+}
+
+.settings-content {
+  padding: 20px;
+  flex: 1; /* Allow content to take up available space */
+}
+
+.header-and-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.settings-header {
+  font-size: 2em; /* Adjust header size as needed */
+}
+
+.edit-profile-button {
+  padding: 8px 15px;
+  background-color: #008cba; /* Example button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.general-section,
+.gm-section,
+.player-section {
+  margin-bottom: 30px;
+}
+
+.visibility-key {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+.general-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Adjust columns as needed */
+  gap: 10px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+}
+
+.info-label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.show-password-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: #f44336; /* Example button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.gm-settings {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Adjust columns as needed */
+  gap: 10px;
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.setting-label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.setting-explainer {
+  font-size: 0.9em;
+  color: #777;
+}
+
+.max-sessions {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.max-session-label {
+  margin-right: 10px;
+}
+
+.availability-button {
+  padding: 10px 20px;
+  background-color: #555; /* Example button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+}

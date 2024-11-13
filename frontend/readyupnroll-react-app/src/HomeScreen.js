@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './HomeScreen.css'; // Import your CSS file
 import logo from './logo.svg'; // Import your logo image
+import { Link } from 'react-router-dom';
 
 function HomeScreen() {
   const [viewMode, setViewMode] = useState('both'); // 'gm', 'player', or 'both'
@@ -12,11 +13,18 @@ function HomeScreen() {
   return (
     <div className="home-screen">
       <header className="home-screen-header">
-        <img src={logo} alt="ReadyUp & Roll Logo" className="logo" />
+        <div className="header-left"> {/* Container for logo and buttons */}
+          <img src={logo} alt="ReadyUp & Roll Logo" className="logo" />
+          <div className="header-buttons">
+          <Link to="/settings">
+            <button>Settings</button>
+          </Link>
+            <button>Log Out</button>
+          </div>
+        </div>
 
-        <div className="header-buttons">
-          <button>Settings</button>
-          <button>Log Out</button>
+        <div className="header-right"> {/* Container for avatar */}
+          <img src="avatar.png" alt="User Avatar" className="avatar" /> {/* Replace with actual avatar image */}
         </div>
       </header>
 
@@ -38,15 +46,17 @@ function HomeScreen() {
             <div className="gm-lists">
               <div className="list-container">
                 <h3>Your Player Pools</h3>
-                {/* Add search bar and "Create a New Pool" button here */}
-                <ul>
+                <div className="search-and-button"> {/* Container for search and button */}
+                  <input type="text" placeholder="Search pools..." className="search-bar" />
+                  <button>Create a New Pool</button>
+                </div>                <ul>
                   {/* Placeholder for player pool list items */}
                   <li>Pool Name - Tagline/Description</li>
                 </ul>
               </div>
               <div className="list-container">
                 <h3>Your Players' Campaigns</h3>
-                {/* Add search bar here */}
+                <input type="text" placeholder="Search campaigns..." className="search-bar" />
                 <ul>
                   {/* Placeholder for campaign list items */}
                   <li>Campaign Title - Pool Name</li>
@@ -62,15 +72,17 @@ function HomeScreen() {
             <div className="player-lists">
               <div className="list-container">
                 <h3>Create a Campaign</h3>
-                {/* Add search bar and "Join a Player Pool" button here */}
-                <ul>
+                <div className="search-and-button">
+                  <input type="text" placeholder="Search pools..." className="search-bar" />
+                  <button>Join a Player Pool</button>
+                </div>                <ul>
                   {/* Placeholder for player pool list items */}
                   <li>Pool Name - Tagline/Description</li>
                 </ul>
               </div>
               <div className="list-container">
                 <h3>Ready Up for Sessions</h3>
-                {/* Add search bar here */}
+                <input type="text" placeholder="Search campaigns..." className="search-bar" />
                 <ul>
                   {/* Placeholder for campaign list items */}
                   <li>Campaign Title - Pool Name</li>

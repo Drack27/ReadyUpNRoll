@@ -74,3 +74,34 @@
     padding: 0.5rem;
     border-bottom: 1px solid #ddd;
   }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Add some space between logo and buttons */
+  }
+  
+  .header-right {
+    /* Style for avatar positioning */
+    align-self: flex-end; /* Align to the right */
+  }
+  
+  .header-right .avatar {
+    width: 50px; /* Adjust size as needed */
+    height: 50px;
+    border-radius: 50%; /* Make it circular */
+  }
+  
+  .search-and-button {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    margin-bottom: 1rem; /* Add space below the search and button */
+  }
+  
+  .search-bar {
+    flex-grow: 1; /* Allow search bar to take up available space */
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 0.5rem; /* Add space between search bar and button */
+  }
