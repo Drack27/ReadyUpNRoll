@@ -5,6 +5,7 @@ import SuccessPage from './SuccessPage';
 import { Routes, Route } from 'react-router-dom';
 import HomeScreen from './HomeScreen';
 import SettingsScreen from './SettingsScreen';
+import PlayerPoolNamePage from './PlayerPoolNamePage'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/success" element={<SuccessPage />} /> 
       <Route path="/home" element={<HomeScreen />} />
       <Route path="/settings" element={<SettingsScreen />} />
+      <Route path="/PPCname" element={<PlayerPoolNamePage />} />
     </Routes>
   );
 }

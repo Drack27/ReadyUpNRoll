@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './SettingsScreen.css'; // Import your CSS file
 import logo from './logo.svg'; // Import your logo image
+import { Link } from 'react-router-dom';
+
 
 function SettingsScreen() {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,7 +18,9 @@ function SettingsScreen() {
         <div className="header-left">
           <img src={logo} alt="ReadyUp & Roll Logo" className="logo" />
           <div className="header-buttons">
+          <Link to="/home">
             <button>Exit</button>
+        </Link>
             <button>Log Out</button>
           </div>
         </div>
