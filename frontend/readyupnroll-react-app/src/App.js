@@ -6,6 +6,7 @@ import { Routes, Route } from 'react-router-dom';
 import HomeScreen from './HomeScreen';
 import SettingsScreen from './SettingsScreen';
 import PlayerPoolNamePage from './PlayerPoolNamePage'
+import OfferGameSystems from './OfferGameSystems';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Route path="/home" element={<HomeScreen />} />
       <Route path="/settings" element={<SettingsScreen />} />
       <Route path="/PPCname" element={<PlayerPoolNamePage />} />
+      <Route path="/OfferGameSystems" element={<OfferGameSystems />} />
     </Routes>
   );
 }

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './PlayerPoolNamePage.css'; // Import your CSS file
 import logo from './logo.svg'; // Import your logo image
+import { Link } from 'react-router-dom'; 
 
-function PlayerPoolCreation() {
+function PlayerPoolNamePage() {
   const [showExplainer, setShowExplainer] = useState(true);
 
   const handleToggleExplainer = () => {
@@ -58,7 +59,9 @@ function PlayerPoolCreation() {
             <h2>Creating a new player pool</h2>
             <ol>
               <li className="current-step">Name & Describe the Pool</li>
+              <Link to="/OfferGameSystems">
               <li>Offer Game Systems</li>
+              </Link>
               <li>Offer Campaign Settings</li>
               <li>Add Starting Modules</li>
               <li>Invite Players</li>

@@ -48,7 +48,9 @@ function HomeScreen() {
                 <h3>Your Player Pools</h3>
                 <div className="search-and-button"> {/* Container for search and button */}
                   <input type="text" placeholder="Search pools..." className="search-bar" />
+                  <Link to="/PPCname">
                   <button>Create a New Pool</button>
+                  </Link>
                 </div>                <ul>
                   {/* Placeholder for player pool list items */}
                   <li>Pool Name - Tagline/Description</li>
