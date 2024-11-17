@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Assuming you're using react-router
+import { Link } from 'react-router-dom';
 import './PlayerPoolCreation.css';
 import logo from './logo.svg';
 
-function OfferGameSystems() {
+function OfferCampaignSettings() {
   const [showExplainer, setShowExplainer] = useState(true);
-  const [gameSystems, setGameSystems] = useState([]); // Store game systems data
+  const [campaignSettings, setCampaignSettings] = useState([]);
 
   const handleToggleExplainer = () => {
     setShowExplainer(!showExplainer);
@@ -20,16 +20,15 @@ function OfferGameSystems() {
     }
   }, []);
 
-  // Function to add a new game system (will be called from GameSystemDetails page)
-  const addGameSystem = (newSystem) => {
-    setGameSystems([...gameSystems, newSystem]);
+  // Function to add a new campaign setting
+  const addCampaignSetting = (newSetting) => {
+    setCampaignSettings([...campaignSettings, newSetting]);
   };
 
   return (
     <div className="player-pool-creation">
-      {/* Header (same as before) */}
       <header className="creation-header">
-        <div className="header-left">
+      <div className="header-left">
           <img src={logo} alt="ReadyUp & Roll Logo" className="logo" />
           <div className="header-buttons">
           <Link to="/settings">
@@ -46,7 +45,7 @@ function OfferGameSystems() {
       </header>
 
       <div className="creation-content">
-        <h1 className="creation-header">Offer Game Systems</h1>
+        <h1 className="creation-header">Offer Campaign Settings</h1>
 
         {/* Explainer (same as before) */}
         {showExplainer && (
@@ -63,12 +62,6 @@ function OfferGameSystems() {
           </div>
         )}
 
-{!showExplainer && ( // Conditionally render the button
-          <button className="show-explainer-button" onClick={handleToggleExplainer}>
-            Show Explainer
-          </button>
-        )}
-
         <div className="steps-and-form">
           {/* Creation Steps (updated) */}
           <div className="creation-steps">
@@ -77,12 +70,10 @@ function OfferGameSystems() {
               <li>
                 <Link to="/PPCname">Name & Describe the Pool</Link>
               </li>
-              <li className="current-step">Offer Game Systems</li>
               <li>
-                <Link to="/OfferCampaignSettings">
-                  Offer Campaign Settings
-                </Link>
+                <Link to="/OfferGameSystems">Offer Game Systems</Link>
               </li>
+              <li className="current-step">Offer Campaign Settings</li>
               <li>
                 <Link to="/OfferModules">Offer Modules</Link>
               </li>
@@ -95,25 +86,27 @@ function OfferGameSystems() {
             </ol>
           </div>
 
-          <div className="game-systems-gallery">
-            <button className="add-game-system-button">
-              <Link to="/game-system-details">Add New Game System</Link>
+          <div className="campaign-settings-gallery">
+            <button className="add-campaign-setting-button">
+              <Link to="/campaign-setting-details">
+                Add New Campaign Setting
+              </Link>
             </button>
 
             <div className="gallery-grid">
-              {gameSystems.map((system, index) => (
-                <div key={index} className="game-system-card">
+              {campaignSettings.map((setting, index) => (
+                <div key={index} className="campaign-setting-card">
                   <img
-                    src={system.imageUrl} // Replace with actual image URL
-                    alt={system.name}
+                    src={setting.imageUrl}
+                    alt={setting.name}
                     className="thumbnail"
                   />
-                  <div className="system-info">
-                    <h3>{system.name}</h3>
-                    <p>{system.tagline}</p>
+                  <div className="setting-info">
+                    <h3>{setting.name}</h3>
+                    <p>{setting.tagline}</p>
                     <Link
-                      to="/game-system-details"
-                      state={{ system: system }} // Pass system data for editing
+                      to="/campaign-setting-details"
+                      state={{ setting: setting }}
                     >
                       Details
                     </Link>
@@ -128,4 +121,4 @@ function OfferGameSystems() {
   );
 }
 
-export default OfferGameSystems;
+export default OfferCampaignSettings;

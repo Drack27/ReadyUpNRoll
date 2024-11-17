@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Assuming you're using react-router
+import { Link } from 'react-router-dom';
 import './PlayerPoolCreation.css';
 import logo from './logo.svg';
 
-function OfferGameSystems() {
+function OfferModules() {
   const [showExplainer, setShowExplainer] = useState(true);
-  const [gameSystems, setGameSystems] = useState([]); // Store game systems data
+  const [Modules, setModules] = useState([]);
 
   const handleToggleExplainer = () => {
     setShowExplainer(!showExplainer);
@@ -20,9 +20,9 @@ function OfferGameSystems() {
     }
   }, []);
 
-  // Function to add a new game system (will be called from GameSystemDetails page)
-  const addGameSystem = (newSystem) => {
-    setGameSystems([...gameSystems, newSystem]);
+  // Function to add a new module
+  const addModule = (newModule) => {
+    setModules([...Modules, newModule]);
   };
 
   return (
@@ -46,7 +46,7 @@ function OfferGameSystems() {
       </header>
 
       <div className="creation-content">
-        <h1 className="creation-header">Offer Game Systems</h1>
+        <h1 className="creation-header">Offer Modules</h1>
 
         {/* Explainer (same as before) */}
         {showExplainer && (
@@ -63,12 +63,6 @@ function OfferGameSystems() {
           </div>
         )}
 
-{!showExplainer && ( // Conditionally render the button
-          <button className="show-explainer-button" onClick={handleToggleExplainer}>
-            Show Explainer
-          </button>
-        )}
-
         <div className="steps-and-form">
           {/* Creation Steps (updated) */}
           <div className="creation-steps">
@@ -77,15 +71,15 @@ function OfferGameSystems() {
               <li>
                 <Link to="/PPCname">Name & Describe the Pool</Link>
               </li>
-              <li className="current-step">Offer Game Systems</li>
+              <li>
+                <Link to="/OfferGameSystems">Offer Game Systems</Link>
+              </li>
               <li>
                 <Link to="/OfferCampaignSettings">
                   Offer Campaign Settings
                 </Link>
               </li>
-              <li>
-                <Link to="/OfferModules">Offer Modules</Link>
-              </li>
+              <li className="current-step">Offer Modules</li>
               <li>
                 <Link to="/InvitePlayers">Invite Players</Link>
               </li>
@@ -95,25 +89,27 @@ function OfferGameSystems() {
             </ol>
           </div>
 
-          <div className="game-systems-gallery">
-            <button className="add-game-system-button">
-              <Link to="/game-system-details">Add New Game System</Link>
+          <div className="modules-gallery">
+            <button className="add-module-button">
+              <Link to="/module-details">
+                Add New Module
+              </Link>
             </button>
 
             <div className="gallery-grid">
-              {gameSystems.map((system, index) => (
-                <div key={index} className="game-system-card">
+              {Modules.map((module, index) => (
+                <div key={index} className="module-card">
                   <img
-                    src={system.imageUrl} // Replace with actual image URL
-                    alt={system.name}
+                    src={module.imageUrl}
+                    alt={module.name}
                     className="thumbnail"
                   />
-                  <div className="system-info">
-                    <h3>{system.name}</h3>
-                    <p>{system.tagline}</p>
+                  <div className="module-info">
+                    <h3>{module.name}</h3>
+                    <p>{module.tagline}</p>
                     <Link
-                      to="/game-system-details"
-                      state={{ system: system }} // Pass system data for editing
+                      to="/module-details"
+                      state={{ module: module }}
                     >
                       Details
                     </Link>
@@ -128,4 +124,4 @@ function OfferGameSystems() {
   );
 }
 
-export default OfferGameSystems;
+export default OfferModules;

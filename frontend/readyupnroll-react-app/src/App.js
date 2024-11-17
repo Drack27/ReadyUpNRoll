@@ -7,6 +7,8 @@ import HomeScreen from './HomeScreen';
 import SettingsScreen from './SettingsScreen';
 import PlayerPoolNamePage from './PlayerPoolNamePage'
 import OfferGameSystems from './OfferGameSystems';
+import OfferCampaignSettings from './OfferCampaignSettings';
+import OfferModules from './OfferModules';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
       <Route path="/settings" element={<SettingsScreen />} />
       <Route path="/PPCname" element={<PlayerPoolNamePage />} />
       <Route path="/OfferGameSystems" element={<OfferGameSystems />} />
+      <Route path="/OfferCampaignSettings" element={<OfferCampaignSettings />} />
+      <Route path="/OfferModules" element={<OfferModules />} />
     </Routes>
   );
 }

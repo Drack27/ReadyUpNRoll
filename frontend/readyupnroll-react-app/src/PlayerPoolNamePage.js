@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './PlayerPoolNamePage.css'; // Import your CSS file
+import './PlayerPoolCreation.css'; // Import your CSS file
 import logo from './logo.svg'; // Import your logo image
 import { Link } from 'react-router-dom'; 
 
@@ -43,15 +43,22 @@ function PlayerPoolNamePage() {
         {showExplainer && (
           <div className="explainer-box">
             <p>
-              Player Pools consist of the pool of players you are willing to run
-              games for, as well as the Game Systems, Campaign Settings, and
-              Starting Plot Hooks that the you are willing to offer to those
+              Player Pools consist of the pool of players you are willing to run 
+              games for, as well as the Game Systems, Campaign Settings, and 
+              Modules that you are willing to offer to those
               players.
             </p>
             <button onClick={handleToggleExplainer}>
               Hide Explainer
             </button>
           </div>
+        )}
+
+        {/* Show Explainer button */}
+        {!showExplainer && ( // Conditionally render the button
+          <button className="show-explainer-button" onClick={handleToggleExplainer}>
+            Show Explainer
+          </button>
         )}
 
         <div className="steps-and-form">
@@ -62,10 +69,20 @@ function PlayerPoolNamePage() {
               <Link to="/OfferGameSystems">
               <li>Offer Game Systems</li>
               </Link>
-              <li>Offer Campaign Settings</li>
-              <li>Add Starting Modules</li>
-              <li>Invite Players</li>
-              <li>Confirm and Launch</li>
+              <li>
+                <Link to="/OfferCampaignSettings">
+                  Offer Campaign Settings
+                </Link>
+              </li>
+              <li>
+                <Link to="/OfferModules">Offer Modules</Link>
+              </li>
+              <li>
+                <Link to="/InvitePlayers">Invite Players</Link>
+              </li>
+              <li>
+                <Link to="/ConfirmAndLaunch">Confirm & Launch</Link>
+              </li>
             </ol>
           </div>
 
