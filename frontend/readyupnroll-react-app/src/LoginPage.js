@@ -1,6 +1,7 @@
-    import './LoginPage.css'; // Import your CSS file
-    import { useState } from 'react';
-    import { Link } from 'react-router-dom'; 
+import './LoginPage.css'; 
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import megamind from './Megamind.png';
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,55 +11,55 @@ function LoginPage() {
   };
 
   return (
-    <div   
- className="login-page">
+    <div className="login-page">
       <header className="login-page-header">
-        <h1>So you think you belong here, huh? Prove it.</h1>
+        <h1>Welcome to ReadyUp & Roll!</h1>
       </header>
 
-      <form className="login-form">
-        <div className="input-group">
-          <label htmlFor="email">
-            Who the heck are ya? <br /> (Email or Username)
-          </label>
-          <input
-            type="text"
-            id="email"
-            placeholder="I.E. coolguy@gmail.com"
-          />
-        </div>
-
-        <div className="input-group">
-          <label htmlFor="password">
-            What's the magic word? <br /> (Password)
-          </label>
-          <div className="password-field">
+      <div className="login-content"> {/* Added a container for flexbox */}
+        <div className="login-form"> {/* Left side */}
+          <div className="input-group">
+            <label htmlFor="email">
+              Who the heck are ye? <br /> (Email or Username)
+            </label>
             <input
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              placeholder="I.E. DiceD@wg27"
+              type="text"
+              id="email"
+              placeholder="I.E. coolguy@gmail.com"
             />
-            <button
-              type="button" // Prevent form submission
-              className="show-password-button"
-              onClick={togglePasswordVisibility}
-            >
-              {/* You'll need to add an icon or image for the eyeball */}
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
           </div>
-        </div>
 
-        <button type="submit" className="submit-button">
-          LEMME IN
-        </button>
+          <div className="input-group">
+            <label htmlFor="password">
+              What's the magic word? <br /> (Password)
+            </label>
+            <div className="password-field">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                placeholder="I.E. DiceD@wg27"
+              />
+              <button
+                type="button"
+                className="show-password-button"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+          </div>
 
-        
-        <div className="signup-link">
-          <p>Don't have an account?</p>
-          <Link to="/signup">Sign Up</Link> {/* Link to the signup page */}
+          <button type="submit" className="submit-button">
+            LEMME IN
+          </button>
+        </div> 
+
+        <div className="signup-section"> {/* Right side */}
+          <h2>No Account?</h2>
+          <img src={megamind} alt="Signup Illustration" className="signup-image" /> 
+          <Link to="/signup" className="signup-button">Sign Up</Link> 
         </div>
-      </form>
+      </div>
     </div>
   );
 }

@@ -26,7 +26,7 @@ function LandingPage() {
         <div className="blurb-container">
           <h2 className="blurb-tag">How It Works</h2>
           <p>
-            GMs create a pool of players they're willing to run for, and offer them campaign settings, game systems, & plot hooks, empowering players to form their own campaigns. Players in that pool then invite each other to campaigns, and each player 'readies up' for times they can play. Once a whole party has "readied up", the session is booked! No more endless scheduling chats, no more wrangling with tools built for corporate meetings. Just more FRIGGIN GAMING
+            GMs create worlds, and put in their availaiblity. Players join worlds, and put in their availability. Whenever the GM and enough players are available, a session is automatically booked! No more endless scheduling chats. Just more FRIGGIN GAMING.
           </p>
         </div>
       </div>
