@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './SignUp.css'; // Import your CSS file
+import { Link } from 'react-router-dom';
 
 function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +45,8 @@ function SignupPage() {
       if (response.ok) {
         // Account creation successful
         // Redirect to success page
-        window.location.href = '/success';
+        console.log("Account Created");
+        window.location.href = '/AccountCreationSuccess';
       } else {
         // Account creation failed
         const errorData = await response.json();
@@ -137,6 +139,9 @@ function SignupPage() {
             BRING ME INTO EXISTENCE! <br />
             (click to finish & create account)
           </button>
+          <Link to="/AccountCreationSuccess">
+          <button className="create-account-button">DEV PLACEHOLDER</button>
+          </Link>
         </form>
   
         <div className="avatar-container">
