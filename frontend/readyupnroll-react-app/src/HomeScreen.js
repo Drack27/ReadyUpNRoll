@@ -58,7 +58,9 @@ function HomeScreen() {
               {/* More world list items */}
             </ul>
           </div>
+          <Link to="/WorldDetails">
           <button>Create A World</button>
+          </Link>
         </div>
 
         <div className="player-section">

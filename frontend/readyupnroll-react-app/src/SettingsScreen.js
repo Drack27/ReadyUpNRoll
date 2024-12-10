@@ -42,9 +42,9 @@ function SettingsScreen() {
             <h3>VISIBILITY KEY</h3>
             <p>
               <b>Public:</b> anyone on the site can find and view it<br />
-              <b>Private:</b> only members of the same player pools as you can
+              <b>Private:</b> only members of the same worlds as you can
               find and view it<br />
-              <b>THEY'RE OUT TO GET ME:</b> Only GMs of player pools in which you
+              <b>REALLY Private:</b> Only GMs of worlds in which you
               are a member can view it<br />
               <b>Invisible:</b> No one can view it. (Your password is the only
               thing that is invisible)
@@ -61,7 +61,7 @@ function SettingsScreen() {
               <span className="info-value">[realname]</span>
               <span className="info-visibility">
                 {/* Replace with actual visibility */}
-                [Private/Public/THEY'RE OUT TO GET ME]
+                [Private/Public/REALLY Private]
               </span>
             </div>
             <div className="info-item">
@@ -69,7 +69,7 @@ function SettingsScreen() {
               <span className="info-value">[email]</span>
               <span className="info-visibility">
                 {/* Replace with actual visibility */}
-                [Private/Public/THEY'RE OUT TO GET ME]
+                [Private/Public/REALLY Private]
               </span>
             </div>
             <div className="info-item">
@@ -79,7 +79,7 @@ function SettingsScreen() {
               </span>
               <span className="info-visibility">
                 {/* Replace with actual visibility */}
-                [Private/Public/THEY'RE OUT TO GET ME]
+                [Private/Public/REALLY Private]
               </span>
               <button
                 className="show-password-button"
@@ -95,7 +95,7 @@ function SettingsScreen() {
               </span>
               <span className="info-value">
                 {/* Replace with actual visibility */}
-                [private/public/THEY'RE OUT TO GET ME]
+                [private/public/REALLY Private]
               </span>
             </div>
           </div>
@@ -125,7 +125,7 @@ function SettingsScreen() {
               <p className="setting-explainer">
                 (once your maximum number of sessions have been booked for each
                 of these given time periods, players will no longer be able to
-                ready up for sessions in any of your pools for that given time
+                ready up for sessions in any of your worlds for that given time
                 period)
               </p>
               <div className="max-sessions">

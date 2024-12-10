@@ -5,6 +5,7 @@ import { Routes, Route } from 'react-router-dom';
 import HomeScreen from './HomeScreen';
 import SettingsScreen from './SettingsScreen';
 import AccountCreationSuccess from './AccountCreationSuccess';
+import WorldDetails from './WorldDetails';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/home" element={<HomeScreen />} />
       <Route path="/settings" element={<SettingsScreen />} />
       <Route path="/AccountCreationSuccess" element={<AccountCreationSuccess />} />
+      <Route path="/WorldDetails" element={<WorldDetails />} />
     </Routes>
   );
 }
