@@ -105,3 +105,41 @@
     border-radius: 5px;
     margin-right: 0.5rem; /* Add space between search bar and button */
   }
+
+  .world-list {
+    background-color: green;
+  }
+  
+  .world-list.list {
+    /* Styles specific to list view */
+  }
+  
+  .world-list.gallery {
+    /* Styles specific to gallery view */
+    display: grid; /* Or flexbox for more layout control */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+    gap: 20px; 
+  }
+  
+  .world-list.gallery li {
+    /* Styles for each world item in gallery view */
+    border: 1px solid #ccc; 
+    padding: 10px;
+  }
+  
+  .world-list.gallery img {
+    /* Styles for world thumbnail images in gallery view */
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .world-details {
+    background-color: brown;
+  }
+  
+  .world-buttons {
+    /* Styles for the buttons within each world item */
+    margin-top: 10px; 
+    display: flex;
+    justify-content: space-between; /* Or however you want to arrange buttons */
+  }
