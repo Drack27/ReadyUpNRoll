@@ -6,6 +6,7 @@ import HomeScreen from './HomeScreen';
 import SettingsScreen from './SettingsScreen';
 import AccountCreationSuccess from './AccountCreationSuccess';
 import WorldDetails from './WorldDetails';
+import JoinWorld from './JoinWorld';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Route path="/settings" element={<SettingsScreen />} />
       <Route path="/AccountCreationSuccess" element={<AccountCreationSuccess />} />
       <Route path="/WorldDetails" element={<WorldDetails />} />
+      <Route path="/JoinWorld" element={<JoinWorld />} />
     </Routes>
   );
 }

@@ -1,0 +1,71 @@
+/* General Page Styling */
+.join-world-page {
+    /* ... (Similar to WorldDetails.css) ... */
+  }
+  
+  /* Header Styling */
+  .join-world-header {
+    /* ... (Similar to WorldDetails.css) ... */
+  }
+  
+  /* Join World Content Styling */
+  .join-world-content {
+    /* ... (Add your content styles) ... */
+  }
+  
+  .private-world-section {
+    /* ... (Style the private world code section) ... */
+  }
+  
+  .separator {
+    /* Style the "OR" separator */
+    text-align: center;
+    font-size: 24px;
+    margin: 20px 0; 
+  }
+  
+  .public-world-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+    gap: 20px;
+  }
+  
+  .world-card {
+    border: 1px solid #ccc;
+    padding: 15px;
+  }
+  
+  .thumbnail-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative; /* To contain absolutely positioned images */
+    height: 200px;  /* Set a fixed height for the container */
+  }
+  
+  .thumbnail-container img {
+    width: 100%;
+    height: 100%; /* Make images fill the container height */
+    object-fit: cover; /* Maintain aspect ratio while covering the area */
+    position: absolute;
+    animation: fade 4s infinite; 
+  }
+  
+  @keyframes fade {
+    0% { opacity: 1; }
+    50% { opacity: 0.2; }
+    100% { opacity: 1; }
+  }
+
+  .search-bar {
+    margin-bottom: 20px; /* Add some space below the search bar */
+  }
+  
+  .search-bar input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  /* ... (Other styles for world title, subtitle, button, etc.) ... */

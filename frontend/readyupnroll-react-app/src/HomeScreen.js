@@ -82,7 +82,9 @@ function HomeScreen() {
               {/* More world list items */}
             </ul>
           </div>
+          <Link to="/JoinWorld">
           <button>Join A World</button>
+          </Link>
         </div>
       </div>
     </div>
