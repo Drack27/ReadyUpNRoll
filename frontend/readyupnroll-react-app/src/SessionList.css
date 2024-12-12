@@ -1,0 +1,10 @@
+.session-list {
+    /* Add any overall styling for the session list container */
+  }
+  
+  .session-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd; /* Example border */
+    border-radius: 5px;
+  }

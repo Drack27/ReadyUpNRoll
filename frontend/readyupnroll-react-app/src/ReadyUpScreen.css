@@ -1,0 +1,38 @@
+.ready-up-screen {
+    /* Overall layout and styling */
+  }
+  
+  .top-bar {
+    /* Top bar styling */
+  }
+  
+  .world-header {
+    /* Header styling */
+  }
+  
+  .availability-calendar {
+    /* Calendar styling */
+  }
+  
+  .session-lists {
+    /* Session lists styling */
+  }
+  
+  .world-details {
+    /* World details styling */
+  }
+  
+  .ready-up-button {
+    background-color: #007bff; /* Blue background color */
+    color: white;
+    padding: 20px 40px; /* Large padding */
+    font-size: 24px; /* Large font size */
+    border: none;
+    border-radius: 10px; /* Rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition on hover */
+  }
+  
+  .ready-up-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }

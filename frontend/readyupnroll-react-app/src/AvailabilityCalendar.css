@@ -1,0 +1,8 @@
+.availability-calendar {
+    /* Add any overall styling for the calendar container */
+  }
+  
+  .selected-date-tile {
+    background-color: #007bff; /* Example highlight color */
+    border-radius: 50%;
+  }

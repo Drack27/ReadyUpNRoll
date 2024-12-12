@@ -1,0 +1,32 @@
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f0f0f0; /* Example background color */
+  }
+  
+  .left-side {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo {
+    height: 40px; /* Adjust logo size as needed */
+    margin-right: 20px;
+  }
+  
+  .top-bar-button {
+    padding: 8px 12px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #ddd; /* Example button color */
+    cursor: pointer;
+  }
+  
+  .user-avatar {
+    width: 40px; /* Adjust avatar size as needed */
+    height: 40px;
+    border-radius: 50%;
+  }

@@ -9,6 +9,7 @@ import WorldDetailsPlayer from './WorldDetailsPlayer';
 import WorldDetailsGM from './WorldDetailsGM';
 import JoinWorld from './JoinWorld';
 import InvitePlayers from './InvitePlayers';
+import ReadyUpScreen from './ReadyUpScreen';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Route path="/WorldDetailsGM" element={<WorldDetailsGM />} />
       <Route path="/JoinWorld" element={<JoinWorld />} />
       <Route path="/InvitePlayers/:worldId" element={<InvitePlayers />} />
+      <Route path="/ReadyUpScreen" element={<ReadyUpScreen />} />
     </Routes>
   );
 }
