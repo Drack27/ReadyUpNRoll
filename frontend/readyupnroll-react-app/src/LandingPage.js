@@ -7,7 +7,7 @@ function LandingPage() {
       <div className="landing-page">
         <header className="landing-page-header">
           <h1>ReadyUp & Roll</h1>
-          <p className="tagline">Player-driven RPG scheduling</p>
+          <p className="tagline">Tabletop RPG scheduling</p>
         </header>
   
         <div className="button-container">
@@ -26,7 +26,7 @@ function LandingPage() {
         <div className="blurb-container">
           <h2 className="blurb-tag">How It Works</h2>
           <p>
-            GMs create worlds, and put in their availaiblity. Players join worlds, and put in their availability. Whenever the GM and enough players are available, a session is automatically booked! No more endless scheduling chats. Just more FRIGGIN GAMING.
+            GMs create worlds. Players join worlds. Everyone enters their availability. Whenever the GM and enough players are available, a session is automatically booked! No more endless scheduling chats. Just more FRIGGIN GAMING.
           </p>
         </div>
       </div>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import "./WorldDetails.css";
+import "./WorldDetailsPlayer.css";
 import logo from "./logo.svg";
  
 
-function WorldDetails() {
+function WorldDetailsPlayer() {
   const { worldId } = useParams(); // Get the worldId from the URL
   const navigate = useNavigate();
   const [worldData, setWorldData] = useState(null);
@@ -209,4 +209,4 @@ function WorldDetails() {
   );
 }
 
-export default WorldDetails;
+export default WorldDetailsPlayer;

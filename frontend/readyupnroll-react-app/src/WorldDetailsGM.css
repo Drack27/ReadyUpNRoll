@@ -1,0 +1,91 @@
+/* General Page Styling */
+.world-details-page {
+    font-family: sans-serif; /* Choose your preferred font */
+    margin: 0;
+    padding: 20px;
+  }
+  
+  /* Header Styling */
+  .world-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px; 
+    border-bottom: 1px solid #ccc; /* Add a subtle divider */
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo {
+    height: 80px; /* Adjust logo size as needed */
+    margin-right: 20px;
+  }
+  
+  .header-buttons button {
+    margin-left: 10px; /* Space between buttons */
+    padding: 8px 12px;
+    background-color: #eee; 
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .avatar {
+    height: 50px; /* Adjust avatar size as needed */
+    border-radius: 50%;
+  }
+  
+  /* World Details Content Styling */
+  .world-details-content {
+    margin-top: 20px;
+  }
+  
+  .world-details-content h1 {
+    text-align: left;
+  }
+  
+  .input-group {
+    margin-bottom: 15px;
+  }
+  
+  .input-group label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .input-group input,
+  .input-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; 
+  }
+  
+  /* ... (Styles for Visibility toggle, Image Gallery, etc.) ... */
+  
+  /* Animated Scrolling Gallery (Example) */
+  .thumbnail-gallery {
+    width: 300px; /* Adjust width as needed */
+    overflow-x: hidden;
+  }
+  
+  .thumbnail-gallery ul {
+    display: flex;
+    animation: scroll 10s linear infinite; /* Adjust timing as needed */
+  }
+  
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-100% + 300px)); } /* Adjust 300px to match gallery width */
+  }
+  
+  /* ... (Styles for Disclaimers, Player Count, Game Systems, etc.) ... */
+  
+  /* Button Styling */
+  .world-details-content button {
+    /* ... (Add your button styles here) ... */
+  }
