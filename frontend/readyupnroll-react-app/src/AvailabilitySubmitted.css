@@ -1,0 +1,33 @@
+.availability-submitted {
+    /* Overall layout and styling */
+    text-align: center; /* Center align content */
+  }
+  
+  .success-image {
+    /* Style the success image */
+    max-width: 500px; /* Adjust as needed */
+    margin: 20px auto;
+    display: block; /* Ensures image is centered */
+  }
+  
+  .session-lists-section {
+    /* Style the session lists section */
+    margin: 20px;
+  }
+  
+  .session-lists {
+    /* Style the session lists container */
+    display: flex; /* Arrange lists side-by-side */
+    justify-content: space-around;
+  }
+  
+  .return-button {
+    /* Style the return buttons */
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #007bff; /* Example button color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
