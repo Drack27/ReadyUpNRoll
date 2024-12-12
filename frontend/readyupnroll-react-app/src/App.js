@@ -11,6 +11,8 @@ import JoinWorld from './JoinWorld';
 import InvitePlayers from './InvitePlayers';
 import ReadyUpScreen from './ReadyUpScreen';
 import AvailabilitySubmitted from './AvailabilitySubmitted';
+import LeaveWorldConfirmation from './LeaveWorldConfirmation';
+import LeaveWorldSuccess from './LeaveWorldSuccess';
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
       <Route path="/InvitePlayers/:worldId" element={<InvitePlayers />} />
       <Route path="/ReadyUpScreen" element={<ReadyUpScreen />} />
       <Route path="/AvailabilitySubmitted" element={<AvailabilitySubmitted />} />
+      <Route path="/LeaveWorldConfirmation" element={<LeaveWorldConfirmation />} />
+      <Route path="/LeaveWorldSuccess" element={<LeaveWorldSuccess />} />
 
     </Routes>
   );

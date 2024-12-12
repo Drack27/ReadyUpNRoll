@@ -1,0 +1,46 @@
+.leave-world-confirmation {
+    /* Overall layout and styling */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Take up full viewport height */
+    text-align: center;
+  }
+  
+  .confirmation-header {
+    /* Style the header */
+    font-size: 3em; /* Example large font size */
+    margin-bottom: 20px;
+  }
+  
+  .confirmation-text {
+    /* Style the text */
+    font-size: 1.2em;
+    margin-bottom: 40px;
+  }
+  
+  .buttons {
+    /* Style the button container */
+    display: flex;
+  }
+  
+  .cancel-button, 
+  .leave-button {
+    /* Style the buttons */
+    padding: 15px 30px;
+    margin: 0 10px;
+    font-size: 1.1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .cancel-button {
+    background-color: #ddd; /* Example gray color */
+  }
+  
+  .leave-button {
+    background-color: #dc3545; /* Example red color */
+    color: white;
+  }
