@@ -163,9 +163,9 @@ function JoinWorld() {
             </div>
             <h3>{world.name}</h3>
             <p className="gm-subtitle">GM: {world.gmUsername}</p>
-            <Link to={`/world/${world.id}/join`}>
-                <button>View Details/Membership</button>
-            </Link>
+            <Link to={`/world/${world.id}`}> {/* Link to WorldDetails with world.id */}
+  <button>View Details/Membership</button>
+</Link>
             </div>
         ))}
         </div>

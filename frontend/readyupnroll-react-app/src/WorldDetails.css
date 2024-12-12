@@ -1,91 +1,85 @@
 /* General Page Styling */
 .world-details-page {
-    font-family: sans-serif; /* Choose your preferred font */
-    margin: 0;
-    padding: 20px;
-  }
-  
-  /* Header Styling */
-  .world-details-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 20px; 
-    border-bottom: 1px solid #ccc; /* Add a subtle divider */
-  }
-  
-  .header-left {
-    display: flex;
-    align-items: center;
-  }
-  
-  .logo {
-    height: 80px; /* Adjust logo size as needed */
-    margin-right: 20px;
-  }
-  
-  .header-buttons button {
-    margin-left: 10px; /* Space between buttons */
-    padding: 8px 12px;
-    background-color: #eee; 
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .avatar {
-    height: 50px; /* Adjust avatar size as needed */
-    border-radius: 50%;
-  }
-  
-  /* World Details Content Styling */
-  .world-details-content {
-    margin-top: 20px;
-  }
-  
-  .world-details-content h1 {
-    text-align: left;
-  }
-  
-  .input-group {
-    margin-bottom: 15px;
-  }
-  
-  .input-group label {
-    display: block;
-    margin-bottom: 5px;
-  }
-  
-  .input-group input,
-  .input-group textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box; 
-  }
-  
-  /* ... (Styles for Visibility toggle, Image Gallery, etc.) ... */
-  
-  /* Animated Scrolling Gallery (Example) */
-  .thumbnail-gallery {
-    width: 300px; /* Adjust width as needed */
-    overflow-x: hidden;
-  }
-  
-  .thumbnail-gallery ul {
-    display: flex;
-    animation: scroll 10s linear infinite; /* Adjust timing as needed */
-  }
-  
-  @keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(calc(-100% + 300px)); } /* Adjust 300px to match gallery width */
-  }
-  
-  /* ... (Styles for Disclaimers, Player Count, Game Systems, etc.) ... */
-  
-  /* Button Styling */
-  .world-details-content button {
-    /* ... (Add your button styles here) ... */
-  }
+  font-family: sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+/* Header Styling */
+.world-details-header {
+  /* ... (Same as before) ... */
+}
+
+/* World Details Content Styling */
+.world-details-content {
+  text-align: center; /* Center content by default */
+}
+
+.world-name-title {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+}
+
+.world-image-carousel {
+  /* ... (Add styles for your carousel/panorama) ... */
+  width: 100%; 
+  overflow-x: hidden; /* Hide horizontal overflow for scrolling */
+}
+
+.world-image-carousel img {
+  /* ... (Add styles for carousel images, including size and spacing) ... */
+  height: 300px; /* Example fixed height */
+  object-fit: cover;
+  margin-right: 10px; /* Example spacing */
+}
+
+.world-details-section {
+  text-align: left; /* Align details to the left */
+  margin-top: 20px;
+}
+
+.world-tagline {
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.world-description {
+  margin-bottom: 20px;
+}
+
+.world-details-section h3 {
+  margin-top: 15px;
+}
+
+.world-details-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+/* Calendar Styling */
+.world-calendar {
+  /* ... (Add styles for your calendar) ... */
+  margin-top: 20px;
+}
+
+/* Button Styling */
+.world-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center; /* Center buttons */
+  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+}
+
+.world-buttons button {
+  margin: 5px;
+  padding: 8px 12px;
+  background-color: #eee;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.world-buttons button:disabled {
+  background-color: #ccc; /* Gray out disabled buttons */
+  cursor: default;
+}

@@ -1,319 +1,209 @@
-import React, { useState, useEffect } from 'react';
-import './WorldDetails.css';
-import logo from './logo.svg';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import "./WorldDetails.css";
+import logo from "./logo.svg";
+ 
 
 function WorldDetails() {
+  const { worldId } = useParams(); // Get the worldId from the URL
   const navigate = useNavigate();
-  const { worldId } = useParams(); // Get worldId from URL if editing
+  const [worldData, setWorldData] = useState(null);
+  const [isPreview, setIsPreview] = useState(false); // New state for preview mode
+  const [userIsMember, setUserIsMember] = useState(false); // New state for membership
 
-  const [worldData, setWorldData] = useState({
-    name: '',
-    tagline: '',
-    description: '',
-    visibility: 'public', 
-    thumbnailImages: [],
-    disclaimers: '',
-    playersNeeded: 5,
-    requireAllPlayersForSessionZero: false,
-    gameSystems: [],
-    modules: [],
-  });
+ {/*
+          // Fetch world details based on worldId
+        const response = await fetch(`/api/worlds/${worldId}`);
+        const data = await response.json();
+        setWorldData(data);
+        */}
 
-  // Fetch existing world data if editing
+        useEffect(() => {
+          const fetchWorldData = async () => {
+            try {
+              // This is where you'll eventually fetch data from your API
+              // For now, we're using placeholder data:
+        
+              const placeholderWorld = {
+                id: 1,
+                name: "The Forgotten Realms",
+                tagline: "Adventure awaits in Faerûn!",
+                gmUsername: "DungeonMasterDan",
+                thumbnailImages: [
+                  "https://via.placeholder.com/300x200?text=Forgotten+Realms+1",
+                  "https://via.placeholder.com/300x200?text=Forgotten+Realms+2",
+                  "https://via.placeholder.com/300x200?text=Forgotten+Realms+3",
+                ],
+                description:
+                  "Welcome to the Forgotten Realms, a world of magic, mystery, and adventure! " +
+                  "Explore the vast continent of Faerûn, where ancient empires rise and fall, " +
+                  "dragons soar through the skies, and heroes are forged in the fires of conflict. " +
+                  "Join our campaign and create your own legend!",
+                gameSystems: [
+                  {
+                    title: "Dungeons & Dragons 5th Edition",
+                    description: "The latest edition of the world's most popular role-playing game."
+                  }
+                ],
+                modules: [
+                  {
+                    title: "Lost Mine of Phandelver",
+                    description: "A classic introductory adventure for new players."
+                  },
+                  {
+                    title: "Curse of Strahd",
+                    description: "A gothic horror adventure in the domain of the vampire Strahd von Zarovich."
+                  }
+                ],
+                players: [
+                  { username: "AellaTheArcher" },
+                  { username: "BardicInspiration" },
+                  { username: "GrognakTheBarbarian" },
+                ],
+              };
+        
+              setWorldData(placeholderWorld); // Set the world data in state
+        
+              // Check if the user is a member of this world (replace with your actual logic)
+              const isMember = await checkUserMembership(worldId);
+              setUserIsMember(isMember);
+        
+            } catch (error) {
+              console.error("Error fetching world data:", error);
+              // Handle error (e.g., show an error message)
+            }
+          };
+        
+          fetchWorldData();
+        }, [worldId]); // Run the effect whenever worldId changes
+
+  // Placeholder for checking user membership
+  const checkUserMembership = async (worldId) => {
+    // Replace with your actual logic to check if the current user
+    // is a member of the world with the given worldId.
+    // This might involve an API call to your backend.
+    // For now, let's simulate it with a random value:
+    return Math.random() < 0.5; // 50% chance of being a member
+  };
+
+  // Check if the component is rendered in preview mode
   useEffect(() => {
-    const fetchWorldData = async () => {
-      if (worldId) {
-        try {
-          const response = await fetch(`/api/worlds/${worldId}`);
-          const data = await response.json();
-          setWorldData(data);
-        } catch (error) {
-          console.error('Error fetching world data:', error);
-          // Handle error (e.g., show an error message)
-        }
-      }
-    };
+    const queryParams = new URLSearchParams(window.location.search);
+    setIsPreview(queryParams.get("preview") === "true");
+  }, []);
 
-    fetchWorldData();
-  }, [worldId]);
-
-  const handleInputChange = (event) => {
-    const { name, value, type, checked } = event.target;
-    setWorldData({
-      ...worldData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
-  };
-
-  const handleImageAdd = (newImage) => {
-    setWorldData({
-      ...worldData,
-      thumbnailImages: [...worldData.thumbnailImages, newImage],
-    });
-  };
-
-  const handleGameSystemAdd = (newSystem) => {
-    setWorldData({
-      ...worldData,
-      gameSystems: [...worldData.gameSystems, newSystem],
-    });
-  };
-
-  const handleModuleAdd = (newModule) => {
-    setWorldData({
-      ...worldData,
-      modules: [...worldData.modules, newModule],
-    });
-  };
-
-  const handleRemoveItem = (list, index) => {
-    setWorldData({
-      ...worldData,
-      [list]: worldData[list].filter((_, i) => i !== index),
-    });
-  };
-
-  const handleCancel = () => {
-    navigate('/'); // Go back to home screen
-  };
-
-  const handlePreview = () => {
-    // Implement preview functionality (e.g., open a modal or new tab)
-  };
-
-  const handleFinish = async () => {
-    try {
-      const response = await fetch('/api/worlds', { 
-        method: worldId ? 'PUT' : 'POST', // PUT for edit, POST for create
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(worldData),
-      });
-
-      if (response.ok) {
-        navigate('/'); // Go back to home screen after successful save
-      } else {
-        // Handle error (e.g., show an error message)
-      }
-    } catch (error) {
-      console.error('Error saving world data:', error);
-      // Handle error
-    }
-  };
+  if (!worldData) {
+    return <div>Loading...</div>; // Or a more informative loading state
+  }
 
   return (
     <div className="world-details-page">
       {/* Header */}
       <header className="world-details-header">
-        <div className="header-left">
-          <img src={logo} alt="ReadyUp & Roll Logo" className="logo" />
-          <div className="header-buttons">
-            <Link to="/settings">
-              <button>Settings</button>
-            </Link>
-            <button>Log Out</button>
-            <button onClick={handleCancel}>Return to Home Screen</button>
-          </div>
-        </div>
-        <div className="header-right">
-          <img src="avatar.png" alt="User Avatar" className="avatar" />
-        </div>
+        {/* ... (same as before) ... */}
       </header>
 
       {/* World Details Content */}
       <div className="world-details-content">
-        <h1>World Details</h1>
+        {/* World Name Title */}
+        <h1 className="world-name-title">{worldData.name}</h1>
 
-{/* ... inside world-details-content ... */}
+        {/* Image Carousel/Panorama */}
+        <div className="world-image-carousel">
+          {/* Implement your image carousel/panorama here */}
+          {worldData.thumbnailImages.map((image, index) => (
+            <img
+              key={index}
+              src={image}
+              alt={`${worldData.name} thumbnail ${index + 1}`}
+            />
+          ))}
+        </div>
 
-{/* Name */}
-<div className="input-group">
-  <label htmlFor="name">Name:</label>
-  <input
-    type="text"
-    id="name"
-    name="name"
-    maxLength="15"
-    placeholder="My Cool RPG Setting"
-    value={worldData.name}
-    onChange={handleInputChange}
-  />
-</div>
+        {/* World Details */}
+        <div className="world-details-section">
+          <h2>{worldData.name}</h2>
+          <p className="world-tagline">{worldData.tagline}</p>
+          <p className="world-description">{worldData.description}</p>
 
-{/* Tagline */}
-<div className="input-group">
-  <label htmlFor="tagline">Descriptive Tagline:</label>
-  <input
-    type="text"
-    id="tagline"
-    name="tagline"
-    maxLength="30"
-    placeholder="The realm where cool people go"
-    value={worldData.tagline}
-    onChange={handleInputChange}
-  />
-</div>
+          {/* Game Systems */}
+          <h3>Game System(s):</h3>
+          <ul>
+            {worldData.gameSystems.map((system, index) => (
+              <li key={index}>{system.title}</li>
+            ))}
+          </ul>
 
-{/* Description */}
-<div className="input-group">
-  <label htmlFor="description">Description:</label>
-  <textarea
-    id="description"
-    name="description"
-    value={worldData.description}
-    onChange={handleInputChange}
-  />
-</div>
+          {/* Modules */}
+          <h3>Module(s):</h3>
+          <ul>
+            {worldData.modules.map((module, index) => (
+              <li key={index}>{module.title}</li>
+            ))}
+          </ul>
 
-{/* Visibility */}
-<div className="input-group">
-  <label htmlFor="visibility">Visibility:</label>
-  <div> {/* Use a div to wrap the radio buttons */}
-    <label>
-      <input
-        type="radio"
-        id="visibility-public"
-        name="visibility"
-        value="public"
-        checked={worldData.visibility === 'public'}
-        onChange={handleInputChange}
-      />
-      Public (anyone can find and join your World)
-    </label>
-    <br /> {/* Add a line break for better readability */}
-    <label>
-      <input
-        type="radio"
-        id="visibility-private"
-        name="visibility"
-        value="private"
-        checked={worldData.visibility === 'private'}
-        onChange={handleInputChange}
-      />
-      Private (you have to invite players to join)
-    </label>
-  </div>
-</div>
+          {/* GM and Player Info */}
+          <p>GM: {worldData.gmUsername}</p>
+          <p>Current Players: {worldData.players.length}</p>
+          <h3>Players:</h3>
+          <ul>
+            {worldData.players.map((player, index) => (
+              <li key={index}>{player.username}</li> // Assuming you have a player object with a username property
+            ))}
+          </ul>
+        </div>
 
-{/* Thumbnail Images */}
-<div className="input-group">
-  <label htmlFor="thumbnailImages">Add Thumbnail Images:</label>
-  <input
-    type="file"
-    id="thumbnailImages"
-    name="thumbnailImages"
-    multiple // Allow multiple file selection
-    accept="image/*" // Accept only image files
-    onChange={(e) => {
-      // Handle image uploads and update worldData.thumbnailImages
-      // (Implementation will depend on your image handling logic)
-      // Example:
-      // Array.from(e.target.files).forEach(file => {
-      //   const reader = new FileReader();
-      //   reader.onload = () => handleImageAdd(reader.result);
-      //   reader.readAsDataURL(file);
-      // });
-    }}
-  />
-  <div className="thumbnail-gallery">
-    <ul>
-      {worldData.thumbnailImages.map((image, index) => (
-        <li key={index}>
-          <img src={image} alt={`Thumbnail ${index + 1}`} />
-        </li>
-      ))}
-    </ul>
-  </div>
-</div>
+        {/* Calendar */}
+        <div className="world-calendar">
+          {/* Implement or replace with your calendar component */}
+          <p>Calendar Placeholder</p>
+        </div>
 
-{/* Disclaimers */}
-<div className="input-group">
-  <label htmlFor="disclaimers">
-    Disclaimers, Expectations, Ground Rules, Lines & Veils, etc.:
-  </label>
-  <textarea
-    id="disclaimers"
-    name="disclaimers"
-    value={worldData.disclaimers}
-    onChange={handleInputChange}
-  />
-</div>
+        {/* Buttons */}
+        <div className="world-buttons">
+          {/* Back to World Menu button */}
+          {!isPreview && (
+            <button onClick={() => navigate("/join-world")}>
+              Back to World Menu
+            </button>
+          )}
+          {isPreview && (
+            <button disabled>
+              Back to World Menu
+            </button>
+          )}
 
-{/* Number of Players Needed */}
-<div className="input-group">
-  <label htmlFor="playersNeeded">
-    Number of players needed to book a session:
-  </label>
-  <input
-    type="range"
-    id="playersNeeded"
-    name="playersNeeded"
-    min="1"
-    max="10"
-    value={worldData.playersNeeded}
-    onChange={handleInputChange}
-  />
-  <span>{worldData.playersNeeded}</span> {/* Display the selected value */}
-</div>
+          {/* Join This World button */}
+          {!isPreview && !userIsMember && (
+            <button onClick={() => {/* Handle join world logic */}}>
+              Join This World
+            </button>
+          )}
+          {isPreview && (
+            <button disabled>
+              Join This World
+            </button>
+          )}
 
-{/* Require All Players for Session Zero */}
-<div className="input-group">
-  <label>
-    <input
-      type="checkbox"
-      name="requireAllPlayersForSessionZero"
-      checked={worldData.requireAllPlayersForSessionZero}
-      onChange={handleInputChange}
-    />
-    Require all players for session zero?
-  </label>
-</div>
+          {/* Enter Availability / Leave This World buttons */}
+          {userIsMember && (
+            <>
+              <button onClick={() => {/* Handle enter availability logic */}}>
+                Enter Availability
+              </button>
+              <button onClick={() => {/* Handle leave world logic */}}>
+                Leave This World
+              </button>
+            </>
+          )}
 
-{/* Playable Game Systems */}
-<div className="input-group">
-  <h2>Playable Game System(s) In this World</h2>
-  <button onClick={() => {/* Open "Add Game System" dialog */}}>
-    Add Game System
-  </button>
-  <ul>
-    {worldData.gameSystems.map((system, index) => (
-      <li key={index}>
-        <h3>{system.title}</h3>
-        <p>{system.description}</p>
-        <button onClick={() => handleRemoveItem('gameSystems', index)}>
-          Remove
-        </button>
-      </li>
-    ))}
-  </ul>
-</div>
-
-{/* Modules */}
-<div className="input-group">
-  <h2>Module(s) in this World</h2>
-  <button onClick={() => {/* Open "Add Module" dialog */}}>
-    Add Module
-  </button>
-  <ul>
-    {worldData.modules.map((module, index) => (
-      <li key={index}>
-        <h3>{module.title}</h3>
-        <p>{module.description}</p>
-        <button onClick={() => handleRemoveItem('modules', index)}>
-          Remove
-        </button>
-      </li>
-    ))}
-  </ul>
-</div>
-
-{/* Buttons */}
-<div className="button-group">
-  <button onClick={handleCancel}>Cancel</button>
-  <button onClick={handlePreview}>Preview Players' View</button>
-  <button onClick={handleFinish}>Finish</button>
-</div>
-
+          {/* Exit Preview button */}
+          {isPreview && (
+            <button onClick={() => {/* Handle exit preview logic */}}>
+              Exit Preview
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
