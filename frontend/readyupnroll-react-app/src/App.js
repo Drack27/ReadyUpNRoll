@@ -8,6 +8,7 @@ import AccountCreationSuccess from './AccountCreationSuccess';
 import WorldDetailsPlayer from './WorldDetailsPlayer';
 import WorldDetailsGM from './WorldDetailsGM';
 import JoinWorld from './JoinWorld';
+import InvitePlayers from './InvitePlayers';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Route path="/WorldDetailsPlayer" element={<WorldDetailsPlayer />} />
       <Route path="/WorldDetailsGM" element={<WorldDetailsGM />} />
       <Route path="/JoinWorld" element={<JoinWorld />} />
+      <Route path="/InvitePlayers/:worldId" element={<InvitePlayers />} />
     </Routes>
   );
 }

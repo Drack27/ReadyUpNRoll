@@ -1,0 +1,43 @@
+/* General Page Styling */
+.invite-players-page {
+    /* ... (Similar to other pages) ... */
+  }
+  
+  /* Header Styling */
+  .invite-players-header {
+    /* ... (Same as before) ... */
+  }
+  
+  /* Invite Players Content Styling */
+  .invite-players-content {
+    /* ... (Add your content styles) ... */
+  }
+  
+  .invite-code-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .invite-code-list li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Style codes based on status */
+  .invite-code-list li.active {
+    background-color: #e0f0e0; /* Light green for active */
+  }
+  
+  .invite-code-list li.expired {
+    background-color: #f0e0e0; /* Light red for expired */
+    text-decoration: line-through;
+  }
+  
+  .invite-code-list li .code {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  /* ... (Add more styles for countdown, status, etc.) ... */
