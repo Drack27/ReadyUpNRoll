@@ -1,0 +1,28 @@
+/* You can mostly reuse LeaveWorldConfirmation.css, 
+   but add some specific styles for this component */
+
+   .ground-rules-acceptance {
+    /* Overall layout */
+  }
+  
+  .ground-rules-text {
+    /* Style the ground rules text area */
+    width: 80%; /* Adjust width as needed */
+    height: 300px; /* Adjust height as needed */
+    overflow-y: auto; /* Add vertical scrollbar */
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    padding: 10px;
+  }
+  
+  .join-button {
+    /* Style the "Lemme join!" button */
+    background-color: #28a745; /* Green color */
+    color: white;
+  }
+  
+  .join-button:disabled {
+    /* Style the button when disabled */
+    background-color: #ccc; /* Grayed out color */
+    cursor: not-allowed;
+  }
