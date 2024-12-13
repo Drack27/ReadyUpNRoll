@@ -57,12 +57,6 @@ function SettingsScreen() {
               <span className="info-visibility">Public (cannot be changed)</span>
             </div>
             <div className="info-item">
-              <span className="info-label">Real Name:</span>
-              <span className="info-value">[realname]</span>
-              <span className="info-visibility">
-                {/* Replace with actual visibility */}
-                [Private/Public/REALLY Private]
-              </span>
             </div>
             <div className="info-item">
               <span className="info-label">Email:</span>
