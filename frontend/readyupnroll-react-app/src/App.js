@@ -14,6 +14,7 @@ import AvailabilitySubmitted from './AvailabilitySubmitted';
 import LeaveWorldConfirmation from './LeaveWorldConfirmation';
 import LeaveWorldSuccess from './LeaveWorldSuccess';
 import GroundRulesAcceptance from './GroundRulesAcceptance';
+import JoinWorldSuccess from './JoinWorldSuccess';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
       <Route path="/LeaveWorldConfirmation" element={<LeaveWorldConfirmation />} />
       <Route path="/LeaveWorldSuccess" element={<LeaveWorldSuccess />} />
       <Route path="/GroundRulesAcceptance" element={<GroundRulesAcceptance />} />
+      <Route path="/JoinWorldSuccess" element={<JoinWorldSuccess />} />
 
     </Routes>
   );

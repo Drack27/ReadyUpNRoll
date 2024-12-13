@@ -1,0 +1,23 @@
+.join-world-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+  }
+  
+  .adventure-button {
+    background-color: #28a745; /* Green background color */
+    color: white;
+    padding: 20px 40px;
+    font-size: 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .adventure-button:hover {
+    background-color: #218838; /* Darker green on hover */
+  }
