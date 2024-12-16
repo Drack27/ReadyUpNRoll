@@ -4,7 +4,8 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = 3000; 
+//  Get the port from the command line arguments, or use 3000 as the default
+const port = process.argv[2] || 3000; 
 
 // Connect to the SQLite database
 const db = new sqlite3.Database('./readyupandroll.db');

@@ -29,7 +29,7 @@ function SignupPage() {
     console.log('Password:', password);
   
     try {
-      const response = await fetch('/api/users', { // Send a POST request to your backend API
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users`, { // Send a POST request to backend API, using .env variable in .env.development
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
