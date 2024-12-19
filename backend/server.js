@@ -2,6 +2,7 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
+const cors = require('cors');
 
 const app = express();
 //  Get the port from the command line arguments, or use 3000 as the default
@@ -27,6 +28,23 @@ db.serialize(() => {
 
   console.log('Database schema initialized');
 });
+
+// CORS configuration (place this before your API routes)
+const allowedOrigins = ['http://localhost:3000']; // Replace with your frontend's URL in production
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+  })
+);
+
+app.options('*', cors()); // Handle preflight requests
 
 // Example API route
 app.get('/', (req, res) => {
