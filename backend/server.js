@@ -6,7 +6,6 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken'); // Import jsonwebtoken for JWTs
 
 const app = express();
-//  Get the port from the command line arguments, or use 3000 as the default
 const port = process.argv[2] || 3000; 
 
 // Connect to the SQLite database
@@ -20,18 +19,16 @@ db.serialize(() => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT UNIQUE NOT NULL,
       username TEXT UNIQUE NOT NULL,
-      password TEXT   
- NOT NULL
+      password TEXT NOT NULL
     )
   `);
 
-  // Create   other tables as needed (e.g., gms, campaigns, sessions)
-
+  // Create other tables as needed (e.g., gms, campaigns, sessions)
   console.log('Database schema initialized');
 });
 
-// CORS configuration (place this before your API routes)
-const allowedOrigins = ['http://localhost:3000']; // Replace with your frontend's URL in production
+// CORS configuration 
+const allowedOrigins = ['http://localhost:3000']; 
 
 app.use(
   cors({
@@ -47,9 +44,12 @@ app.use(
 
 app.options('*', cors()); // Handle preflight requests
 
+app.use(bodyParser.json()); 
+
 // Login route
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
+  const errors = []; 
 
   try {
     const user = await new Promise((resolve, reject) => {
@@ -63,12 +63,16 @@ app.post('/api/login', async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      errors.push('Incorrect username/email.'); 
+    } else {
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) {
+        errors.push('Incorrect password.'); 
+      }
     }
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    if (errors.length > 0) {
+      return res.status(401).json({ errors }); 
     }
 
     // Generate a JWT (replace 'your-secret-key' with a strong secret)
@@ -90,39 +94,36 @@ app.listen(port, () => {
   console.log(`Backend server listening on port ${port}`);
 });
 
-app.use(bodyParser.json()); // This will parse JSON request bodies
-
 app.post('/api/users', async (req, res) => {
-    console.log('Recieved signup request:', req.body); //Log the request
-    const { email, username, password } = req.body;
-  
-    try {
-      // 1. Data validation and sanitization
-      if (!email || !username || !password) {
-        return res.status(400).json({ message: 'Missing required fields' });
-      }
-  
-      // Basic email validation (you might want more robust validation)
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return res.status(400).json({ message: 'Invalid email format' });
-      }
-  
-      // ... other validation checks for username, password, etc. ...
-  
-      // 2. Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-  
-      // 3. Insert user data into the database
-      const stmt = db.prepare(
-        'INSERT INTO users (email, username, password) VALUES (?, ?, ?)'
-      );
-      await stmt.run(email, username, hashedPassword);
-      stmt.finalize();
-  
-      res.status(201).json({ message: 'User created successfully' });
-    } catch (error) {
-      console.error('Error creating user:', error);
-      res.status(500).json({ message:   
-   'Failed to create user' });
+  console.log('Recieved signup request:', req.body); 
+  const { email, username, password } = req.body;
+
+  try {
+    // 1. Data validation and sanitization
+    if (!email || !username || !password) {
+      return res.status(400).json({ message: 'Missing required fields' });
     }
-  });
+
+    // Basic email validation 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
+    // ... other validation checks for username, password, etc. ...
+
+    // 2. Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 3. Insert user data into the database
+    const stmt = db.prepare(
+      'INSERT INTO users (email, username, password) VALUES (?, ?, ?)'
+    );
+    await stmt.run(email, username, hashedPassword);
+    stmt.finalize();
+
+    res.status(201).json({ message: 'User created successfully' });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: 'Failed to create user' });
+  }
+});

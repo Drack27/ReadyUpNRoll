@@ -25,19 +25,21 @@ function LoginPage() {
         body: JSON.stringify({ email, password }), // Send email and password
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
+      const data = await response.json(); // Read the response only once
 
-      const data = await response.json();
-      const token = data.token;
+      if (!response.ok) {
+        // Display the errors from the response
+        setError(data.errors.join(' ')); 
+        return; // Stop further execution
+      }
+    
+      const token = data.token; // Now data is defined in this scope
 
       // Store the JWT (e.g., in local storage)
       localStorage.setItem('token', token);
 
       // Redirect to a protected page (e.g., the home page)
-      navigate('/'); 
+      navigate('/home'); 
     } catch (error) {
       setError(error.message);
     }
