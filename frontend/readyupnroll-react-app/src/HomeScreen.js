@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './HomeScreen.css'; 
 import logo from './logo.svg'; 
 import { Link } from 'react-router-dom';
+import LogoutButton from './LogoutButton';
 
 function HomeScreen() {
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'gallery'
@@ -19,7 +20,7 @@ function HomeScreen() {
             <Link to="/settings">
               <button>Settings</button>
             </Link>
-            <button>Log Out</button>
+            <LogoutButton />
           </div>
         </div>
 
