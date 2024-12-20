@@ -19,10 +19,12 @@ function LoginPage() {
     setError(null);
 
     try {
+      console.log('Request body:', { email: email, username: email, password: password }); // Log the request body with email and username
+    
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }), // Send email and password
+        body: JSON.stringify({ email: email, username: email, password: password }), // Send email and password as both email and username
       });
 
       const data = await response.json(); // Read the response only once

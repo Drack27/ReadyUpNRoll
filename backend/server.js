@@ -48,22 +48,27 @@ app.use(bodyParser.json());
 
 // Login route
 app.post('/api/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, username, password } = req.body;
   const errors = []; 
 
   try {
     const user = await new Promise((resolve, reject) => {
-      db.get('SELECT * FROM users WHERE email = ?', [email], (err, row) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(row);
+      // Use a query that checks for either email or username
+      db.get(
+        'SELECT * FROM users WHERE email = ? OR username = ?',
+        [email, username], // Use email for both parameters since the frontend sends it as 'email'
+        (err, row) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(row);
+          }
         }
-      });
+      );
     });
 
     if (!user) {
-      errors.push('Incorrect username/email.'); 
+      errors.push('Incorrect email or username.'); 
     } else {
       const match = await bcrypt.compare(password, user.password);
       if (!match) {
