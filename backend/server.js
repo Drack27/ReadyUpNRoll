@@ -3,6 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const jwt = require('jsonwebtoken'); // Import jsonwebtoken for JWTs
 
 const app = express();
 //  Get the port from the command line arguments, or use 3000 as the default
@@ -45,6 +46,40 @@ app.use(
 );
 
 app.options('*', cors()); // Handle preflight requests
+
+// Login route
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM users WHERE email = ?', [email], (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row);
+        }
+      });
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate a JWT (replace 'your-secret-key' with a strong secret)
+    const token = jwt.sign({ userId: user.id }, 'your-secret-key'); 
+
+    res.json({ token });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ message: 'Login failed' });
+  }
+});
 
 // Example API route
 app.get('/', (req, res) => {

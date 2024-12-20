@@ -1,13 +1,46 @@
 import './LoginPage.css'; 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import megamind from './Megamind.png';
 
 function LoginPage() {
+  const [email, setEmail] = useState(''); // Add state for email/username
+  const [password, setPassword] = useState(''); // Add state for password
+  const [error, setError] = useState(null); // Add state for error messages
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent default form submission
+    setError(null);
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }), // Send email and password
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const data = await response.json();
+      const token = data.token;
+
+      // Store the JWT (e.g., in local storage)
+      localStorage.setItem('token', token);
+
+      // Redirect to a protected page (e.g., the home page)
+      navigate('/'); 
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   return (
@@ -15,49 +48,56 @@ function LoginPage() {
       <header className="login-page-header">
         <h1>Welcome to ReadyUp & Roll!</h1>
       </header>
-
-      <div className="login-content"> {/* Added a container for flexbox */}
-        <div className="login-form"> {/* Left side */}
-          <div className="input-group">
-            <label htmlFor="email">
-              Who the heck are ye? <br /> (Email or Username)
-            </label>
-            <input
-              type="text"
-              id="email"
-              placeholder="I.E. coolguy@gmail.com"
-            />
-          </div>
-
-          <div className="input-group">
-            <label htmlFor="password">
-              What's the magic word? <br /> (Password)
-            </label>
-            <div className="password-field">
+  
+      <div className="login-content">
+        <div className="login-form">
+          <form onSubmit={handleSubmit}>
+            <div className="input-group">
+              <label htmlFor="email">
+                Who the heck are ye? <br /> (Email or Username)
+              </label>
               <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                placeholder="I.E. DiceD@wg27"
+                type="text"
+                id="email"
+                placeholder="I.E. coolguy@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
-              <button
-                type="button"
-                className="show-password-button"
-                onClick={togglePasswordVisibility}
-              >
-                {showPassword ? 'Hide' : 'Show'}
-              </button>
             </div>
-          </div>
-
-          <button type="submit" className="submit-button">
-            LEMME IN
-          </button>
-        </div> 
-
-        <div className="signup-section"> {/* Right side */}
+  
+            <div className="input-group">
+              <label htmlFor="password">
+                What's the magic word? <br /> (Password)
+              </label>
+              <div className="password-field">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  placeholder="I.E. DiceD@wg27"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="show-password-button"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+            </div>
+  
+            <button type="submit" className="submit-button">
+              LEMME IN
+            </button>
+            {error && <div className="error">{error}</div>}
+          </form>
+        </div>
+  
+        <div className="signup-section">
           <h2>No Account?</h2>
-          <img src={megamind} alt="Signup Illustration" className="signup-image" /> 
-          <Link to="/signup" className="signup-button">Sign Up</Link> 
+          <img src={megamind} alt="Signup Illustration" className="signup-image" />
+          <Link to="/signup" className="signup-button">Sign Up</Link>
         </div>
       </div>
     </div>
