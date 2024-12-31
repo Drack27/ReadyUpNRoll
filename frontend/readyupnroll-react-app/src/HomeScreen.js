@@ -1,40 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import './HomeScreen.css'; 
 import logo from './logo.svg'; 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import LogoutButton from './LogoutButton';
 
 function HomeScreen() {
+  console.log("homescreen rendered");
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'gallery'
   const [username, setUsername] = useState('');
+  const navigate = useNavigate(); // Initialize useNavigate
+
 
   useEffect(() => {
     const fetchUsername = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        console.log('Token in HomeScreen:', token); // Log the token
-        try {
-          const response = await fetch('/api/me', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          console.log('Response from /api/me:', response); // Log the response object
-          if (response.ok) {
-            const data = await response.json();
-            console.log('Data from /api/me:', data); //Log the response body (data)
-            setUsername(data.username);
-          } else {
-            console.error('Failed to fetch username:', response.status);
-            // Optionally handle the error, e.g., redirect to login
+      if (!username) { // Only fetch if username is not already set
+        const token = localStorage.getItem('token');
+        if (token) {
+          console.log('Token in HomeScreen:', token);
+          try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            console.log('Response from /api/me:', response);
+            if (response.ok) {
+              const data = await response.json();
+              console.log('Data from /api/me:', data);
+              setUsername(data.username);
+            } else {
+              console.error('Failed to fetch username:', response.status);
+              navigate('/login');
+            }
+          } catch (error) {
+            console.error('Error fetching username:', error);
           }
-        } catch (error) {
-          console.error('Error fetching username:', error);
         }
       }
     };
-
-
+  
     fetchUsername();
-  }, []); // Empty dependency array ensures this runs once when the component mounts
+  }, [username]); // Dependency array now includes 'username'
+  
 
   const handleViewModeChange = (mode) => {
     setViewMode(mode);

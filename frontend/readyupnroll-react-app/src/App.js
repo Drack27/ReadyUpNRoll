@@ -15,19 +15,15 @@ import LeaveWorldConfirmation from './LeaveWorldConfirmation';
 import LeaveWorldSuccess from './LeaveWorldSuccess';
 import GroundRulesAcceptance from './GroundRulesAcceptance';
 import JoinWorldSuccess from './JoinWorldSuccess';
-import ProtectedRoute from './ProtectedRoute'; // Import your ProtectedRoute component
 
 function App() {
+  console.log("Ihavenofriggingideawhatishappeninganymore");
   return (
     <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
-      <Route path="/AccountCreationSuccess" element={<AccountCreationSuccess />} />
-
-      {/* Protected routes */}
-      <Route element={<ProtectedRoute />}> {/* Wrap protected routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/AccountCreationSuccess" element={<AccountCreationSuccess />} />
         <Route path="/home" element={<HomeScreen />} />
         <Route path="/settings" element={<SettingsScreen />} />
         <Route path="/WorldDetailsPlayer" element={<WorldDetailsPlayer />} />
@@ -40,7 +36,6 @@ function App() {
         <Route path="/LeaveWorldSuccess" element={<LeaveWorldSuccess />} />
         <Route path="/GroundRulesAcceptance" element={<GroundRulesAcceptance />} />
         <Route path="/JoinWorldSuccess" element={<JoinWorldSuccess />} />
-      </Route>
     </Routes>
   );
 }

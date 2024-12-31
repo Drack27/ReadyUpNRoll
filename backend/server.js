@@ -2,15 +2,20 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
+const authMiddleware = require('./authMiddleware'); // Make sure this path is correct
 const cors = require('cors');
 const jwt = require('jsonwebtoken'); 
-const authMiddleware = require('./authMiddleware'); // Make sure this path is correct
 
+
+
+const corsOptions = require('./corsConfig');
 const app = express();
 const port = process.argv[2] || 3000; 
 
 // Connect to the SQLite database
 const db = new sqlite3.Database('./readyupandroll.db');
+
+app.use(cors(corsOptions));
 
 // Initialize the database schema (This could be in a separate file)
 db.serialize(() => {
@@ -25,29 +30,19 @@ db.serialize(() => {
   console.log('Database schema initialized');
 });
 
-// CORS configuration 
-const allowedOrigins = ['http://localhost:3000']; // Adjust if your frontend is on a different port/domain
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-  })
-);
-
-app.options('*', cors()); 
-
 app.use(bodyParser.json()); 
 
 // API route to get current user's data
 app.get('/api/me', authMiddleware, (req, res) => {
-  const username = req.user.username; 
-  res.json({ username: username }); 
+  try {
+    console.log('Route accessed at ' + new Date() + '\n');
+    console.log(req.user); 
+  const username = req.user.username;
+  res.json({ username: username });
+} catch (error) {
+  console.error('Error in /api/me:', error);
+  res.status(500).json({ error: 'Failed to fetch user data' });
+} 
 });
 
 // Login route
@@ -84,7 +79,7 @@ app.post('/api/login', async (req, res) => {
     }
 
     // Generate a JWT with username included
-    const token = jwt.sign({ userId: user.id, username: user.username }, 'your-secret-key'); 
+    const token = jwt.sign({ userId: user.id, username: user.username }, process.env.JWT_SECRET); 
 
     res.json({ token });
   } catch (error) {
