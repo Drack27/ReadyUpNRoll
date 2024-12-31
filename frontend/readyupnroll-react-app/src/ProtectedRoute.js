@@ -3,27 +3,32 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 function ProtectedRoute() {
+  const [isLoading, setIsLoading] = useState(true); // Add a loading state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  console.log("isLoggedIn:", isLoggedIn);
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkLoginStatus = () => {
-      const token = localStorage.getItem('token');
 
-      // *** Replace this with your actual JWT verification logic ***
-      // For this example, we're simply checking if a token exists
-      if (token) { 
-        setIsLoggedIn(true);
+  useEffect(() => {
+    const checkLoginStatus = async () => { // Make checkLoginStatus async
+      const token = localStorage.getItem('token');
+      if (token) {
+        // *** Perform your actual JWT verification here (if needed) ***
+        setIsLoggedIn(true); 
       } else {
         setIsLoggedIn(false);
-        navigate('/login'); // Redirect to login if not logged in
       }
+      setIsLoading(false); // Update loading state after the check
     };
-
     checkLoginStatus();
-  }, []); // Empty dependency array ensures this runs only once
+  }, []);
 
-  return isLoggedIn ? <Outlet /> : null; 
+  if (isLoading) {
+    return <div>Loading...</div>; // Show a loading indicator
+  }
+  console.log("isLoggedIn:", isLoggedIn);
+  return isLoggedIn ? <Outlet /> : navigate('/login'); // Redirect if not logged in
 }
 
 export default ProtectedRoute;

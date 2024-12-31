@@ -3,7 +3,8 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
-const jwt = require('jsonwebtoken'); // Import jsonwebtoken for JWTs
+const jwt = require('jsonwebtoken'); 
+const authMiddleware = require('./authMiddleware'); // Make sure this path is correct
 
 const app = express();
 const port = process.argv[2] || 3000; 
@@ -11,9 +12,8 @@ const port = process.argv[2] || 3000;
 // Connect to the SQLite database
 const db = new sqlite3.Database('./readyupandroll.db');
 
-// Initialize the database schema
+// Initialize the database schema (This could be in a separate file)
 db.serialize(() => {
-  // Create the users table
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,13 +22,11 @@ db.serialize(() => {
       password TEXT NOT NULL
     )
   `);
-
-  // Create other tables as needed (e.g., gms, campaigns, sessions)
   console.log('Database schema initialized');
 });
 
 // CORS configuration 
-const allowedOrigins = ['http://localhost:3000']; 
+const allowedOrigins = ['http://localhost:3000']; // Adjust if your frontend is on a different port/domain
 
 app.use(
   cors({
@@ -42,9 +40,15 @@ app.use(
   })
 );
 
-app.options('*', cors()); // Handle preflight requests
+app.options('*', cors()); 
 
 app.use(bodyParser.json()); 
+
+// API route to get current user's data
+app.get('/api/me', authMiddleware, (req, res) => {
+  const username = req.user.username; 
+  res.json({ username: username }); 
+});
 
 // Login route
 app.post('/api/login', async (req, res) => {
@@ -53,10 +57,9 @@ app.post('/api/login', async (req, res) => {
 
   try {
     const user = await new Promise((resolve, reject) => {
-      // Use a query that checks for either email or username
       db.get(
         'SELECT * FROM users WHERE email = ? OR username = ?',
-        [email, username], // Use email for both parameters since the frontend sends it as 'email'
+        [email, username], 
         (err, row) => {
           if (err) {
             reject(err);
@@ -80,8 +83,8 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ errors }); 
     }
 
-    // Generate a JWT (replace 'your-secret-key' with a strong secret)
-    const token = jwt.sign({ userId: user.id }, 'your-secret-key'); 
+    // Generate a JWT with username included
+    const token = jwt.sign({ userId: user.id, username: user.username }, 'your-secret-key'); 
 
     res.json({ token });
   } catch (error) {
@@ -89,6 +92,7 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ message: 'Login failed' });
   }
 });
+
 
 // Example API route
 app.get('/', (req, res) => {

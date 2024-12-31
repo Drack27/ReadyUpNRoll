@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './HomeScreen.css'; 
 import logo from './logo.svg'; 
 import { Link } from 'react-router-dom';
@@ -6,6 +6,35 @@ import LogoutButton from './LogoutButton';
 
 function HomeScreen() {
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'gallery'
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        console.log('Token in HomeScreen:', token); // Log the token
+        try {
+          const response = await fetch('/api/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          console.log('Response from /api/me:', response); // Log the response object
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Data from /api/me:', data); //Log the response body (data)
+            setUsername(data.username);
+          } else {
+            console.error('Failed to fetch username:', response.status);
+            // Optionally handle the error, e.g., redirect to login
+          }
+        } catch (error) {
+          console.error('Error fetching username:', error);
+        }
+      }
+    };
+
+
+    fetchUsername();
+  }, []); // Empty dependency array ensures this runs once when the component mounts
 
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
@@ -30,7 +59,7 @@ function HomeScreen() {
       </header>
 
       <h1 className="welcome-header">
-        Howdy, {/* Replace with actual username or 'Developer' */}! This is the Home Screen.
+      Howdy, {username || 'Guest'}! This is the Home Screen. 
       </h1>
 
       <div className="view-mode-toggle">
