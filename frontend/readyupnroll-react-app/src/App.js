@@ -15,27 +15,31 @@ import LeaveWorldConfirmation from './LeaveWorldConfirmation';
 import LeaveWorldSuccess from './LeaveWorldSuccess';
 import GroundRulesAcceptance from './GroundRulesAcceptance';
 import JoinWorldSuccess from './JoinWorldSuccess';
+import ProtectedRoute from './ProtectedRoute';
 
 function App() {
   console.log("Ihavenofriggingideawhatishappeninganymore");
   return (
     <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/AccountCreationSuccess" element={<AccountCreationSuccess />} />
-        <Route path="/home" element={<HomeScreen />} />
-        <Route path="/settings" element={<SettingsScreen />} />
-        <Route path="/WorldDetailsPlayer" element={<WorldDetailsPlayer />} />
-        <Route path="/WorldDetailsGM" element={<WorldDetailsGM />} />
-        <Route path="/JoinWorld" element={<JoinWorld />} />
-        <Route path="/InvitePlayers/:worldId" element={<InvitePlayers />} />
-        <Route path="/ReadyUpScreen" element={<ReadyUpScreen />} />
-        <Route path="/AvailabilitySubmitted" element={<AvailabilitySubmitted />} />
-        <Route path="/LeaveWorldConfirmation" element={<LeaveWorldConfirmation />} />
-        <Route path="/LeaveWorldSuccess" element={<LeaveWorldSuccess />} />
-        <Route path="/GroundRulesAcceptance" element={<GroundRulesAcceptance />} />
-        <Route path="/JoinWorldSuccess" element={<JoinWorldSuccess />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/AccountCreationSuccess" element={<AccountCreationSuccess />} />
+        
+        <Route element={<ProtectedRoute />}>
+          <Route path="/home" element={<HomeScreen />} />
+          <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="/WorldDetailsPlayer" element={<WorldDetailsPlayer />} />
+          <Route path="/WorldDetailsGM" element={<WorldDetailsGM />} />
+          <Route path="/JoinWorld" element={<JoinWorld />} />
+          <Route path="/InvitePlayers/:worldId" element={<InvitePlayers />} />
+          <Route path="/ReadyUpScreen" element={<ReadyUpScreen />} />
+          <Route path="/AvailabilitySubmitted" element={<AvailabilitySubmitted />} />
+          <Route path="/LeaveWorldConfirmation" element={<LeaveWorldConfirmation />} />
+          <Route path="/LeaveWorldSuccess" element={<LeaveWorldSuccess />} />
+          <Route path="/GroundRulesAcceptance" element={<GroundRulesAcceptance />} />
+          <Route path="/JoinWorldSuccess" element={<JoinWorldSuccess />} />
+        </Route>
     </Routes>
   );
 }
