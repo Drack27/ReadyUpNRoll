@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
-import './SignUp.css'; // Import your CSS file
-import { Link } from 'react-router-dom';
+import React, { useState, useRef } from 'react';
+import './SignUp.css';
+import { Link, useNavigate } from 'react-router-dom';
+import ProfileImageUpload from './ProfileImageUpload';
 
 function SignupPage() {
+  const [profileImage, setProfileImage] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);   
-
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword]   
- = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const imageInputRef = useRef(null); // Ref for the hidden file input
+
 
   function togglePasswordVisibility() {
     setShowPassword(!showPassword);
@@ -21,6 +24,10 @@ function SignupPage() {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
+  const handleProfileImageChange = (image) => {
+    setProfileImage(image);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
   
@@ -29,12 +36,23 @@ function SignupPage() {
     console.log('Password:', password);
   
     try {
+        // Create FormData and append fields
+        const formData = new FormData();
+        formData.append('email', email);
+        formData.append('username', username);
+        formData.append('password', password);
+        // Append the profile image if it exists
+
+            // Access the selected image file using the ref
+            // Had to do this because upload image button submitted the form if it was inside it for some reason
+        const imageFile = imageInputRef.current.files[0]; 
+        if (imageFile) {
+          formData.append('profileImage', imageFile); 
+}
+
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users`, { // Send a POST request to backend API, using .env variable in .env.development
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, username, password }),
+        body: formData, // Send formData as the body
       });
   
       if (password !== confirmPassword) {
@@ -46,7 +64,7 @@ function SignupPage() {
         // Account creation successful
         // Redirect to success page
         console.log("Account Created");
-        window.location.href = '/AccountCreationSuccess';
+        navigate('/AccountCreationSuccess');
       } else {
         // Account creation failed
         const errorData = await response.json();
@@ -65,6 +83,7 @@ function SignupPage() {
   
       <div className="signup-content">
         {/* Container for form and avatar */}
+        <ProfileImageUpload ref={imageInputRef} onImageChange={handleProfileImageChange}/> {/* Pass the ref to ProfileImageUpload */}
         <form className="signup-form" onSubmit={handleSubmit}>
           <div className="input-group">
             <label htmlFor="email">What's your email?</label>
@@ -134,26 +153,12 @@ function SignupPage() {
               </button>
             </div>
           </div>
-  
           <button type="submit" className="create-account-button">
             BRING ME INTO EXISTENCE! <br />
             (click to finish & create account)
           </button>
-          <Link to="/AccountCreationSuccess">
-          <button className="create-account-button">DEV PLACEHOLDER</button>
-          </Link>
         </form>
-  
-        <div className="avatar-container">
-          {/* Add your avatar display and upload functionality here */}
-          <img src="default-avatar.png" alt="Avatar" />{' '}
-          {/* Placeholder */}
-          <button>Upload Avatar</button>
-        </div>
       </div>
-  
-      {/* This button should be inside the form */}
-      {/* Removed this button, as it was a duplicate */}
     </div>
   );
 }

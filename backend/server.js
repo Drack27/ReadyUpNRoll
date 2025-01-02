@@ -1,48 +1,77 @@
+const db = require('./db');
+const path = require('path');
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
-const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const authMiddleware = require('./authMiddleware'); // Make sure this path is correct
+const authMiddleware = require('./authMiddleware'); 
 const cors = require('cors');
-const jwt = require('jsonwebtoken'); 
-
-
-
+const jwt = require('jsonwebtoken');
+const multer = require('multer');
 const corsOptions = require('./corsConfig');
 const app = express();
 const port = process.argv[2] || 3000; 
 
-// Connect to the SQLite database
-const db = new sqlite3.Database('./readyupandroll.db');
-
+console.log("Applying CORS options...");
 app.use(cors(corsOptions));
+console.log("Applying express.json & setting limit at 7mb...")
+app.use(express.json({ limit: '7mb' }));
 
-// Initialize the database schema (This could be in a separate file)
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      email TEXT UNIQUE NOT NULL,
-      username TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL
-    )
-  `);
-  console.log('Database schema initialized');
+// Configure multer for file uploads
+console.log("Configuring Multer...");
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
 });
 
-app.use(bodyParser.json()); 
+const upload = multer({ storage: storage }); // Make sure this is defined
+
+// Export the upload middleware
+module.exports.upload = upload; // Added this line to export upload
+
+const signupRoutes = require('./SignupRequestRecieved'); 
+
+
+// Initialize the database schema
+db.serialize(() => {
+    console.log("Initializing Database Schema...");
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            profileImage TEXT 
+        )
+    `);
+    console.log('Database schema initialized');
+});
+
+
+app.use('/api/users', signupRoutes); 
 
 // API route to get current user's data
 app.get('/api/me', authMiddleware, (req, res) => {
   try {
     console.log('Route accessed at ' + new Date() + '\n');
     console.log(req.user); 
-  const username = req.user.username;
-  res.json({ username: username });
-} catch (error) {
-  console.error('Error in /api/me:', error);
-  res.status(500).json({ error: 'Failed to fetch user data' });
-} 
+
+    // Assuming your user object has these properties
+    const { username, email, profileImage } = req.user; 
+
+    res.json({ 
+      username: username,
+      email: email,
+      profileImage: profileImage 
+    });
+
+  } catch (error) {
+    console.error('Error in /api/me:', error);
+    res.status(500).json({ error: 'Failed to fetch user data' });
+  } 
 });
 
 // Login route
@@ -97,37 +126,4 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Backend server listening on port ${port}`);
 });
-
-app.post('/api/users', async (req, res) => {
-  console.log('Recieved signup request:', req.body); 
-  const { email, username, password } = req.body;
-
-  try {
-    // 1. Data validation and sanitization
-    if (!email || !username || !password) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    // Basic email validation 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ message: 'Invalid email format' });
-    }
-
-    // ... other validation checks for username, password, etc. ...
-
-    // 2. Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 3. Insert user data into the database
-    const stmt = db.prepare(
-      'INSERT INTO users (email, username, password) VALUES (?, ?, ?)'
-    );
-    await stmt.run(email, username, hashedPassword);
-    stmt.finalize();
-
-    res.status(201).json({ message: 'User created successfully' });
-  } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).json({ message: 'Failed to create user' });
-  }
-});
+ 
