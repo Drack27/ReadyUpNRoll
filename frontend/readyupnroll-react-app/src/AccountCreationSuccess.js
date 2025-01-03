@@ -2,29 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
 
 function AccountCreationSuccess() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [profileImage, setProfileImage] = useState(''); // Assuming you have profile images
-  const navigate = useNavigate(); 
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [profileImage, setProfileImage] = useState(null); 
+    const navigate = useNavigate(); 
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const token = localStorage.getItem('token'); 
+            if (token) {
+                try {
+                    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
 
-          if (response.ok) {
-            const data = await response.json();
-            setUsername(data.username);
-            setEmail(data.email);
-            setProfileImage(data.profileImage); // Assuming your API sends profile image URL
+                    if (response.ok) {
+                        const data = await response.json();
+                        setUsername(data.username);
+                        setEmail(data.email);
+
+                        // Construct the image path
+                        const imagePath = `${process.env.REACT_APP_API_URL}/uploads/${data.profileImage}`;
+                        setProfileImage(imagePath); 
+
           } else {
             console.error('Failed to fetch user data:', response.status);
-            // Consider handling the error, maybe redirect to login or an error page
             navigate('/login'); 
           }
         } catch (error) {
@@ -36,10 +38,6 @@ function AccountCreationSuccess() {
 
     fetchUserData();
   }, [navigate]); // Add navigate to the dependency array
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
 
   return (
     <div>
@@ -61,15 +59,6 @@ function AccountCreationSuccess() {
         </p>
         <p>
           <strong>Email:</strong> <span className="email">{email}</span>
-        </p>
-        <p>
-          <strong>Password:</strong>{' '}
-          <span className="password">
-            {showPassword ? 'placeholder_password' : '********'} 
-          </span>
-          <button className="show-password" onClick={togglePasswordVisibility}>
-            {showPassword ? 'Hide' : 'Show'}
-          </button>
         </p>
       </main>
 
