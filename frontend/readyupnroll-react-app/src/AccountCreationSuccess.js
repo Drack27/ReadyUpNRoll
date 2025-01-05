@@ -7,6 +7,11 @@ function AccountCreationSuccess() {
     const [profileImage, setProfileImage] = useState(null); 
     const navigate = useNavigate(); 
 
+    const handleReturnToLogin = () => {
+      localStorage.removeItem('token'); // Clear the token from localStorage
+      navigate('/login');
+    };
+
     useEffect(() => {
         const fetchUserData = async () => {
             const token = localStorage.getItem('token'); 
@@ -63,7 +68,7 @@ function AccountCreationSuccess() {
       </main>
 
       <footer>
-        <Link to="/login" className="return-button">
+      <Link to="/login" className="return-button" onClick={handleReturnToLogin}> {/* Add onClick handler */}
           Return to Login
         </Link>
       </footer>

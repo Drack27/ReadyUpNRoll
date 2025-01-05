@@ -3,9 +3,12 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const db = require('./db');
 const upload = require('./server').upload;
+const fs = require('fs'); // Import the fs module for file deletion
+const jwt = require('jsonwebtoken'); // Make sure to import jsonwebtoken
 
 console.log("Hi from external route file!");
 console.log(upload);
+
 router.post('/', upload.single('profileImage'), async (req, res) => {
     console.log('Received signup request:', req.body);
     const { email, username, password } = req.body;
@@ -21,7 +24,9 @@ router.post('/', upload.single('profileImage'), async (req, res) => {
             return res.status(400).json({ message: 'Invalid email format' });
         }
 
-        // ... other validation checks for username, password, etc. ...
+        if (username.includes('@')) {
+            return res.status(400).json({ errors: ['Usernames cannot contain the "@" symbol'] }); 
+        }
 
         // 2. Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,18 +39,45 @@ router.post('/', upload.single('profileImage'), async (req, res) => {
         db.run(insertQuery, [email, username, hashedPassword, filename], function (err) {
             if (err) {
                 console.error(err.message);
-                if (err.code === 'SQLITE_CONSTRAINT') { // Example of database error handling
-                    if (err.message.includes('email')) {
-                        return res.status(409).json({ error: 'Email already exists' });
-                    } else if (err.message.includes('username')) {
-                        return res.status(409).json({ error: 'Username already exists' });
+                const errors = [];
+
+                if (err.code === 'SQLITE_CONSTRAINT') { 
+                    if (err.message.includes('users.email')) {
+                        errors.push('Email already exists'); 
+                    } else if (err.message.includes('users.username')) {
+                        errors.push('Username already exists'); 
                     }
+                } else {
+                    errors.push('Failed to create user'); 
                 }
-                return res.status(500).json({ error: 'Failed to create user' });
+
+                // If there was an error, delete the uploaded image
+                if (req.file) { 
+                    fs.unlink(req.file.path, (err) => {
+                        if (err) {
+                            console.error('Error deleting image:', err);
+                        } else {
+                            console.log('Image deleted successfully');
+                        }
+                    });
+                }
+
+                return res.status(409).json({ errors: errors }); 
             }
+
             console.log(`A row has been inserted with rowid ${this.lastID}`);
-            res.status(201).json({ message: 'User created successfully' });
-        });
+
+            // Generate the JWT token here 
+            const token = jwt.sign({ userId: this.lastID, username: username }, process.env.JWT_SECRET); 
+
+            // Send the token and other relevant data in the response
+            res.status(201).json({ 
+                message: 'User created successfully', 
+                token: token, 
+                username: username, 
+                email: email, 
+            });
+        }); 
 
     } catch (error) {
         console.error('Error creating user:', error);

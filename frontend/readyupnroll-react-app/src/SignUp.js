@@ -13,6 +13,11 @@ function SignupPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const imageInputRef = useRef(null); // Ref for the hidden file input
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const [errorMessage, setErrorMessage] = useState(null); // Add error message state
+  const [emailError, setEmailError] = useState(null); // Add state for email error
+  const [usernameError, setUsernameError] = useState(null); // Add state for username error
+
 
 
   function togglePasswordVisibility() {
@@ -30,11 +35,37 @@ function SignupPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+    setIsLoading(true); // Show loading symbol
+    setErrorMessage(null); // Clear any previous error messages
     console.log('Email:', email);
     console.log('Username:', username);
     console.log('Password:', password);
   
+      // 1. Perform frontend validation
+      let isValid = true;
+
+      if (!email || !username || !password) {
+          setErrorMessage('Missing required fields');
+          isValid = false;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          setEmailError(`Email formatted incorrectly`);
+          isValid = false;
+      }
+
+      if (username.includes('@')) {
+          setUsernameError('Usernames cannot contain the "@" symbol');
+          isValid = false;
+      }
+
+      // ... other validation checks ...
+
+      if (!isValid) {
+          setIsLoading(false);
+          return; // Prevent form submission if validation fails
+      }
+
     try {
         // Create FormData and append fields
         const formData = new FormData();
@@ -50,6 +81,13 @@ function SignupPage() {
           formData.append('profileImage', imageFile); 
 }
 
+// Log the FormData object immediately after appending the data
+console.log("FormData right after appending:", formData);  
+// Convert FormData to an object for logging (FormData is not directly loggable)
+const formDataObject = {};
+formData.forEach((value, key) => formDataObject[key] = value);
+console.log("FormData as an object:", formDataObject); 
+
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users`, { // Send a POST request to backend API, using .env variable in .env.development
         method: 'POST',
         body: formData, // Send formData as the body
@@ -62,18 +100,33 @@ function SignupPage() {
 
       if (response.ok) {
         // Account creation successful
-        // Redirect to success page
-        console.log("Account Created");
-        navigate('/AccountCreationSuccess');
+        const data = await response.json(); // Get the response data (including token)
+        localStorage.setItem('token', data.token); // Store the token in localStorage
+
+        //Simulate a delay for demonstration purposes (optional)
+        await new Promise(resolve => setTimeout(resolve, 2000)); 
+
+         // Verify the response data (optional)
+         if (data.username === username && data.email === email) {
+          console.log("Account Created");
+          navigate('/account-creation-success'); 
+      } else {
+          setErrorMessage('Account creation verification failed.');
+      }
       } else {
         // Account creation failed
-        const errorData = await response.json();
-        alert(`Error: ${errorData.message || 'Failed to create account'}`);
+        const errorData = await response.json(); 
+
+        // Access the 'errors' array and join the messages
+        const errorMessage = errorData.errors.join('\n'); 
+        alert(`Error: ${errorMessage || 'Failed to create account'}`);
       }
     } catch (error) {
       console.error('Error:', error);
       alert('An error occurred. Please try again later.');
-    }
+    } finally {
+      setIsLoading(false); // Hide loading symbol
+  }
   };
   return (
     <div className="signup-page">
@@ -84,7 +137,7 @@ function SignupPage() {
       <div className="signup-content">
         {/* Container for form and avatar */}
         <ProfileImageUpload ref={imageInputRef} onImageChange={handleProfileImageChange}/> {/* Pass the ref to ProfileImageUpload */}
-        <form className="signup-form" onSubmit={handleSubmit}>
+        <form className="signup-form" onSubmit={handleSubmit} noValidate>
           <div className="input-group">
             <label htmlFor="email">What's your email?</label>
             <input
@@ -94,6 +147,7 @@ function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+               {emailError && <div className="error-message">{emailError}</div>} {/* Display email error */}
           </div>
   
           <div className="input-group">
@@ -107,6 +161,7 @@ function SignupPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
+              {usernameError && <div className="error-message">{usernameError}</div>} {/* Display username error */}
           </div>
   
           <div className="input-group">
@@ -153,6 +208,8 @@ function SignupPage() {
               </button>
             </div>
           </div>
+          {isLoading && <div className="loading-symbol">Loading...</div>} {/* Show loading symbol */}
+          {errorMessage && <div className="error-message">{errorMessage}</div>} {/* Show error message */}
           <button type="submit" className="create-account-button">
             BRING ME INTO EXISTENCE! <br />
             (click to finish & create account)
