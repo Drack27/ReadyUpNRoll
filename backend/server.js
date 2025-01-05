@@ -14,6 +14,7 @@ console.log("Applying CORS options...");
 app.use(cors(corsOptions));
 console.log("Applying express.json & setting limit at 7mb...")
 app.use(express.json({ limit: '7mb' }));
+app.use('/uploads', express.static('uploads')); 
 
 // Configure multer for file uploads
 console.log("Configuring Multer...");

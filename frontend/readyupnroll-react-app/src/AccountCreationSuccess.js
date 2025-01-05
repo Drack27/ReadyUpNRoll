@@ -28,7 +28,9 @@ function AccountCreationSuccess() {
 
                         // Construct the image path
                         const imagePath = `${process.env.REACT_APP_API_URL}/uploads/${data.profileImage}`;
-                        setProfileImage(imagePath); 
+                        console.log(imagePath);
+                        setProfileImage(imagePath);
+                        console.log(profileImage);
 
           } else {
             console.error('Failed to fetch user data:', response.status);

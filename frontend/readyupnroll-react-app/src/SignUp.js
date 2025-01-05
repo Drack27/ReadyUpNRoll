@@ -109,7 +109,7 @@ console.log("FormData as an object:", formDataObject);
          // Verify the response data (optional)
          if (data.username === username && data.email === email) {
           console.log("Account Created");
-          navigate('/account-creation-success'); 
+          navigate('/AccountCreationSuccess'); 
       } else {
           setErrorMessage('Account creation verification failed.');
       }
