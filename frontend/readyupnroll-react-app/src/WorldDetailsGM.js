@@ -17,12 +17,27 @@ function WorldDetailsGM() {
     gameSystems: [],
     modules: [],
   });
+  const [userId, setUserId] = useState(null); // Add state to store userId
+
+// Fetch user ID (replace with your actual logic to get the user ID)
+useEffect(() => {
+  const fetchUserId = async () => {
+    // ... your logic to fetch the logged-in user's ID ...
+    // Example (if using local storage):
+    const storedUserId = localStorage.getItem('userId'); 
+    if (storedUserId) {
+      setUserId(parseInt(storedUserId, 10)); 
+    }
+  };
+  fetchUserId();
+}, []);
+
   // Fetch existing world data if editing
   useEffect(() => {
     const fetchWorldData = async () => {
       if (worldId) {
         try {
-          const response = await fetch(`/api/worlds/${worldId}`);
+          const response = await fetch(`/api/worldsgm/${worldId}`); // Updated route
           const data = await response.json();
           setWorldData(data);
         } catch (error) {
@@ -33,6 +48,7 @@ function WorldDetailsGM() {
     };
     fetchWorldData();
   }, [worldId]);
+
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;
     setWorldData({
@@ -67,26 +83,56 @@ function WorldDetailsGM() {
   const handleCancel = () => {
     navigate('/'); // Go back to home screen
   };
+
   const handlePreview = () => {
     // Implement preview functionality (e.g., open a modal or new tab)
   };
+
   const handleFinish = async () => {
     try {
-      const response = await fetch('/api/worlds', { 
-        method: worldId ? 'PUT' : 'POST', // PUT for edit, POST for create
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(worldData),
-      });
+      // Prepare data for the request
+      const requestData = { 
+        ...worldData,
+        gm_id: userId, // Include the user ID
+        players_needed: parseInt(worldData.playersNeeded, 10), // Convert to number
+        require_all_players_for_session_zero: worldData.requireAllPlayersForSessionZero ? 1 : 0, // Convert to 1 or 0
+      };
+
+      let response;
+      if (worldId) { // Editing an existing world
+        requestData.id = parseInt(worldId, 10); // Include the world ID for updates
+        response = await fetch('/api/worldsgm', { // Updated route
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestData),
+        });
+      } else { // Creating a new world
+        response = await fetch('/api/worldsgm', { // Updated route
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestData),
+        });
+      }
+
       if (response.ok) {
-        navigate('/'); // Go back to home screen after successful save
+        // Handle success (e.g., show a success message, redirect)
+        const data = await response.json();
+        if (!worldId) {
+          // If creating a new world, update the worldId in state 
+          // to allow editing immediately after creation
+          setWorldData({ ...worldData, id: data.worldId }); 
+        }
+        console.log(data.message); // Log success message from server
+        navigate('/'); 
       } else {
         // Handle error (e.g., show an error message)
+        console.error('Error saving world data:', response.status);
       }
     } catch (error) {
       console.error('Error saving world data:', error);
-      // Handle error
     }
   };
+  
   return (
     <div className="world-details-page">
       {/* Header */}

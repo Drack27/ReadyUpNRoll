@@ -8,7 +8,9 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const corsOptions = require('./corsConfig');
 const app = express();
-const port = process.argv[2] || 3000; 
+const port = process.argv[2] || 3000;
+const worldsGMRoute = require('./WorldsGMRoute'); // Assuming your file is named WorldsGMRoute.js
+
 
 console.log("Applying CORS options...");
 app.use(cors(corsOptions));
@@ -31,7 +33,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage }); // Make sure this is defined
 
 // Export the upload middleware
-module.exports.upload = upload; // Added this line to export upload
+module.exports = { upload, db };  // Updated to export both upload and db
 
 const signupRoutes = require('./SignupRequestRecieved'); 
 
@@ -51,7 +53,29 @@ db.serialize(() => {
     console.log('Database schema initialized');
 });
 
+const createWorldsTableSql = `CREATE TABLE IF NOT EXISTS worlds (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  gm_id INTEGER NOT NULL, 
+  name TEXT NOT NULL,
+  tagline TEXT,
+  description TEXT,
+  visibility TEXT CHECK (visibility IN ('public', 'private')), 
+  thumbnailImages TEXT, 
+  disclaimers TEXT,
+  players_needed INTEGER,
+  require_all_players_for_session_zero INTEGER,
+  FOREIGN KEY (gm_id) REFERENCES users(id) -- Assuming you have a 'users' table
+);`;
 
+db.run(createWorldsTableSql, (err) => {
+  if (err) {
+    console.error(err.message);
+  } else {
+    console.log('Worlds table created successfully (or already exists).');
+  }
+});
+
+app.use(worldsGMRoute); 
 app.use('/api/users', signupRoutes); 
 
 // API route to get current user's data
