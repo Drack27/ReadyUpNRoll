@@ -14,9 +14,19 @@ function WorldDetailsGM() {
     disclaimers: '',
     playersNeeded: 5,
     requireAllPlayersForSessionZero: false,
-    gameSystems: [],
+    gameSystem: '', 
+    gameSystemDescription: '',
     modules: [],
   });
+  const handleAddModule = () => {
+    setWorldData({
+      ...worldData,
+      modules: [
+        ...worldData.modules,
+        { name: '', description: '' } // Add a new module with empty fields
+      ]
+    });
+  };
   const [userId, setUserId] = useState(null); // Add state to store userId
 
 // Fetch user ID (replace with your actual logic to get the user ID)
@@ -65,7 +75,7 @@ useEffect(() => {
   const handleGameSystemAdd = (newSystem) => {
     setWorldData({
       ...worldData,
-      gameSystems: [...worldData.gameSystems, newSystem],
+      gameSystem: [...worldData.gameSystem, newSystem],
     });
   };
   const handleModuleAdd = (newModule) => {
@@ -97,6 +107,8 @@ useEffect(() => {
         players_needed: parseInt(worldData.playersNeeded, 10), // Convert to number
         require_all_players_for_session_zero: worldData.requireAllPlayersForSessionZero ? 1 : 0, // Convert to 1 or 0
       };
+      requestData.modules = JSON.stringify(worldData.modules); 
+
 
       let response;
       if (worldId) { // Editing an existing world
@@ -292,40 +304,65 @@ useEffect(() => {
 </div>
 {/* Playable Game Systems */}
 <div className="input-group">
-  <h2>Playable Game System(s) In this World</h2>
-  <button onClick={() => {/* Open "Add Game System" dialog */}}>
-    Add Game System
-  </button>
-  <ul>
-    {worldData.gameSystems.map((system, index) => (
-      <li key={index}>
-        <h3>{system.title}</h3>
-        <p>{system.description}</p>
-        <button onClick={() => handleRemoveItem('gameSystems', index)}>
-          Remove
-        </button>
-      </li>
-    ))}
-  </ul>
+  <h2>Game System for this World</h2>
+  <div className="input-group">
+        <label htmlFor="gameSystem">Game System:</label>
+        <input
+          type="text"
+          id="gameSystem"
+          name="gameSystem"
+          placeholder="D&D 5e, Pathfinder, etc."
+          value={worldData.gameSystem}
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className="input-group">
+        <label htmlFor="gameSystemDescription">Game System Description:</label>
+        <textarea
+          id="gameSystemDescription"
+          name="gameSystemDescription"
+          placeholder="Brief description of the game system and any house rules."
+          value={worldData.gameSystemDescription}
+          onChange={handleInputChange}
+        />
+      </div>
 </div>
 {/* Modules */}
 <div className="input-group">
-  <h2>Module(s) in this World</h2>
-  <button onClick={() => {/* Open "Add Module" dialog */}}>
-    Add Module
-  </button>
-  <ul>
-    {worldData.modules.map((module, index) => (
-      <li key={index}>
-        <h3>{module.title}</h3>
-        <p>{module.description}</p>
-        <button onClick={() => handleRemoveItem('modules', index)}>
-          Remove
+        <h2>Module(s) in this World</h2>
+        <button onClick={handleAddModule}> {/* Use the new function */}
+          Add Module
         </button>
-      </li>
-    ))}
-  </ul>
-</div>
+        <ul>
+          {worldData.modules.map((module, index) => (
+            <li key={index}>
+              {/* Input fields for module name and description */}
+              <input
+                type="text"
+                name={`modules[${index}].name`} // Use array syntax for names
+                value={module.name}
+                onChange={(e) => {
+                  const updatedModules = [...worldData.modules];
+                  updatedModules[index].name = e.target.value;
+                  setWorldData({ ...worldData, modules: updatedModules });
+                }}
+              />
+              <textarea
+                name={`modules[${index}].description`} // Use array syntax for names
+                value={module.description}
+                onChange={(e) => {
+                  const updatedModules = [...worldData.modules];
+                  updatedModules[index].description = e.target.value;
+                  setWorldData({ ...worldData, modules: updatedModules });
+                }}
+              />
+              <button onClick={() => handleRemoveItem('modules', index)}>
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
 {/* Buttons */}
 <div className="button-group">
   <button onClick={handleCancel}>Cancel</button>

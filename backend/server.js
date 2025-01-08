@@ -64,8 +64,10 @@ const createWorldsTableSql = `CREATE TABLE IF NOT EXISTS worlds (
   disclaimers TEXT,
   players_needed INTEGER,
   require_all_players_for_session_zero INTEGER,
-  FOREIGN KEY (gm_id) REFERENCES users(id) -- Assuming you have a 'users' table
-);`;
+  game_system TEXT, -- Add a field for the game system name
+  game_system_description TEXT, -- Add a field for the game system description
+  modules TEXT, -- Store modules as a JSON array within the worlds table
+  FOREIGN KEY (gm_id) REFERENCES users(id));`;
 
 db.run(createWorldsTableSql, (err) => {
   if (err) {

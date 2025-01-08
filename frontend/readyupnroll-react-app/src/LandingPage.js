@@ -17,9 +17,6 @@ function LandingPage() {
         <Link to="/signup">
           <button className="signup-button">Sign Up</button>
           </Link>
-          <Link to="/home">
-          <button className="dev-bypass">DEV BYPASS</button>
-          </Link>
         </div>   
   
   

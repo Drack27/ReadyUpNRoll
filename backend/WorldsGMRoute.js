@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sqlite3 = require('sqlite3');
-const db = require('./server.js').db; 
+const db = require('./db'); 
 
 // --- Create World (POST /api/worldsgm) --- 
 router.post('/api/worldsgm', (req, res) => {
@@ -25,7 +25,20 @@ router.post('/api/worldsgm', (req, res) => {
 
 // --- Get World Details (GET /api/worldsgm/:worldId) ---
 router.get('/api/worldsgm/:worldId', (req, res) => {
-  // ... (your existing code to get world details) ...
+  const worldId = req.params.worldId;
+  const sql = `SELECT * FROM worlds WHERE id = ?`;
+  db.get(sql, [worldId], (err, row) => {
+    if (err) {
+      console.error(err.message);
+      return res.status(500).json({ error: 'Failed to get world details' });
+    }
+    if (!row) {
+      return res.status(404).json({ error: 'World not found' });
+    }
+    // Parse the modules JSON string before sending the response
+    row.modules = JSON.parse(row.modules); 
+    res.json(row); 
+  });
 });
 
 // --- Update World (PUT /api/worldsgm) ---
