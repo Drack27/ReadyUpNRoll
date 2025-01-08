@@ -59,6 +59,29 @@ useEffect(() => {
     fetchWorldData();
   }, [worldId]);
 
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const newImages = [];
+
+    files.forEach(file => {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        newImages.push(e.target.result); // Add the data URL to the array
+
+        // Update the state only after all images are processed
+        if (newImages.length === files.length) {
+          setWorldData({
+            ...worldData,
+            thumbnailImages: [...worldData.thumbnailImages, ...newImages]
+          });
+        }
+      };
+
+      reader.readAsDataURL(file); // Read the file as a data URL
+    });
+  };
+
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;
     setWorldData({
@@ -119,7 +142,7 @@ useEffect(() => {
           body: JSON.stringify(requestData),
         });
       } else { // Creating a new world
-        response = await fetch('/api/worldsgm', { // Updated route
+        response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm`, { // Updated route
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(requestData),
@@ -241,7 +264,7 @@ useEffect(() => {
     name="thumbnailImages"
     multiple // Allow multiple file selection
     accept="image/*" // Accept only image files
-    onChange={(e) => {
+    onChange={handleImageChange}
       // Handle image uploads and update worldData.thumbnailImages
       // (Implementation will depend on your image handling logic)
       // Example:
@@ -250,7 +273,6 @@ useEffect(() => {
       //   reader.onload = () => handleImageAdd(reader.result);
       //   reader.readAsDataURL(file);
       // });
-    }}
   />
   <div className="thumbnail-gallery">
     <ul>
@@ -329,7 +351,7 @@ useEffect(() => {
 </div>
 {/* Modules */}
 <div className="input-group">
-        <h2>Module(s) in this World</h2>
+        <h2>Module(s) Players May Encounter</h2>
         <button onClick={handleAddModule}> {/* Use the new function */}
           Add Module
         </button>
@@ -337,9 +359,11 @@ useEffect(() => {
           {worldData.modules.map((module, index) => (
             <li key={index}>
               {/* Input fields for module name and description */}
+              <label htmlFor={`modules[${index}].name`}>Name:</label> {/* Label for name */}
               <input
                 type="text"
                 name={`modules[${index}].name`} // Use array syntax for names
+                placeholder="Curse of Strahd, the Tortle Package, etc."
                 value={module.name}
                 onChange={(e) => {
                   const updatedModules = [...worldData.modules];
@@ -347,8 +371,10 @@ useEffect(() => {
                   setWorldData({ ...worldData, modules: updatedModules });
                 }}
               />
+              <label htmlFor={`modules[${index}].description`}>Description:</label> {/* Label for description */}
               <textarea
                 name={`modules[${index}].description`} // Use array syntax for names
+                
                 value={module.description}
                 onChange={(e) => {
                   const updatedModules = [...worldData.modules];
