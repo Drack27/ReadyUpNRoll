@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const db = require('./db'); // Assuming your database connection is in db.js
 
 function authMiddleware(req, res, next) {
+    console.log("ARG, AUTHENTICATION BOT HERE!");
     const token = req.headers.authorization?.split(' ')[1]; 
 
     if (token) {
@@ -28,6 +29,7 @@ function authMiddleware(req, res, next) {
             });
         });
     } else {
+        console.log("GRRRRRRRRR");
         res.status(401).json({ message: 'Authorization required' });
     }
 }

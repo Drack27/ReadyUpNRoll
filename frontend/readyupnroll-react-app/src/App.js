@@ -1,7 +1,8 @@
+import { Routes, Route } from 'react-router-dom';
+
 import LandingPage from './LandingPage';
 import LoginPage from './LoginPage';
 import SignupPage from './SignUp';
-import { Routes, Route } from 'react-router-dom';
 import HomeScreen from './HomeScreen';
 import SettingsScreen from './SettingsScreen';
 import AccountCreationSuccess from './AccountCreationSuccess';
@@ -15,6 +16,7 @@ import LeaveWorldConfirmation from './LeaveWorldConfirmation';
 import LeaveWorldSuccess from './LeaveWorldSuccess';
 import GroundRulesAcceptance from './GroundRulesAcceptance';
 import JoinWorldSuccess from './JoinWorldSuccess';
+
 import ProtectedRoute from './ProtectedRoute';
 
 function App() {

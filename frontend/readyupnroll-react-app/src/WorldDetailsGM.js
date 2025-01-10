@@ -32,14 +32,40 @@ function WorldDetailsGM() {
 // Fetch user ID (replace with your actual logic to get the user ID)
 useEffect(() => {
   const fetchUserId = async () => {
-    // ... your logic to fetch the logged-in user's ID ...
-    // Example (if using local storage):
-    const storedUserId = localStorage.getItem('userId'); 
-    if (storedUserId) {
-      setUserId(parseInt(storedUserId, 10)); 
+    const token = localStorage.getItem('token'); // Get the token from localStorage
+    console.log("token:", token);
+    if (token) {
+      try {
+        const response = await fetch('/api/me', { // Fetch user data from /api/me
+          headers: {
+            Authorization: `Bearer ${token}` // Include the token in the Authorization header
+          }
+        });
+
+        console.log("Response status:", response.status); // Log the status code
+        // Regardless of the response type, log the raw response
+        const responseContent = await response.text(); // Get the response as text
+        console.log("Raw response content:", responseContent); 
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserId(data.id); // Set the userId state
+          console.log("userId set to", userId);
+        } else {
+          const errorData = await response.text();
+          console.error("Failed to fetch user data:", errorData);
+          // Handle the error appropriately (e.g., redirect to login)
+        }
+      } catch (error) {
+        console.error("Caught error fetching user ID:", error);
+      }
+    } else {
+      console.error("Token not found in localStorage.");
+      // Handle the error (e.g., redirect to login)
     }
   };
-  fetchUserId();
+
+  fetchUserId(); 
 }, []);
 
   // Fetch existing world data if editing
@@ -122,7 +148,8 @@ useEffect(() => {
   };
 
   const handleFinish = async () => {
-    try {
+    if (userId) {
+      try {
       // Prepare data for the request
       const requestData = { 
         ...worldData,
@@ -131,11 +158,14 @@ useEffect(() => {
         require_all_players_for_session_zero: worldData.requireAllPlayersForSessionZero ? 1 : 0, // Convert to 1 or 0
       };
       requestData.modules = JSON.stringify(worldData.modules); 
+      requestData.gm_id = userId; 
+      console.log(requestData);
 
 
       let response;
       if (worldId) { // Editing an existing world
         requestData.id = parseInt(worldId, 10); // Include the world ID for updates
+        console.log(requestData);
         response = await fetch('/api/worldsgm', { // Updated route
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -166,6 +196,11 @@ useEffect(() => {
     } catch (error) {
       console.error('Error saving world data:', error);
     }
+  } else {
+    // Handle the case where userId is not available yet
+    console.error("Cannot save world data. User ID not available.");
+    // You might want to show a loading indicator or a message to the user here
+  }
   };
   
   return (
