@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const db = require('./db');
-const upload = require('./server').upload;
+const db = require('../dbConfig');
+const upload = require('../server').upload;
 const fs = require('fs'); // Import the fs module for file deletion
 const jwt = require('jsonwebtoken'); // Make sure to import jsonwebtoken
 
@@ -84,5 +84,7 @@ router.post('/', upload.single('profileImage'), async (req, res) => {
         res.status(500).json({ message: 'Failed to create user' });
     }
 });
+
+
 
 module.exports = router;

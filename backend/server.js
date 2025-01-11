@@ -1,25 +1,8 @@
-const db = require('./db');
-const path = require('path');
 const express = require('express');
-const bcrypt = require('bcrypt');
-const authMiddleware = require('./authMiddleware'); 
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
+const path = require('path');
 const multer = require('multer');
-const corsOptions = require('./corsConfig');
-const app = express();
-const port = process.argv[2] || 3000;
-const worldsGMRoute = require('./WorldsGMRoute'); // Assuming your file is named WorldsGMRoute.js
-
-
-console.log("Applying CORS options...");
-app.use(cors(corsOptions));
-console.log("Applying express.json & setting limit at 7mb...")
-app.use(express.json({ limit: '7mb' }));
-app.use('/uploads', express.static('uploads')); 
-
-// Configure multer for file uploads
-console.log("Configuring Multer...");
+// Configure multer before exporting it to anything else
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads/');
@@ -29,138 +12,42 @@ const storage = multer.diskStorage({
         cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
+const db = require('./dbConfig');
+const upload = multer({ storage: storage });
+module.exports = { upload, db };
+//done
+const app = express();
+const port = process.argv[2] || 5000;
 
-const upload = multer({ storage: storage }); // Make sure this is defined
+const initializeDatabase = require('./dbInit')
+initializeDatabase().then(() => {
+    // Middleware Config
+    const corsOptions = require('./corsConfig');
 
-// Export the upload middleware
-module.exports = { upload, db };  // Updated to export both upload and db
+    const worldsGMRoutes = require('./routes/WorldsGMRoutes'); 
+    const signupRoutes = require('./routes/SignupRoutes'); 
+    const userRoutes = require('./routes/UserRoutes'); 
+    const loginRoutes = require('./routes/LoginRoutes'); 
 
-const signupRoutes = require('./SignupRequestRecieved'); 
+    app.use(cors(corsOptions));
+    app.use(express.json({ limit: '7mb' }));
+    app.use('/uploads', express.static('uploads')); 
 
+    app.use(worldsGMRoutes); 
+    app.use(signupRoutes); 
+    app.use(userRoutes);
+    app.use(loginRoutes);
 
-// Initialize the database schema
-db.serialize(() => {
-    console.log("Initializing Database Schema...");
-    db.run(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            profileImage TEXT 
-        )
-    `);
-    console.log('Database schema initialized');
-});
-
-const createWorldsTableSql = `CREATE TABLE IF NOT EXISTS worlds (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  gm_id INTEGER NOT NULL, 
-  name TEXT NOT NULL,
-  tagline TEXT,
-  description TEXT,
-  visibility TEXT CHECK (visibility IN ('public', 'private')), 
-  thumbnailImages TEXT, 
-  disclaimers TEXT,
-  players_needed INTEGER,
-  require_all_players_for_session_zero INTEGER,
-  game_system TEXT, -- Add a field for the game system name
-  game_system_description TEXT, -- Add a field for the game system description
-  modules TEXT, -- Store modules as a JSON array within the worlds table
-  FOREIGN KEY (gm_id) REFERENCES users(id));`;
-
-db.run(createWorldsTableSql, (err) => {
-  if (err) {
-    console.error(err.message);
-  } else {
-    console.log('Worlds table created successfully (or already exists).');
-  }
-});
-
-app.use(worldsGMRoute); 
-app.use('/api/users', signupRoutes); 
-
-// API route to get current user's data
-app.get('/api/me', authMiddleware, (req, res) => {
-  try {
-      console.log('Route accessed at ' + new Date() + '\n');
-      console.log(req.user); 
-
-      // Assuming your authMiddleware adds the user object to req.user
-      const { id, username, email } = req.user; // Added user ID
-
-      // Fetch the profileImage filename from the database based on the user ID
-      db.get('SELECT profileImage FROM users WHERE id = ?', [id], (err, row) => {
-          if (err) {
-              console.error('Error fetching profile image:', err);
-              return res.status(500).json({ error: 'Failed to fetch user data' });
-          }
-
-          const profileImage = row ? row.profileImage : null; // Handle case where no image is found
-
-          res.json({ 
-              username: username,
-              email: email,
-              profileImage: profileImage 
-          });
-      });
-
-  } catch (error) {
-      console.error('Error in /api/me:', error);
-      res.status(500).json({ error: 'Failed to fetch user data' });
-  } 
-});
-
-// Login route
-app.post('/api/login', async (req, res) => {
-  const { email, username, password } = req.body;
-  const errors = []; 
-
-  try {
-    const user = await new Promise((resolve, reject) => {
-      db.get(
-        'SELECT * FROM users WHERE email = ? OR username = ?',
-        [email, username], 
-        (err, row) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(row);
-          }
-        }
-      );
+    // Example API route
+    app.get('/', (req, res) => {
+      res.send('Hello from ReadyUp & Roll backend!');
     });
 
-    if (!user) {
-      errors.push('Incorrect email or username.'); 
-    } else {
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) {
-        errors.push('Incorrect password.'); 
-      }
-    }
-
-    if (errors.length > 0) {
-      return res.status(401).json({ errors }); 
-    }
-
-    // Generate a JWT with username included
-    const token = jwt.sign({ userId: user.id, username: user.username }, process.env.JWT_SECRET); 
-
-    res.json({ token });
-  } catch (error) {
-    console.error('Error during login:', error);
-    res.status(500).json({ message: 'Login failed' });
-  }
-});
-
-
-// Example API route
-app.get('/', (req, res) => {
-  res.send('Hello from ReadyUp & Roll backend!');
-});
-
-app.listen(port, () => {
-  console.log(`Backend server listening on port ${port}`);
+    app.listen(port, () => {
+      console.log(`Backend server listening on port ${port}`);
+    });
+}).catch(err => {
+  console.error("Database initialization failed:", err);
+  process.exit(1);
 });
  

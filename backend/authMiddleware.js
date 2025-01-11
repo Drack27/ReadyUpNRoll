@@ -1,6 +1,6 @@
 require('dotenv').config(); 
 const jwt = require('jsonwebtoken');
-const db = require('./db'); // Assuming your database connection is in db.js
+const db = require('./dbConfig'); // Assuming your database connection is in db.js
 
 function authMiddleware(req, res, next) {
     console.log("ARG, AUTHENTICATION BOT HERE!");

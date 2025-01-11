@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sqlite3 = require('sqlite3');
-const db = require('./db'); 
+const db = require('../dbConfig'); 
 
 // --- Create World (POST /api/worldsgm) --- 
 router.post('/api/worldsgm', (req, res) => {
