@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './WorldDetailsGM.css';
-import logo from './logo.svg';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import TopBar from './TopBar';
 function WorldDetailsGM() {
   const navigate = useNavigate();
   const { worldId } = useParams(); // Get worldId from URL if editing
@@ -205,22 +205,7 @@ useEffect(() => {
   
   return (
     <div className="world-details-page">
-      {/* Header */}
-      <header className="world-details-header">
-        <div className="header-left">
-          <img src={logo} alt="ReadyUp & Roll Logo" className="logo" />
-          <div className="header-buttons">
-            <Link to="/settings">
-              <button>Settings</button>
-            </Link>
-            <button>Log Out</button>
-            <button onClick={handleCancel}>Return to Home Screen</button>
-          </div>
-        </div>
-        <div className="header-right">
-          <img src="avatar.png" alt="User Avatar" className="avatar" />
-        </div>
-      </header>
+      <TopBar></TopBar>
       {/* World Details Content */}
       <div className="world-details-content">
         <h1>World Details</h1>
@@ -232,7 +217,7 @@ useEffect(() => {
     type="text"
     id="name"
     name="name"
-    maxLength="15"
+    maxLength="30"
     placeholder="My Cool RPG Setting"
     value={worldData.name}
     onChange={handleInputChange}
@@ -245,7 +230,7 @@ useEffect(() => {
     type="text"
     id="tagline"
     name="tagline"
-    maxLength="30"
+    maxLength="45"
     placeholder="The realm where cool people go"
     value={worldData.tagline}
     onChange={handleInputChange}
@@ -356,7 +341,7 @@ useEffect(() => {
       checked={worldData.requireAllPlayersForSessionZero}
       onChange={handleInputChange}
     />
-    Require all players for session zero?
+    Require all players for first meeting?
   </label>
 </div>
 {/* Playable Game Systems */}
@@ -368,7 +353,7 @@ useEffect(() => {
           type="text"
           id="gameSystem"
           name="gameSystem"
-          placeholder="D&D 5e, Pathfinder, etc."
+          placeholder="D&D 5e, Minecraft, Pure 'yes, and', etc."
           value={worldData.gameSystem}
           onChange={handleInputChange}
         />
@@ -386,7 +371,8 @@ useEffect(() => {
 </div>
 {/* Modules */}
 <div className="input-group">
-        <h2>Module(s) Players May Encounter</h2>
+        <h2>Modules players may encounter in this World</h2>
+        <p>(Modules = adventures, mods, content packs, scenarios, plot threads, etc.)</p>
         <button onClick={handleAddModule}> {/* Use the new function */}
           Add Module
         </button>

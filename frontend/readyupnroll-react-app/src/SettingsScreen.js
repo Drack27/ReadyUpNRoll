@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './SettingsScreen.css'; // Import your CSS file
 import logo from './logo.svg'; // Import your logo image
 import { Link } from 'react-router-dom';
+import TopBar from './TopBar';
 
 
 function SettingsScreen() {
@@ -14,22 +15,7 @@ function SettingsScreen() {
   return (
     <div   
  className="settings-screen">
-      <header className="settings-screen-header">
-        <div className="header-left">
-          <img src={logo} alt="ReadyUp & Roll Logo" className="logo" />
-          <div className="header-buttons">
-          <Link to="/home">
-            <button>Exit</button>
-        </Link>
-            <button>Log Out</button>
-          </div>
-        </div>
-
-        <div className="header-right">
-          <img src="avatar.png" alt="User Avatar" className="avatar" />
-        </div>
-      </header>
-
+      <TopBar hideSettingsButton = {true}></TopBar>
       <div className="settings-content">
         <div className="header-and-button"> {/* Container for header and button */}
           <h1 className="settings-header">Account Details & Settings</h1>

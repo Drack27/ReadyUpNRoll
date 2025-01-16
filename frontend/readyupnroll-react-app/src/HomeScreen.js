@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './HomeScreen.css'; 
 import logo from './logo.svg'; 
 import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
-import LogoutButton from './LogoutButton';
+import TopBar from './TopBar';
 
 function HomeScreen() {
   console.log("homescreen rendered");
@@ -47,21 +47,7 @@ function HomeScreen() {
 
   return (
     <div className="home-screen">
-      <header className="home-screen-header">
-        <div className="header-left"> 
-          <img src={logo} alt="ReadyUp & Roll Logo" className="logo" />
-          <div className="header-buttons">
-            <Link to="/settings">
-              <button>Settings</button>
-            </Link>
-            <LogoutButton />
-          </div>
-        </div>
-
-        <div className="header-right"> 
-          <img src="avatar.png" alt="User Avatar" className="avatar" /> 
-        </div>
-      </header>
+      <TopBar hideHomeButton={true}></TopBar>
 
       <h1 className="welcome-header">
       Howdy, {username || 'Guest'}! This is the Home Screen. 
