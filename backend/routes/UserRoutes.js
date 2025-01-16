@@ -23,6 +23,7 @@ router.get('/api/me', authMiddleware, (req, res) => {
             const profileImage = row ? row.profileImage : null; // Handle case where no image is found
   
             res.json({ 
+                id: id,
                 username: username,
                 email: email,
                 profileImage: profileImage 

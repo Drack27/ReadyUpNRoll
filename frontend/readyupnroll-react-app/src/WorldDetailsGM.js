@@ -36,16 +36,14 @@ useEffect(() => {
     console.log("token:", token);
     if (token) {
       try {
-        const response = await fetch('/api/me', { // Fetch user data from /api/me
-          headers: {
-            Authorization: `Bearer ${token}` // Include the token in the Authorization header
-          }
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         console.log("Response status:", response.status); // Log the status code
         // Regardless of the response type, log the raw response
-        const responseContent = await response.text(); // Get the response as text
-        console.log("Raw response content:", responseContent); 
+        //const responseContent = await response.text(); // Get the response as text
+        //console.log("Raw response content:", responseContent); 
 
         if (response.ok) {
           const data = await response.json();
@@ -166,7 +164,7 @@ useEffect(() => {
       if (worldId) { // Editing an existing world
         requestData.id = parseInt(worldId, 10); // Include the world ID for updates
         console.log(requestData);
-        response = await fetch('/api/worldsgm', { // Updated route
+        response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`, { // Updated route
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(requestData),
