@@ -2,420 +2,429 @@ import React, { useState, useEffect } from 'react';
 import './WorldDetailsGM.css';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import TopBar from './TopBar';
+
 function WorldDetailsGM() {
-  const navigate = useNavigate();
-  const { worldId } = useParams(); // Get worldId from URL if editing
-  const [worldData, setWorldData] = useState({
-    name: '',
-    tagline: '',
-    description: '',
-    visibility: 'public', 
-    thumbnailImages: [],
-    disclaimers: '',
-    playersNeeded: 5,
-    requireAllPlayersForSessionZero: false,
-    gameSystem: '', 
-    gameSystemDescription: '',
-    modules: [],
-  });
-  const handleAddModule = () => {
-    setWorldData({
-      ...worldData,
-      modules: [
-        ...worldData.modules,
-        { name: '', description: '' } // Add a new module with empty fields
-      ]
+    const navigate = useNavigate();
+    const { worldId } = useParams();
+    const [worldData, setWorldData] = useState({
+        name: '',
+        tagline: '',
+        description: '',
+        visibility: 'public',
+        thumbnailImages: [],
+        disclaimers: '',
+        playersNeeded: 5,
+        requireAllPlayersForSessionZero: false,
+        gameSystem: '',
+        gameSystemDescription: '',
+        modules: [],
     });
-  };
-  const [userId, setUserId] = useState(null); // Add state to store userId
+    const [userId, setUserId] = useState(null);
+    const [loading, setLoading] = useState(false); // State for loading status
 
-// Fetch user ID (replace with your actual logic to get the user ID)
-useEffect(() => {
-  const fetchUserId = async () => {
-    const token = localStorage.getItem('token'); // Get the token from localStorage
-    console.log("token:", token);
-    if (token) {
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        console.log("Response status:", response.status); // Log the status code
-        // Regardless of the response type, log the raw response
-        //const responseContent = await response.text(); // Get the response as text
-        //console.log("Raw response content:", responseContent); 
-
-        if (response.ok) {
-          const data = await response.json();
-          setUserId(data.id); // Set the userId state
-          console.log("userId set to", userId);
-        } else {
-          const errorData = await response.text();
-          console.error("Failed to fetch user data:", errorData);
-          // Handle the error appropriately (e.g., redirect to login)
-        }
-      } catch (error) {
-        console.error("Caught error fetching user ID:", error);
-      }
-    } else {
-      console.error("Token not found in localStorage.");
-      // Handle the error (e.g., redirect to login)
-    }
-  };
-
-  fetchUserId(); 
-}, []);
-
-  // Fetch existing world data if editing
-  useEffect(() => {
-    const fetchWorldData = async () => {
-      if (worldId) {
-        try {
-          const response = await fetch(`/api/worldsgm/${worldId}`); // Updated route
-          const data = await response.json();
-          setWorldData(data);
-        } catch (error) {
-          console.error('Error fetching world data:', error);
-          // Handle error (e.g., show an error message)
-        }
-      }
-    };
-    fetchWorldData();
-  }, [worldId]);
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    const newImages = [];
-
-    files.forEach(file => {
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        newImages.push(e.target.result); // Add the data URL to the array
-
-        // Update the state only after all images are processed
-        if (newImages.length === files.length) {
-          setWorldData({
+    const handleAddModule = () => {
+        const newModuleId = Date.now(); // Simple unique ID
+        setWorldData({
             ...worldData,
-            thumbnailImages: [...worldData.thumbnailImages, ...newImages]
-          });
-        }
-      };
-
-      reader.readAsDataURL(file); // Read the file as a data URL
-    });
-  };
-
-  const handleInputChange = (event) => {
-    const { name, value, type, checked } = event.target;
-    setWorldData({
-      ...worldData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
-  };
-  const handleImageAdd = (newImage) => {
-    setWorldData({
-      ...worldData,
-      thumbnailImages: [...worldData.thumbnailImages, newImage],
-    });
-  };
-  const handleGameSystemAdd = (newSystem) => {
-    setWorldData({
-      ...worldData,
-      gameSystem: [...worldData.gameSystem, newSystem],
-    });
-  };
-  const handleModuleAdd = (newModule) => {
-    setWorldData({
-      ...worldData,
-      modules: [...worldData.modules, newModule],
-    });
-  };
-  const handleRemoveItem = (list, index) => {
-    setWorldData({
-      ...worldData,
-      [list]: worldData[list].filter((_, i) => i !== index),
-    });
-  };
-  const handleCancel = () => {
-    navigate('/'); // Go back to home screen
-  };
-
-  const handlePreview = () => {
-    // Implement preview functionality (e.g., open a modal or new tab)
-  };
-
-  const handleFinish = async () => {
-    if (userId) {
-      try {
-      // Prepare data for the request
-      const requestData = { 
-        ...worldData,
-        gm_id: userId, // Include the user ID
-        players_needed: parseInt(worldData.playersNeeded, 10), // Convert to number
-        require_all_players_for_session_zero: worldData.requireAllPlayersForSessionZero ? 1 : 0, // Convert to 1 or 0
-      };
-      requestData.modules = JSON.stringify(worldData.modules); 
-      requestData.gm_id = userId; 
-      console.log(requestData);
-
-
-      let response;
-      if (worldId) { // Editing an existing world
-        requestData.id = parseInt(worldId, 10); // Include the world ID for updates
-        console.log(requestData);
-        response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`, { // Updated route
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestData),
+            modules: [
+                ...worldData.modules,
+                { id: newModuleId, name: '', description: '' }
+            ]
         });
-      } else { // Creating a new world
-        response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm`, { // Updated route
-          method: 'POST', 
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestData),
-        });
-      }
+    };
 
-      if (response.ok) {
-        // Handle success (e.g., show a success message, redirect)
-        const data = await response.json();
-        if (!worldId) {
-          // If creating a new world, update the worldId in state 
-          // to allow editing immediately after creation
-          setWorldData({ ...worldData, id: data.worldId }); 
+    const handleRemoveModule = (moduleId) => {
+        setWorldData({
+            ...worldData,
+            modules: worldData.modules.filter(m => m.id !== moduleId)
+        });
+    };
+
+    // Fetch user ID
+    useEffect(() => {
+        const fetchUserId = async () => {
+            const token = localStorage.getItem('token');
+            console.log("token:", token);
+            if (token) {
+                try {
+                    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    console.log("Response status:", response.status);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        setUserId(data.id);
+                        console.log("userId set to", data.id);
+                    } else {
+                        const errorData = await response.text();
+                        console.error("Failed to fetch user data:", errorData);
+                        if (response.status === 401) {
+                            navigate('/login');
+                        } else {
+                            alert("Failed to fetch user data. Please try again later.");
+                        }
+                    }
+                } catch (error) {
+                    console.error("Caught error fetching user ID:", error);
+                }
+            } else {
+                console.error("Token not found in localStorage.");
+                navigate('/login');
+            }
+        };
+
+        fetchUserId();
+    }, []);
+
+    // Fetch existing world data
+    useEffect(() => {
+        const fetchWorldData = async () => {
+            if (worldId) {
+                try {
+                    const response = await fetch(`<span class="math-inline">\{process\.env\.REACT\_APP\_API\_URL\}/api/worldsgm/</span>{worldId}`);
+                    const data = await response.json();
+                    setWorldData(data);
+                } catch (error) {
+                    console.error('Error fetching world data:', error);
+                }
+            }
+        };
+        fetchWorldData();
+    }, [worldId]);
+
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files);
+        const newImages = [];
+
+        files.forEach(file => {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                newImages.push(e.target.result);
+                if (newImages.length === files.length) {
+                    setWorldData({
+                        ...worldData,
+                        thumbnailImages: [...worldData.thumbnailImages, ...newImages]
+                    });
+                }
+            };
+
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const handleInputChange = (event) => {
+        const { name, value, type, checked } = event.target;
+        setWorldData({
+            ...worldData,
+            [name]: type === 'checkbox' ? checked : value,
+        });
+    };
+
+    const handleRemoveImage = (index) => {
+        setWorldData({
+            ...worldData,
+            thumbnailImages: worldData.thumbnailImages.filter((_, i) => i !== index)
+        });
+    };
+
+    const handleCancel = () => {
+        navigate('/');
+    };
+
+    const handlePreview = () => {
+        // Implement preview functionality
+    };
+
+    const handleFinish = async () => {
+        // Basic validation:
+        if (!worldData.name.trim()) {
+            alert("Please enter a name for your world.");
+            return;
         }
-        console.log(data.message); // Log success message from server
-        navigate('/'); 
-      } else {
-        // Handle error (e.g., show an error message)
-        console.error('Error saving world data:', response.status);
-      }
-    } catch (error) {
-      console.error('Error saving world data:', error);
-    }
-  } else {
-    // Handle the case where userId is not available yet
-    console.error("Cannot save world data. User ID not available.");
-    // You might want to show a loading indicator or a message to the user here
-  }
-  };
+
+        if (!worldData.tagline.trim()) {
+            alert("Please enter a tagline.");
+            return;
+        }
+
+        // ... more validation ...
+
+        if (userId) {
+            setLoading(true); // Set loading to true before starting the request
+            try {
+                // Prepare data for the request
+                const requestData = {
+                    ...worldData,
+                    gm_id: userId,
+                    players_needed: parseInt(worldData.playersNeeded, 10),
+                    require_all_players_for_session_zero: worldData.requireAllPlayersForSessionZero ? 1 : 0,
+                    modules: JSON.stringify(worldData.modules.map(({ id, ...rest }) => rest)), // Send modules without IDs
+                };
+                requestData.gm_id = userId;
+                console.log("Request Data:", requestData);
+
+                let response;
+                if (worldId) {
+                    requestData.id = parseInt(worldId, 10);
+                    console.log("Updated Request Data:", requestData);
+                    response = await fetch(`<span class="math-inline">\{process\.env\.REACT\_APP\_API\_URL\}/api/worldsgm/</span>{worldId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestData),
+                    });
+                } else {
+                    response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestData),
+                    });
+                }
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (!worldId) {
+                        setWorldData({ ...worldData, id: data.worldId });
+                    }
+                    console.log(data.message);
+                    navigate('/');
+                } else {
+                    console.error('Error saving world data:', response.status);
+                }
+            } catch (error) {
+                console.error('Error saving world data:', error);
+            } finally {
+                setLoading(false); // Set loading back to false after the request completes
+            }
+        } else {
+            console.error("Cannot save world data. User ID not available.");
+        }
+    };
   
   return (
     <div className="world-details-page">
-      <TopBar></TopBar>
-      {/* World Details Content */}
-      <div className="world-details-content">
-        <h1>World Details</h1>
-{/* ... inside world-details-content ... */}
-{/* Name */}
-<div className="input-group">
-  <label htmlFor="name">Name:</label>
-  <input
-    type="text"
-    id="name"
-    name="name"
-    maxLength="30"
-    placeholder="My Cool RPG Setting"
-    value={worldData.name}
-    onChange={handleInputChange}
-  />
-</div>
-{/* Tagline */}
-<div className="input-group">
-  <label htmlFor="tagline">Descriptive Tagline:</label>
-  <input
-    type="text"
-    id="tagline"
-    name="tagline"
-    maxLength="45"
-    placeholder="The realm where cool people go"
-    value={worldData.tagline}
-    onChange={handleInputChange}
-  />
-</div>
-{/* Description */}
-<div className="input-group">
-  <label htmlFor="description">Description:</label>
-  <textarea
-    id="description"
-    name="description"
-    value={worldData.description}
-    onChange={handleInputChange}
-  />
-</div>
-{/* Visibility */}
-<div className="input-group">
-  <label htmlFor="visibility">Visibility:</label>
-  <div> {/* Use a div to wrap the radio buttons */}
-    <label>
-      <input
-        type="radio"
-        id="visibility-public"
-        name="visibility"
-        value="public"
-        checked={worldData.visibility === 'public'}
-        onChange={handleInputChange}
-      />
-      Public (anyone can find and join your World)
-    </label>
-    <br /> {/* Add a line break for better readability */}
-    <label>
-      <input
-        type="radio"
-        id="visibility-private"
-        name="visibility"
-        value="private"
-        checked={worldData.visibility === 'private'}
-        onChange={handleInputChange}
-      />
-      Private (you have to invite players to join)
-    </label>
-  </div>
-</div>
-{/* Thumbnail Images */}
-<div className="input-group">
-  <label htmlFor="thumbnailImages">Add Thumbnail Images:</label>
-  <input
-    type="file"
-    id="thumbnailImages"
-    name="thumbnailImages"
-    multiple // Allow multiple file selection
-    accept="image/*" // Accept only image files
-    onChange={handleImageChange}
-      // Handle image uploads and update worldData.thumbnailImages
-      // (Implementation will depend on your image handling logic)
-      // Example:
-      // Array.from(e.target.files).forEach(file => {
-      //   const reader = new FileReader();
-      //   reader.onload = () => handleImageAdd(reader.result);
-      //   reader.readAsDataURL(file);
-      // });
-  />
-  <div className="thumbnail-gallery">
-    <ul>
-      {worldData.thumbnailImages.map((image, index) => (
-        <li key={index}>
-          <img src={image} alt={`Thumbnail ${index + 1}`} />
-        </li>
-      ))}
-    </ul>
-  </div>
-</div>
-{/* Disclaimers */}
-<div className="input-group">
-  <label htmlFor="disclaimers">
-    Disclaimers, Expectations, Ground Rules, Lines & Veils, etc.:
-  </label>
-  <textarea
-    id="disclaimers"
-    name="disclaimers"
-    value={worldData.disclaimers}
-    onChange={handleInputChange}
-  />
-</div>
-{/* Number of Players Needed */}
-<div className="input-group">
-  <label htmlFor="playersNeeded">
-    Number of players needed to book a session:
-  </label>
-  <input
-    type="range"
-    id="playersNeeded"
-    name="playersNeeded"
-    min="1"
-    max="10"
-    value={worldData.playersNeeded}
-    onChange={handleInputChange}
-  />
-  <span>{worldData.playersNeeded}</span> {/* Display the selected value */}
-</div>
-{/* Require All Players for Session Zero */}
-<div className="input-group">
-  <label>
-    <input
-      type="checkbox"
-      name="requireAllPlayersForSessionZero"
-      checked={worldData.requireAllPlayersForSessionZero}
-      onChange={handleInputChange}
-    />
-    Require all players for first meeting?
-  </label>
-</div>
-{/* Playable Game Systems */}
-<div className="input-group">
-  <h2>Game System for this World</h2>
-  <div className="input-group">
-        <label htmlFor="gameSystem">Game System:</label>
-        <input
-          type="text"
-          id="gameSystem"
-          name="gameSystem"
-          placeholder="D&D 5e, Minecraft, Pure 'yes, and', etc."
-          value={worldData.gameSystem}
-          onChange={handleInputChange}
-        />
-      </div>
-      <div className="input-group">
-        <label htmlFor="gameSystemDescription">Game System Description:</label>
-        <textarea
-          id="gameSystemDescription"
-          name="gameSystemDescription"
-          placeholder="Brief description of the game system and any house rules."
-          value={worldData.gameSystemDescription}
-          onChange={handleInputChange}
-        />
-      </div>
-</div>
-{/* Modules */}
-<div className="input-group">
-        <h2>Modules players may encounter in this World</h2>
-        <p>(Modules = adventures, mods, content packs, scenarios, plot threads, etc.)</p>
-        <button onClick={handleAddModule}> {/* Use the new function */}
-          Add Module
-        </button>
-        <ul>
-          {worldData.modules.map((module, index) => (
-            <li key={index}>
-              {/* Input fields for module name and description */}
-              <label htmlFor={`modules[${index}].name`}>Name:</label> {/* Label for name */}
-              <input
-                type="text"
-                name={`modules[${index}].name`} // Use array syntax for names
-                placeholder="Curse of Strahd, the Tortle Package, etc."
-                value={module.name}
-                onChange={(e) => {
-                  const updatedModules = [...worldData.modules];
-                  updatedModules[index].name = e.target.value;
-                  setWorldData({ ...worldData, modules: updatedModules });
-                }}
-              />
-              <label htmlFor={`modules[${index}].description`}>Description:</label> {/* Label for description */}
-              <textarea
-                name={`modules[${index}].description`} // Use array syntax for names
-                
-                value={module.description}
-                onChange={(e) => {
-                  const updatedModules = [...worldData.modules];
-                  updatedModules[index].description = e.target.value;
-                  setWorldData({ ...worldData, modules: updatedModules });
-                }}
-              />
-              <button onClick={() => handleRemoveItem('modules', index)}>
-                Remove
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-{/* Buttons */}
-<div className="button-group">
-  <button onClick={handleCancel}>Cancel</button>
-  <button onClick={handlePreview}>Preview Players' View</button>
-  <button onClick={handleFinish}>Finish</button>
-</div>
-      </div>
+        <TopBar></TopBar>
+        <div className="world-details-content">
+            <h1>World Details</h1>
+
+            {/* Name */}
+            <div className="input-group">
+                <label htmlFor="name">Name:</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    maxLength="30"
+                    placeholder="My Cool RPG Setting"
+                    value={worldData.name}
+                    onChange={handleInputChange}
+                />
+            </div>
+
+            {/* Tagline */}
+            <div className="input-group">
+                <label htmlFor="tagline">Descriptive Tagline:</label>
+                <input
+                    type="text"
+                    id="tagline"
+                    name="tagline"
+                    maxLength="45"
+                    placeholder="The realm where cool people go"
+                    value={worldData.tagline}
+                    onChange={handleInputChange}
+                />
+            </div>
+
+            {/* Description */}
+            <div className="input-group">
+                <label htmlFor="description">Description:</label>
+                <textarea
+                    id="description"
+                    name="description"
+                    value={worldData.description}
+                    onChange={handleInputChange}
+                />
+            </div>
+
+            {/* Visibility */}
+            <div className="input-group">
+                <label htmlFor="visibility">Visibility:</label>
+                <div>
+                    <label>
+                        <input
+                            type="radio"
+                            id="visibility-public"
+                            name="visibility"
+                            value="public"
+                            checked={worldData.visibility === 'public'}
+                            onChange={handleInputChange}
+                        />
+                        Public (anyone can find and join your World)
+                    </label>
+                    <br />
+                    <label>
+                        <input
+                            type="radio"
+                            id="visibility-private"
+                            name="visibility"
+                            value="private"
+                            checked={worldData.visibility === 'private'}
+                            onChange={handleInputChange}
+                        />
+                        Private (you have to invite players to join)
+                    </label>
+                </div>
+            </div>
+
+            {/* Thumbnail Images */}
+            <div className="input-group">
+                <label htmlFor="thumbnailImages">Add Thumbnail Images:</label>
+                <input
+                    type="file"
+                    id="thumbnailImages"
+                    name="thumbnailImages"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageChange}
+                />
+                <div className="thumbnail-gallery">
+                    <ul>
+                        {worldData.thumbnailImages.map((image, index) => (
+                            <li key={index}>
+                                <img src={image} alt={`Thumbnail ${index + 1}`} />
+                                <button onClick={() => handleRemoveImage(index)}>Remove</button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+
+            {/* Disclaimers */}
+            <div className="input-group">
+                <label htmlFor="disclaimers">
+                    Disclaimers, Expectations, Ground Rules, Lines & Veils, etc.:
+                </label>
+                <textarea
+                    id="disclaimers"
+                    name="disclaimers"
+                    value={worldData.disclaimers}
+                    onChange={handleInputChange}
+                />
+            </div>
+
+            {/* Number of Players Needed */}
+            <div className="input-group">
+                <label htmlFor="playersNeeded">
+                    Number of players needed to book a session:
+                </label>
+                <input
+                    type="range"
+                    id="playersNeeded"
+                    name="playersNeeded"
+                    min="1"
+                    max="10"
+                    value={worldData.playersNeeded}
+                    onChange={handleInputChange}
+                />
+                <span>{worldData.playersNeeded}</span>
+            </div>
+
+            {/* Require All Players for Session Zero */}
+            <div className="input-group">
+                <label>
+                    <input
+                        type="checkbox"
+                        name="requireAllPlayersForSessionZero"
+                        checked={worldData.requireAllPlayersForSessionZero}
+                        onChange={handleInputChange}
+                    />
+                    Require all players for first meeting?
+                </label>
+            </div>
+
+            {/* Playable Game Systems */}
+            <div className="input-group">
+                <h2>Game System for this World</h2>
+                <div className="input-group">
+                    <label htmlFor="gameSystem">Game System:</label>
+                    <input
+                        type="text"
+                        id="gameSystem"
+                        name="gameSystem"
+                        placeholder="D&D 5e, Minecraft, Pure 'yes, and', etc."
+                        value={worldData.gameSystem}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div className="input-group">
+                    <label htmlFor="gameSystemDescription">Game System Description:</label>
+                    <textarea
+                        id="gameSystemDescription"
+                        name="gameSystemDescription"
+                        placeholder="Brief description of the game system and any house rules."
+                        value={worldData.gameSystemDescription}
+                        onChange={handleInputChange}
+                    />
+                </div>
+            </div>
+
+            {/* Modules */}
+            <div className="input-group">
+                <h2>Modules players may encounter in this World</h2>
+                <p>(Modules = adventures, mods, content packs, scenarios, plot threads, etc.)</p>
+                <button onClick={handleAddModule}>
+                    Add Module
+                </button>
+                <ul>
+                    {worldData.modules.map((module) => (
+                        <li key={module.id}>
+                            <label htmlFor={`module-${module.id}-name`}>Name:</label>
+                            <input
+                                type="text"
+                                id={`module-${module.id}-name`}
+                                name={`module-${module.id}-name`}
+                                placeholder="Curse of Strahd, the Tortle Package, etc."
+                                value={module.name}
+                                onChange={(e) => {
+                                    const updatedModules = worldData.modules.map(m =>
+                                        m.id === module.id ? { ...m, name: e.target.value } : m
+                                    );
+                                    setWorldData({ ...worldData, modules: updatedModules });
+                                }}
+                            />
+                            <label htmlFor={`module-${module.id}-description`}>Description:</label>
+                            <textarea
+                                id={`module-${module.id}-description`}
+                                name={`module-${module.id}-description`}
+                                value={module.description}
+                                onChange={(e) => {
+                                    const updatedModules = worldData.modules.map(m =>
+                                        m.id === module.id ? { ...m, description: e.target.value } : m
+                                    );
+                                    setWorldData({ ...worldData, modules: updatedModules });
+                                }}
+                            />
+                            <button onClick={() => handleRemoveModule(module.id)}>
+                                Remove
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
+            {/* Buttons */}
+            <div className="button-group">
+                <button onClick={handleCancel}>Cancel</button>
+                <button onClick={handlePreview}>Preview Players' View</button>
+                <button onClick={handleFinish} disabled={!userId || loading}>
+                    {loading ? "Saving..." : "Finish"}
+                </button>
+            </div>
+        </div>
     </div>
-  );
+);
 }
+
 export default WorldDetailsGM;
