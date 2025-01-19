@@ -11,12 +11,12 @@ function WorldDetailsGM() {
         tagline: '',
         description: '',
         visibility: 'public',
-        thumbnailImages: [],
+        //thumbnailImages: [],
         disclaimers: '',
         playersNeeded: 5,
         requireAllPlayersForSessionZero: false,
-        gameSystem: '',
-        gameSystemDescription: '',
+        game_system: '',
+        game_system_description: '',
         modules: [],
     });
     const [userId, setUserId] = useState(null);
@@ -94,6 +94,7 @@ function WorldDetailsGM() {
         fetchWorldData();
     }, [worldId]);
 
+    /*
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
         const newImages = [];
@@ -114,7 +115,7 @@ function WorldDetailsGM() {
             reader.readAsDataURL(file);
         });
     };
-
+    */
     const handleInputChange = (event) => {
         const { name, value, type, checked } = event.target;
         setWorldData({
@@ -122,13 +123,15 @@ function WorldDetailsGM() {
             [name]: type === 'checkbox' ? checked : value,
         });
     };
-
+   
+    /*
     const handleRemoveImage = (index) => {
         setWorldData({
             ...worldData,
             thumbnailImages: worldData.thumbnailImages.filter((_, i) => i !== index)
         });
     };
+    */
 
     const handleCancel = () => {
         navigate('/');
@@ -141,12 +144,17 @@ function WorldDetailsGM() {
     const handleFinish = async () => {
         // Basic validation:
         if (!worldData.name.trim()) {
-            alert("Please enter a name for your world.");
+            alert("Your world needs a name my doggie");
             return;
         }
 
         if (!worldData.tagline.trim()) {
-            alert("Please enter a tagline.");
+            alert("Don't forget a tagline!");
+            return;
+        }
+
+        if (!worldData.disclaimers.trim()) {
+            alert("You should really add some ground rules. Communication is key.");
             return;
         }
 
@@ -161,9 +169,10 @@ function WorldDetailsGM() {
                     gm_id: userId,
                     players_needed: parseInt(worldData.playersNeeded, 10),
                     require_all_players_for_session_zero: worldData.requireAllPlayersForSessionZero ? 1 : 0,
-                    modules: JSON.stringify(worldData.modules.map(({ id, ...rest }) => rest)), // Send modules without IDs
+                    modules: JSON.stringify(worldData.modules), // Send modules without IDs
                 };
                 requestData.gm_id = userId;
+                console.log("Modules Data:", requestData.modules); // Add this line
                 console.log("Request Data:", requestData);
 
                 let response;
@@ -189,7 +198,7 @@ function WorldDetailsGM() {
                         setWorldData({ ...worldData, id: data.worldId });
                     }
                     console.log(data.message);
-                    navigate('/');
+                    navigate('/home');
                 } else {
                     console.error('Error saving world data:', response.status);
                 }
@@ -278,7 +287,8 @@ function WorldDetailsGM() {
                 </div>
             </div>
 
-            {/* Thumbnail Images */}
+{/*
+            // Thumbnail Images 
             <div className="input-group">
                 <label htmlFor="thumbnailImages">Add Thumbnail Images:</label>
                 <input
@@ -300,6 +310,7 @@ function WorldDetailsGM() {
                     </ul>
                 </div>
             </div>
+           */}
 
             {/* Disclaimers */}
             <div className="input-group">
@@ -348,23 +359,23 @@ function WorldDetailsGM() {
             <div className="input-group">
                 <h2>Game System for this World</h2>
                 <div className="input-group">
-                    <label htmlFor="gameSystem">Game System:</label>
+                    <label htmlFor="game_system">Game System:</label>
                     <input
                         type="text"
-                        id="gameSystem"
-                        name="gameSystem"
+                        id="game_system"
+                        name="game_system"
                         placeholder="D&D 5e, Minecraft, Pure 'yes, and', etc."
-                        value={worldData.gameSystem}
+                        value={worldData.game_system}
                         onChange={handleInputChange}
                     />
                 </div>
                 <div className="input-group">
-                    <label htmlFor="gameSystemDescription">Game System Description:</label>
+                    <label htmlFor="game_system_description">Game System Description:</label>
                     <textarea
-                        id="gameSystemDescription"
-                        name="gameSystemDescription"
+                        id="game_system_description"
+                        name="game_system_description"
                         placeholder="Brief description of the game system and any house rules."
-                        value={worldData.gameSystemDescription}
+                        value={worldData.game_system_description}
                         onChange={handleInputChange}
                     />
                 </div>

@@ -2,8 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
+
 // Configure multer before exporting it to anything else
-const storage = multer.diskStorage({
+// Multer configuration for profile images (single file upload)
+const profileImageStorage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads/');
     },
@@ -12,10 +14,25 @@ const storage = multer.diskStorage({
         cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
-const db = require('./dbConfig');
-const upload = multer({ storage: storage });
-module.exports = { upload, db };
+
+const uploadProfileImage = multer({ storage: profileImageStorage });
+
+// Multer configuration for world thumbnail images (multiple file uploads)
+const worldImageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const uploadWorldImages = multer({ storage: worldImageStorage });
+const db = require ('./dbConfig.js');
+module.exports = { uploadProfileImage, uploadWorldImages, db };
 //done
+
 const app = express();
 const port = process.argv[2] || 5000;
 

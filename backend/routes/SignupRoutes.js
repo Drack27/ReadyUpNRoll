@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const db = require('../dbConfig');
-const upload = require('../server').upload;
-const fs = require('fs'); // Import the fs module for file deletion
-const jwt = require('jsonwebtoken'); // Make sure to import jsonwebtoken
+const { uploadProfileImage } = require('../server');
+const fs = require('fs'); 
+const jwt = require('jsonwebtoken');
 
 console.log("Hi from external route file!");
-console.log(upload);
+console.log("Profile Image Config:", uploadProfileImage);
 
-router.post('/', upload.single('profileImage'), async (req, res) => {
+router.post('/', uploadProfileImage.single('profileImage'), async (req, res) => {
     console.log('Received signup request:', req.body);
     const { email, username, password } = req.body;
     const profileImage = req.file;

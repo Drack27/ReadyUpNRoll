@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../dbConfig'); 
+const db = require('../dbConfig');
+const { uploadWorldImages } = require('../server'); 
+const path = require('path'); 
 
 // --- Create or Update World (POST /api/worldsgm) ---
-router.post('/api/worldsgm', async (req, res) => {
+router.post('/api/worldsgm', uploadWorldImages.array('thumbnailImages'), async (req, res) => {
   const { 
     id, // Include id in the request body for both create and update
     gm_id, 
@@ -15,7 +17,9 @@ router.post('/api/worldsgm', async (req, res) => {
     disclaimers,
     players_needed,
     require_all_players_for_session_zero,
-    // ... other fields ...
+    game_system,
+    game_system_description,
+    modules,
   } = req.body;
 
   try {
@@ -32,8 +36,10 @@ router.post('/api/worldsgm', async (req, res) => {
                     disclaimers = ?,
                     players_needed = ?,
                     require_all_players_for_session_zero = ?,
-                    /* ... update other fields ... */
-                    WHERE id = ? AND gm_id = ?`; // Added gm_id to WHERE clause
+                    game_system = ?,
+                    game_system_description = ?,
+                    modules = ?,
+                    WHERE id = ? AND gm_id = ?`;
 
                     const updateValues = [
                       name,
@@ -44,7 +50,9 @@ router.post('/api/worldsgm', async (req, res) => {
                       disclaimers,
                       players_needed,
                       require_all_players_for_session_zero,
-                      /* ... other field values ... */
+                      game_system,
+                      game_system_description,
+                      JSON.stringify(modules),
                       id,
                       gm_id, // Add gm_id here as well
                   ];
@@ -69,8 +77,8 @@ router.post('/api/worldsgm', async (req, res) => {
       //    - If limit exceeded, return 403 Forbidden
 
       // 2. Create a new world entry
-      const insertSql = `INSERT INTO worlds (gm_id, name, tagline, description, visibility, thumbnailImages, disclaimers, players_needed, require_all_players_for_session_zero /* ...other fields */) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?/* ...other values */)`;
+      const insertSql = `INSERT INTO worlds (gm_id, name, tagline, description, visibility, thumbnailImages, disclaimers, players_needed, require_all_players_for_session_zero, game_system, game_system_description, modules /* ...other fields */) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?/* ...other values */)`;
 
       const insertValues = [
         gm_id,
@@ -82,8 +90,10 @@ router.post('/api/worldsgm', async (req, res) => {
         disclaimers,
         players_needed,
         require_all_players_for_session_zero,
-        /* ... other field values ... */
-    ];
+        game_system,
+        game_system_description,
+        JSON.stringify(modules),    
+      ];
 
       const insertResult = await new Promise((resolve, reject) => {
         db.run(insertSql, insertValues, function (err) {
