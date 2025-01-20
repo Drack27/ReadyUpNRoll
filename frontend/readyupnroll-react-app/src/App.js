@@ -33,7 +33,8 @@ function App() {
           <Route path="/home" element={<HomeScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />
           <Route path="/WorldDetailsPlayer" element={<WorldDetailsPlayer />} />
-          <Route path="/WorldDetailsGM" element={<WorldDetailsGM />} />
+          <Route path="/WorldDetailsGMCreate" element={<WorldDetailsGM />} />
+          <Route path="/WorldDetailsGMEdit/:worldId" element={<WorldDetailsGM />} />
           <Route path="/JoinWorld" element={<JoinWorld />} />
           <Route path="/InvitePlayers/:worldId" element={<InvitePlayers />} />
           <Route path="/ReadyUpScreen" element={<ReadyUpScreen />} />

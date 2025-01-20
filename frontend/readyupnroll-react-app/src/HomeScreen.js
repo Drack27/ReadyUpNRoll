@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './HomeScreen.css'; 
-import logo from './logo.svg'; 
 import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import TopBar from './TopBar';
 
@@ -10,7 +9,8 @@ function HomeScreen() {
   const [username, setUsername] = useState('');
   const [worlds, setWorlds] = useState([]);
   const [userId, setUserId] = useState(null);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -62,6 +62,19 @@ function HomeScreen() {
     setViewMode(mode);
   };
 
+    // Function to handle search input change
+    const handleSearchInputChange = (event) => {
+      setSearchQuery(event.target.value);
+    };
+  
+    // Filter worlds based on search query
+    const filteredWorlds = worlds.filter((world) => {
+      const nameMatch = world.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const taglineMatch = world.tagline ? world.tagline.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+      return nameMatch || taglineMatch;
+    });
+  
+
   return (
     <div className="home-screen">
       <TopBar hideHomeButton={true}></TopBar>
@@ -78,25 +91,39 @@ function HomeScreen() {
       <div className="home-content">
         <div className="gm-section">
           <h2>These are the Worlds you own</h2>
-          <input type="text" placeholder="Search worlds..." className="search-bar" />
+          <input
+            type="text"
+            placeholder="Search worlds..."
+            className="search-bar"
+            value={searchQuery}
+            onChange={handleSearchInputChange}
+          />
           <div className={`world-list ${viewMode}`}>
             <ul>
-              {worlds.map((world) => (
+              {/* Map over filteredWorlds instead of worlds */}
+              {filteredWorlds.length > 0 ? (
+              filteredWorlds.map((world) => (
                 <li key={world.id}>
                   <div className="world-details">
                     <h3>{world.name}</h3>
                     <p>{world.tagline}</p>
                   </div>
                   <div className="world-buttons">
-                    <button>View/Edit Details</button>
+                    {/* View/Edit Details Button */}
+                    <Link to={`/WorldDetailsGMEdit/${world.id}`}>
+                      <button>View/Edit Details</button>
+                    </Link>
                     <button>Duplicate</button>
                     <button>Invite a Player</button>
                   </div>
                 </li>
-              ))}
+              ))
+            ) :(
+              <li>No worlds found!</li>
+            )}
             </ul>
           </div>
-          <Link to="/WorldDetailsGM">
+          <Link to="/WorldDetailsGMCreate">
             <button>Create A World</button>
           </Link>
         </div>

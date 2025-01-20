@@ -4,23 +4,24 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import TopBar from './TopBar';
 
 function WorldDetailsGM() {
-    const navigate = useNavigate();
-    const { worldId } = useParams();
-    const [worldData, setWorldData] = useState({
-        name: '',
-        tagline: '',
-        description: '',
-        visibility: 'public',
-        //thumbnailImages: [],
-        disclaimers: '',
-        playersNeeded: 5,
-        requireAllPlayersForSessionZero: false,
-        game_system: '',
-        game_system_description: '',
-        modules: [],
-    });
-    const [userId, setUserId] = useState(null);
-    const [loading, setLoading] = useState(false); // State for loading status
+  const navigate = useNavigate();
+  const { worldId } = useParams();
+  const [worldData, setWorldData] = useState({
+    name: '',
+    tagline: '',
+    description: '',
+    visibility: 'public',
+    // thumbnailImages: [],
+    disclaimers: '',
+    playersNeeded: 5,
+    requireAllPlayersForSessionZero: false,
+    game_system: '',
+    game_system_description: '',
+    modules: [],
+  });
+  const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [isNewWorld, setIsNewWorld] = useState(false); 
 
     const handleAddModule = () => {
         const newModuleId = Date.now(); // Simple unique ID
@@ -78,21 +79,38 @@ function WorldDetailsGM() {
         fetchUserId();
     }, []);
 
-    // Fetch existing world data
+    // Determine if it's a new world or an existing one
     useEffect(() => {
-        const fetchWorldData = async () => {
-            if (worldId) {
-                try {
-                    const response = await fetch(`<span class="math-inline">\{process\.env\.REACT\_APP\_API\_URL\}/api/worldsgm/</span>{worldId}`);
-                    const data = await response.json();
-                    setWorldData(data);
-                } catch (error) {
-                    console.error('Error fetching world data:', error);
-                }
-            }
-        };
-        fetchWorldData();
+        setIsNewWorld(worldId === 'new');
     }, [worldId]);
+
+     // Fetch existing world data based on worldId
+  useEffect(() => {
+    const fetchWorldData = async () => {
+        if (worldId && worldId !== 'new') {
+            setLoading(true);
+            try {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    data.players_needed = parseInt(data.players_needed, 10);
+                    data.require_all_players_for_session_zero = data.require_all_players_for_session_zero === 1;
+                    data.modules = typeof data.modules === 'string' ? JSON.parse(data.modules) : data.modules;
+
+                    setWorldData(data);
+                } else {
+                    console.error('Error fetching world data:', response.status);
+                }
+            } catch (error) {
+                console.error('Error fetching world data:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    fetchWorldData();
+}, [worldId]);
 
     /*
     const handleImageChange = (e) => {
@@ -134,11 +152,11 @@ function WorldDetailsGM() {
     */
 
     const handleCancel = () => {
-        navigate('/');
+        navigate('/home');
     };
 
     const handlePreview = () => {
-        // Implement preview functionality
+        navigate('/WorldDetailsPlayer')    
     };
 
     const handleFinish = async () => {
@@ -161,32 +179,28 @@ function WorldDetailsGM() {
         // ... more validation ...
 
         if (userId) {
-            setLoading(true); // Set loading to true before starting the request
+            setLoading(true);
             try {
-                // Prepare data for the request
                 const requestData = {
                     ...worldData,
                     gm_id: userId,
                     players_needed: parseInt(worldData.playersNeeded, 10),
                     require_all_players_for_session_zero: worldData.requireAllPlayersForSessionZero ? 1 : 0,
-                    modules: JSON.stringify(worldData.modules), // Send modules without IDs
+                    modules: JSON.stringify(worldData.modules.map(({ id, ...rest }) => rest)), // Remove IDs from modules before sending
                 };
-                requestData.gm_id = userId;
-                console.log("Modules Data:", requestData.modules); // Add this line
-                console.log("Request Data:", requestData);
 
                 let response;
-                if (worldId) {
-                    requestData.id = parseInt(worldId, 10);
-                    console.log("Updated Request Data:", requestData);
-                    response = await fetch(`<span class="math-inline">\{process\.env\.REACT\_APP\_API\_URL\}/api/worldsgm/</span>{worldId}`, {
-                        method: 'PUT',
+                if (isNewWorld) {
+                    // Create new world
+                    response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm`, {
+                        method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(requestData),
                     });
                 } else {
-                    response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm`, {
-                        method: 'POST',
+                    // Update existing world
+                    response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`, {
+                        method: 'PUT', // Use PUT for updates
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(requestData),
                     });
@@ -194,18 +208,15 @@ function WorldDetailsGM() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    if (!worldId) {
-                        setWorldData({ ...worldData, id: data.worldId });
-                    }
                     console.log(data.message);
-                    navigate('/home');
+                    navigate('/home'); // Redirect to home screen after saving
                 } else {
                     console.error('Error saving world data:', response.status);
                 }
             } catch (error) {
                 console.error('Error saving world data:', error);
             } finally {
-                setLoading(false); // Set loading back to false after the request completes
+                setLoading(false);
             }
         } else {
             console.error("Cannot save world data. User ID not available.");
@@ -216,7 +227,8 @@ function WorldDetailsGM() {
     <div className="world-details-page">
         <TopBar></TopBar>
         <div className="world-details-content">
-            <h1>World Details</h1>
+        {/* Update the title based on isNewWorld */}
+        <h1>{isNewWorld ? 'Create New World' : 'World Details'}</h1>
 
             {/* Name */}
             <div className="input-group">
