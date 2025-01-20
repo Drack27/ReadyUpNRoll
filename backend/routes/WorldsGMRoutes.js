@@ -110,6 +110,28 @@ router.post('/api/worldsgm', uploadWorldImages.array('thumbnailImages'), async (
   }
 });
 
+// --- Get Worlds by GM ID (GET /api/worlds/gm/:gmId) ---
+router.get('/api/worlds/gm/:gmId', (req, res) => {
+  const gmId = req.params.gmId;
+  const sql = `SELECT id, name, tagline, description, visibility, thumbnailImages FROM worlds WHERE gm_id = ?`; // Select only necessary fields
+  db.all(sql, [gmId], (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      return res.status(500).json({ error: 'Failed to get worlds' });
+    }
+    if (!rows) {
+      return res.status(404).json({ error: 'No worlds found for this user' });
+    }
+    // Parse thumbnailImages if it's stored as JSON
+    rows.forEach(row => {
+        if (row.thumbnailImages) {
+            row.thumbnailImages = JSON.parse(row.thumbnailImages);
+        }
+    });
+    res.json(rows);
+  });
+});
+
   // --- Get World Details (GET /api/worldsgm/:worldId) ---
 router.get('/api/worldsgm/:worldId', (req, res) => {
   const worldId = req.params.worldId;

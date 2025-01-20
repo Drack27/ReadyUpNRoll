@@ -30,3 +30,26 @@
     height: 40px;
     border-radius: 50%;
   }
+
+  .center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1; /* Allow the center div to take up available space */
+  }
+  
+  .get-premium-button {
+    background-color: #ffcc00; /* Example color - choose your desired color */
+    color: #222;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Add a transition for a hover effect */
+  }
+  
+  .get-premium-button:hover {
+    background-color: #e6b800; /* Example hover color */
+  }

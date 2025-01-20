@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'; // Import useEffect
 import './TopBar.css'; 
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Link, useNavigate, useLocation } from 'react-router-dom'; 
 import LogoutButton from './LogoutButton';
 
 function TopBar({ hideHomeButton, hideSettingsButton }) {
   const navigate = useNavigate(); // Initialize useNavigate
+  const location = useLocation(); // Get the current location
   const [profileImage, setProfileImage] = useState(null); // State for the profile image
 
   useEffect(() => {
@@ -35,6 +36,9 @@ function TopBar({ hideHomeButton, hideSettingsButton }) {
     fetchUserData();
   }, [navigate]); // Add navigate as a dependency 
 
+   // Check if the current path is the pricing page
+   const isPricingPage = location.pathname === '/pricing';
+
   return (
     <div className="top-bar">
       <div className="left-side">
@@ -49,6 +53,13 @@ function TopBar({ hideHomeButton, hideSettingsButton }) {
         {!hideHomeButton && (
           <Link to='/home'>
           <button className="top-bar-button">Return to Home Screen</button>
+          </Link>
+        )}
+      </div>
+      <div className="center">
+        {!isPricingPage && (
+          <Link to="/pricing">
+            <button className="get-premium-button">GET PREMIUM!</button>
           </Link>
         )}
       </div>

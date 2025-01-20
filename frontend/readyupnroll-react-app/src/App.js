@@ -16,18 +16,19 @@ import LeaveWorldConfirmation from './LeaveWorldConfirmation';
 import LeaveWorldSuccess from './LeaveWorldSuccess';
 import GroundRulesAcceptance from './GroundRulesAcceptance';
 import JoinWorldSuccess from './JoinWorldSuccess';
+import Pricing from './Pricing';
 
 import ProtectedRoute from './ProtectedRoute';
 
 function App() {
-  console.log("Ihavenofriggingideawhatishappeninganymore");
   return (
     <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/AccountCreationSuccess" element={<AccountCreationSuccess />} />
-        
+          <Route path="/Pricing" element={<Pricing />} />
+
         <Route element={<ProtectedRoute />}>
           <Route path="/home" element={<HomeScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />

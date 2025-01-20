@@ -8,37 +8,54 @@ function HomeScreen() {
   console.log("homescreen rendered");
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'gallery'
   const [username, setUsername] = useState('');
+  const [worlds, setWorlds] = useState([]);
+  const [userId, setUserId] = useState(null);
   const navigate = useNavigate(); // Initialize useNavigate
 
 
   useEffect(() => {
-    const fetchUsername = async () => {
-      if (!username) { // Only fetch if username is not already set
-        const token = localStorage.getItem('token');
-        if (token) {
-          console.log('Token in HomeScreen:', token);
-          try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
+    const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        console.log('Token in HomeScreen:', token);
+        try {
+          // Fetch user data (including ID)
+          const userResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          console.log('Response from /api/me:', userResponse);
+
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            console.log('Data from /api/me:', userData);
+            setUsername(userData.username);
+            setUserId(userData.id); // Set the user ID
+
+            // Fetch worlds using the user ID
+            const worldsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worlds/gm/${userData.id}`, {
               headers: { Authorization: `Bearer ${token}` },
             });
-            console.log('Response from /api/me:', response);
-            if (response.ok) {
-              const data = await response.json();
-              console.log('Data from /api/me:', data);
-              setUsername(data.username);
+            console.log('Response from /api/worlds/gm:', worldsResponse);
+
+            if (worldsResponse.ok) {
+              const worldsData = await worldsResponse.json();
+              console.log('Data from /api/worlds/gm:', worldsData);
+              setWorlds(worldsData);
             } else {
-              console.error('Failed to fetch username:', response.status);
-              navigate('/login');
+              console.error('Failed to fetch worlds:', worldsResponse.status);
             }
-          } catch (error) {
-            console.error('Error fetching username:', error);
+          } else {
+            console.error('Failed to fetch user data:', userResponse.status);
+            navigate('/login');
           }
+        } catch (error) {
+          console.error('Error fetching data:', error);
         }
       }
     };
-  
-    fetchUsername();
-  }, [username]); // Dependency array now includes 'username'
+
+    fetchData();
+  }, []); // Run only once when the component mounts
   
 
   const handleViewModeChange = (mode) => {
@@ -60,32 +77,32 @@ function HomeScreen() {
 
       <div className="home-content">
         <div className="gm-section">
-          <h2>These are the Worlds in which you are a GM</h2>
+          <h2>These are the Worlds you own</h2>
           <input type="text" placeholder="Search worlds..." className="search-bar" />
-          <div className={`world-list ${viewMode}`}> 
+          <div className={`world-list ${viewMode}`}>
             <ul>
-              {/* Placeholder for world list items */}
-              <li>
-                <div className="world-details"> {/* Container for world details */}
-                  <h3>World Name</h3>
-                  <p>Tagline/Description</p>
-                </div>
-                <div className="world-buttons"> {/* Container for world buttons */}
-                  <button>View/Edit Details</button>
-                  <button>Duplicate</button>
-                  <button>Invite a Player</button>
-                </div>
-              </li>
-              {/* More world list items */}
+              {worlds.map((world) => (
+                <li key={world.id}>
+                  <div className="world-details">
+                    <h3>{world.name}</h3>
+                    <p>{world.tagline}</p>
+                  </div>
+                  <div className="world-buttons">
+                    <button>View/Edit Details</button>
+                    <button>Duplicate</button>
+                    <button>Invite a Player</button>
+                  </div>
+                </li>
+              ))}
             </ul>
           </div>
           <Link to="/WorldDetailsGM">
-          <button>Create A World</button>
+            <button>Create A World</button>
           </Link>
         </div>
 
         <div className="player-section">
-          <h2>These are the Worlds in which you are a Player</h2>
+          <h2>These are the Worlds you have joined</h2>
           <input type="text" placeholder="Search worlds..." className="search-bar" />
           <div className={`world-list ${viewMode}`}>
             <ul>
