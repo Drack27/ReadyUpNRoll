@@ -13,7 +13,7 @@ function WorldDetailsGM() {
     visibility: 'public',
     // thumbnailImages: [],
     disclaimers: '',
-    playersNeeded: 5,
+    playersNeeded: 5, 
     requireAllPlayersForSessionZero: false,
     game_system: '',
     game_system_description: '',
@@ -21,7 +21,8 @@ function WorldDetailsGM() {
   });
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isNewWorld, setIsNewWorld] = useState(false); 
+  const [isNewWorld, setIsNewWorld] = useState(false);
+
 
     const handleAddModule = () => {
         const newModuleId = Date.now(); // Simple unique ID
@@ -81,36 +82,67 @@ function WorldDetailsGM() {
 
     // Determine if it's a new world or an existing one
     useEffect(() => {
-        setIsNewWorld(worldId === 'new');
+        setIsNewWorld(!worldId);
     }, [worldId]);
 
-     // Fetch existing world data based on worldId
-  useEffect(() => {
-    const fetchWorldData = async () => {
-        if (worldId && worldId !== 'new') {
-            setLoading(true);
-            try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    data.players_needed = parseInt(data.players_needed, 10);
-                    data.require_all_players_for_session_zero = data.require_all_players_for_session_zero === 1;
-                    data.modules = typeof data.modules === 'string' ? JSON.parse(data.modules) : data.modules;
-
-                    setWorldData(data);
-                } else {
-                    console.error('Error fetching world data:', response.status);
+    useEffect(() => {
+        const fetchWorldData = async () => {
+            if (worldId && worldId !== 'new') {
+                setLoading(true);
+                try {
+                    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log("Fetched world data:", data);
+    
+                        // Handle various possible types of data.modules
+                        let modules = [];
+                        if (Array.isArray(data.modules)) {
+                            modules = data.modules.map(module => ({
+                                ...module,
+                                name: module.name || '',
+                                description: module.description || ''
+                            }));
+                        } else if (typeof data.modules === 'string') {
+                            try {
+                                const parsedModules = JSON.parse(data.modules);
+                                if (Array.isArray(parsedModules)) {
+                                    modules = parsedModules.map(module => ({
+                                        ...module,
+                                        name: module.name || '',
+                                        description: module.description || ''
+                                    }));
+                                } else {
+                                    console.error('Parsed modules is not an array:', parsedModules);
+                                }
+                            } catch (error) {
+                                console.error('Error parsing modules JSON:', error);
+                            }
+                        } else if (data.modules === null || data.modules === undefined) {
+                            modules = [];
+                        } else {
+                            console.error('Unexpected data.modules type:', typeof data.modules);
+                        }
+    
+                        setWorldData({
+                            ...data,
+                            players_needed: parseInt(data.players_needed, 10) || 1,
+                            require_all_players_for_session_zero: data.require_all_players_for_session_zero === 1,
+                            modules: modules,
+                        });
+                    } else {
+                        console.error('Error fetching world data:', response.status);
+                    }
+                } catch (error) {
+                    console.error('Error fetching world data:', error);
+                } finally {
+                    setLoading(false);
                 }
-            } catch (error) {
-                console.error('Error fetching world data:', error);
-            } finally {
-                setLoading(false);
             }
-        }
-    };
-
-    fetchWorldData();
-}, [worldId]);
+        };
+    
+        fetchWorldData();
+    }, [worldId]);
 
     /*
     const handleImageChange = (e) => {
@@ -134,13 +166,27 @@ function WorldDetailsGM() {
         });
     };
     */
-    const handleInputChange = (event) => {
-        const { name, value, type, checked } = event.target;
+    // Handle Input Change (with updates for the slider and checkbox)
+const handleInputChange = (event) => {
+    const { name, value, type, checked } = event.target;
+
+    if (name === "playersNeeded") {
         setWorldData({
             ...worldData,
-            [name]: type === 'checkbox' ? checked : value,
+            playersNeeded: parseInt(value, 10), // Convert to number
         });
-    };
+    } else if (type === "checkbox") {
+        setWorldData({
+            ...worldData,
+            [name]: checked,
+        });
+    } else {
+        setWorldData({
+            ...worldData,
+            [name]: value,
+        });
+    }
+};
    
     /*
     const handleRemoveImage = (index) => {
@@ -186,7 +232,7 @@ function WorldDetailsGM() {
                     gm_id: userId,
                     players_needed: parseInt(worldData.playersNeeded, 10),
                     require_all_players_for_session_zero: worldData.requireAllPlayersForSessionZero ? 1 : 0,
-                    modules: JSON.stringify(worldData.modules.map(({ id, ...rest }) => rest)), // Remove IDs from modules before sending
+                    modules: JSON.stringify(worldData.modules),
                 };
 
                 let response;
@@ -200,7 +246,7 @@ function WorldDetailsGM() {
                 } else {
                     // Update existing world
                     response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`, {
-                        method: 'PUT', // Use PUT for updates
+                        method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(requestData),
                     });
@@ -209,9 +255,11 @@ function WorldDetailsGM() {
                 if (response.ok) {
                     const data = await response.json();
                     console.log(data.message);
-                    navigate('/home'); // Redirect to home screen after saving
+                    navigate('/home');
                 } else {
                     console.error('Error saving world data:', response.status);
+                    const errorData = await response.json();
+                    console.error("Error Details:", errorData); // Log the detailed error response
                 }
             } catch (error) {
                 console.error('Error saving world data:', error);
@@ -221,6 +269,15 @@ function WorldDetailsGM() {
         } else {
             console.error("Cannot save world data. User ID not available.");
         }
+    };
+
+    const handleModuleChange = (moduleId, field, value) => {
+        setWorldData(prevWorldData => ({
+            ...prevWorldData,
+            modules: prevWorldData.modules.map(module =>
+                module.id === moduleId ? { ...module, [field]: value } : module
+            )
+        }));
     };
   
   return (
@@ -395,47 +452,37 @@ function WorldDetailsGM() {
 
             {/* Modules */}
             <div className="input-group">
-                <h2>Modules players may encounter in this World</h2>
-                <p>(Modules = adventures, mods, content packs, scenarios, plot threads, etc.)</p>
-                <button onClick={handleAddModule}>
-                    Add Module
-                </button>
-                <ul>
-                    {worldData.modules.map((module) => (
-                        <li key={module.id}>
-                            <label htmlFor={`module-${module.id}-name`}>Name:</label>
-                            <input
-                                type="text"
-                                id={`module-${module.id}-name`}
-                                name={`module-${module.id}-name`}
-                                placeholder="Curse of Strahd, the Tortle Package, etc."
-                                value={module.name}
-                                onChange={(e) => {
-                                    const updatedModules = worldData.modules.map(m =>
-                                        m.id === module.id ? { ...m, name: e.target.value } : m
-                                    );
-                                    setWorldData({ ...worldData, modules: updatedModules });
-                                }}
-                            />
-                            <label htmlFor={`module-${module.id}-description`}>Description:</label>
-                            <textarea
-                                id={`module-${module.id}-description`}
-                                name={`module-${module.id}-description`}
-                                value={module.description}
-                                onChange={(e) => {
-                                    const updatedModules = worldData.modules.map(m =>
-                                        m.id === module.id ? { ...m, description: e.target.value } : m
-                                    );
-                                    setWorldData({ ...worldData, modules: updatedModules });
-                                }}
-                            />
-                            <button onClick={() => handleRemoveModule(module.id)}>
-                                Remove
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+                        <h2>Modules players may encounter in this World</h2>
+                        <p>(Modules = adventures, mods, content packs, scenarios, plot threads, etc.)</p>
+                        <button onClick={handleAddModule}>
+                            Add Module
+                        </button>
+                        <ul>
+                            {worldData.modules.map((module) => (
+                                <li key={module.id}>
+                                    <label htmlFor={`module-${module.id}-name`}>Name:</label>
+                                    <input
+                                        type="text"
+                                        id={`module-${module.id}-name`}
+                                        name={`module-${module.id}-name`}
+                                        placeholder="Curse of Strahd, the Tortle Package, etc."
+                                        value={module.name}
+                                        onChange={(e) => handleModuleChange(module.id, 'name', e.target.value)}
+                                    />
+                                    <label htmlFor={`module-${module.id}-description`}>Description:</label>
+                                    <textarea
+                                        id={`module-${module.id}-description`}
+                                        name={`module-${module.id}-description`}
+                                        value={module.description}
+                                        onChange={(e) => handleModuleChange(module.id, 'description', e.target.value)}
+                                    />
+                                    <button onClick={() => handleRemoveModule(module.id)}>
+                                        Remove
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
 
             {/* Buttons */}
             <div className="button-group">

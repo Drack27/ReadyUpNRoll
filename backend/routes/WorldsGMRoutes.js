@@ -150,4 +150,81 @@ router.get('/api/worldsgm/:worldId', (req, res) => {
   });
 });
 
+router.put('/api/worldsgm/:worldId', async (req, res) => {
+  const { worldId } = req.params;
+  console.log('Received PUT request for worldId:', worldId); // Log the worldId
+  console.log('Request Body:', req.body); // Log the request body
+  const {
+      gm_id,
+      name,
+      tagline,
+      description,
+      visibility,
+      thumbnailImages,
+      disclaimers,
+      players_needed,
+      require_all_players_for_session_zero,
+      game_system,
+      game_system_description,
+      modules,
+  } = req.body;
+
+  try {
+      // 1. Validate the data (add your validation logic here)
+
+      // 2. Update the world in the database
+      const updateSql = `UPDATE worlds SET 
+              name = ?, 
+              tagline = ?, 
+              description = ?,
+              visibility = ?,
+              thumbnailImages = ?,
+              disclaimers = ?,
+              players_needed = ?,
+              require_all_players_for_session_zero = ?,
+              game_system = ?,
+              game_system_description = ?,
+              modules = ?
+              WHERE id = ? AND gm_id = ?`;
+
+      const updateValues = [
+          name,
+          tagline,
+          description,
+          visibility,
+          JSON.stringify(thumbnailImages),
+          disclaimers,
+          players_needed,
+          require_all_players_for_session_zero,
+          game_system,
+          game_system_description,
+          JSON.stringify(modules),
+          worldId,
+          gm_id,
+      ];
+
+      console.log('Update SQL:', updateSql); // Log the SQL query
+      console.log('Update Values:', updateValues); // Log the values
+
+      const updateResult = await new Promise((resolve, reject) => {
+          db.run(updateSql, updateValues, function (err) {
+              if (err) {
+                  console.error('Database Error:', err.message); // Log any database errors
+                  reject(err);
+              }
+              resolve(this.changes); // Resolve with the number of rows changed
+          });
+      });
+
+      if (updateResult === 0) {
+          return res.status(404).json({ error: 'World not found' });
+      } else {
+          return res.json({ message: 'World updated successfully' });
+      }
+  } catch (error) {
+      console.error(error.message);
+      return res.status(500).json({ error: 'Failed to update world' });
+  }
+});
+
 module.exports = router;
