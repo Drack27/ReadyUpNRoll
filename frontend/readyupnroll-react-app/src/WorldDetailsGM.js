@@ -125,9 +125,9 @@ function WorldDetailsGM() {
                         }
     
                         setWorldData({
-                            ...data,
-                            players_needed: parseInt(data.players_needed, 10) || 1,
-                            require_all_players_for_session_zero: data.require_all_players_for_session_zero === 1,
+                            ...data, // Spread the rest of the data
+                            playersNeeded: parseInt(data.players_needed, 10) || 1, // Normalize playersNeeded
+                            requireAllPlayersForSessionZero: data.require_all_players_for_session_zero === 1, // Normalize requireAllPlayersForSessionZero
                             modules: modules,
                         });
                     } else {
@@ -143,7 +143,6 @@ function WorldDetailsGM() {
     
         fetchWorldData();
     }, [worldId]);
-
     /*
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
@@ -167,26 +166,29 @@ function WorldDetailsGM() {
     };
     */
     // Handle Input Change (with updates for the slider and checkbox)
-const handleInputChange = (event) => {
-    const { name, value, type, checked } = event.target;
-
-    if (name === "playersNeeded") {
-        setWorldData({
-            ...worldData,
-            playersNeeded: parseInt(value, 10), // Convert to number
-        });
-    } else if (type === "checkbox") {
-        setWorldData({
-            ...worldData,
-            [name]: checked,
-        });
-    } else {
-        setWorldData({
-            ...worldData,
-            [name]: value,
-        });
-    }
-};
+    const handleInputChange = (event) => {
+            const { name, value, type, checked } = event.target;
+        
+            if (name === "playersNeeded") {
+                setWorldData({
+                    ...worldData,
+                    playersNeeded: parseInt(value, 10), // Convert to number
+                });
+            } else if (type === "checkbox") {
+                let updatedWorldData = { ...worldData };
+                if (name === "requireAllPlayersForSessionZero") {
+                  updatedWorldData.requireAllPlayersForSessionZero = checked;
+                  // Ensure backend keys are used for sending data
+                  updatedWorldData.require_all_players_for_session_zero = checked ? 1 : 0;
+                }
+                setWorldData(updatedWorldData);
+            } else {
+                setWorldData({
+                    ...worldData,
+                    [name]: value,
+                });
+            }
+        };
    
     /*
     const handleRemoveImage = (index) => {
@@ -231,6 +233,7 @@ const handleInputChange = (event) => {
                     ...worldData,
                     gm_id: userId,
                     players_needed: parseInt(worldData.playersNeeded, 10),
+                    // Directly use the correctly named property for the backend
                     require_all_players_for_session_zero: worldData.requireAllPlayersForSessionZero ? 1 : 0,
                     modules: JSON.stringify(worldData.modules),
                 };
