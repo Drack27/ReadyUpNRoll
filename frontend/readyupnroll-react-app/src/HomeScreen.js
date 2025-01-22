@@ -5,7 +5,7 @@ import TopBar from './TopBar';
 
 function HomeScreen() {
   console.log("homescreen rendered");
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'gallery'
+  // const [viewMode, setViewMode] = useState('list'); // 'list' or 'gallery'
   const [username, setUsername] = useState('');
   const [worlds, setWorlds] = useState([]);
   const [userId, setUserId] = useState(null);
@@ -57,10 +57,11 @@ function HomeScreen() {
     fetchData();
   }, []); // Run only once when the component mounts
   
-
+/*
   const handleViewModeChange = (mode) => {
     setViewMode(mode);
   };
+  */
 
     // Function to handle search input change
     const handleSearchInputChange = (event) => {
@@ -84,8 +85,8 @@ function HomeScreen() {
       </h1>
 
       <div className="view-mode-toggle">
-        <button onClick={() => handleViewModeChange('list')}>List View</button>
-        <button onClick={() => handleViewModeChange('gallery')}>Gallery View</button>
+       {/* <button onClick={() => handleViewModeChange('list')}>List View</button> */}
+       {/* <button onClick={() => handleViewModeChange('gallery')}>Gallery View</button> */}
       </div>
 
       <div className="home-content">
@@ -98,7 +99,7 @@ function HomeScreen() {
             value={searchQuery}
             onChange={handleSearchInputChange}
           />
-          <div className={`world-list ${viewMode}`}>
+           <div className={`world-list`}>
             <ul>
               {/* Map over filteredWorlds instead of worlds */}
               {filteredWorlds.length > 0 ? (
@@ -131,7 +132,7 @@ function HomeScreen() {
         <div className="player-section">
           <h2>These are the Worlds you have joined</h2>
           <input type="text" placeholder="Search worlds..." className="search-bar" />
-          <div className={`world-list ${viewMode}`}>
+          <div className={`world-list`}>
             <ul>
               {/* Placeholder for world list items */}
               <li>

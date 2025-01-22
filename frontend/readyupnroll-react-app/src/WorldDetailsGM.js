@@ -46,19 +46,16 @@ function WorldDetailsGM() {
     useEffect(() => {
         const fetchUserId = async () => {
             const token = localStorage.getItem('token');
-            console.log("token:", token);
             if (token) {
                 try {
                     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
 
-                    console.log("Response status:", response.status);
 
                     if (response.ok) {
                         const data = await response.json();
                         setUserId(data.id);
-                        console.log("userId set to", data.id);
                     } else {
                         const errorData = await response.text();
                         console.error("Failed to fetch user data:", errorData);
@@ -203,9 +200,32 @@ function WorldDetailsGM() {
         navigate('/home');
     };
 
+    /*
     const handlePreview = () => {
-        navigate('/WorldDetailsPlayer')    
-    };
+        console.log("Handling preview...");
+        console.log("worldId, GM details beginning of preview handle:", worldId);
+// Basic validation (same as in handleFinish)
+if (!worldData.name.trim()) {
+    alert("Your world needs a name my doggie");
+    return;
+}
+
+if (!worldData.tagline.trim()) {
+    alert("Don't forget a tagline!");
+    return;
+}
+
+if (!worldData.disclaimers.trim()) {
+    alert("You should really add some ground rules. Communication is key.");
+    return;
+}
+
+// ... more validation ...
+
+        navigate(`/WorldDetailsPlayer?preview=true`);
+        console.log("...preview handled!");
+    }
+        */
 
     const handleFinish = async () => {
         // Basic validation:
@@ -490,7 +510,7 @@ function WorldDetailsGM() {
             {/* Buttons */}
             <div className="button-group">
                 <button onClick={handleCancel}>Cancel</button>
-                <button onClick={handlePreview}>Preview Players' View</button>
+                {/* <button onClick={handlePreview}>Preview Players' View</button> */}
                 <button onClick={handleFinish} disabled={!userId || loading}>
                     {loading ? "Saving..." : "Finish"}
                 </button>
