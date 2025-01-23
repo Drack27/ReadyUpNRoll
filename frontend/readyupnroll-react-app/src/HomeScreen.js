@@ -114,7 +114,7 @@ function HomeScreen() {
                     <Link to={`/WorldDetailsGMEdit/${world.id}`}>
                       <button>View/Edit Details</button>
                     </Link>
-                    <button>Duplicate</button>
+                    {/* <button>Duplicate</button> */} 
                     <button>Invite a Player</button>
                   </div>
                 </li>
