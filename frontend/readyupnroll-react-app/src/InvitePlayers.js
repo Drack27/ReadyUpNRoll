@@ -1,107 +1,137 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import './InvitePlayers.css';
-import logo from './logo.svg';
+import TopBar from './TopBar';
 
 function InvitePlayers() {
-  const navigate = useNavigate();
   const { worldId } = useParams();
   const [worldName, setWorldName] = useState('');
-  const [inviteCodes, setInviteCodes] = useState([]);
+  const [invitedPlayers, setInvitedPlayers] = useState([]);
+  const [joinedPlayers, setJoinedPlayers] = useState([]);
+  const [allPlayers, setAllPlayers] = useState([]); // For the searchable list
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const fetchWorldName = async () => {
+    const fetchWorldData = async () => {
       try {
-        const response = await fetch(`/api/worlds/${worldId}`);
-        const data = await response.json();
-        setWorldName(data.name);
+        // Fetch world data (replace with your actual API call)
+        const worldResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worlds/${worldId}`); 
+        if (!worldResponse.ok) {
+          throw new Error('Failed to fetch world data');
+        }
+        const worldData = await worldResponse.json();
+        setWorldName(worldData.name);
+
+        // Fetch invited players (replace with your actual API call)
+        const invitedResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worlds/${worldId}/invited`);
+        if (!invitedResponse.ok) {
+          throw new Error('Failed to fetch invited players');
+        }
+        const invitedData = await invitedResponse.json();
+        setInvitedPlayers(invitedData);
+
+        // Fetch joined players (replace with your actual API call)
+        const joinedResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worlds/${worldId}/joined`);
+        if (!joinedResponse.ok) {
+          throw new Error('Failed to fetch joined players');
+        }
+        const joinedData = await joinedResponse.json();
+        setJoinedPlayers(joinedData);
+
       } catch (error) {
-        console.error('Error fetching world name:', error);
-        // Handle error (e.g., show an error message)
+        console.error('Error fetching data:', error);
+        // Handle error (e.g., display an error message)
       }
     };
 
-    fetchWorldName();
-
-    const fetchInviteCodes = async () => {
+    const fetchAllPlayers = async () => {
       try {
-        const response = await fetch(`/api/worlds/${worldId}/invite-codes`);
+        // Fetch all players (replace with your actual API call)
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users`); 
+        if (!response.ok) {
+          throw new Error('Failed to fetch all players');
+        }
         const data = await response.json();
-        setInviteCodes(data);
+        setAllPlayers(data);
       } catch (error) {
-        console.error('Error fetching invite codes:', error);
+        console.error('Error fetching all players:', error);
         // Handle error
       }
     };
 
-    fetchInviteCodes();
-
-    // Set up WebSocket connection or polling to update codes in real-time
-    // ...
+    fetchWorldData();
+    fetchAllPlayers(); 
   }, [worldId]);
 
-  const handleGenerateCode = async () => {
-    try {
-      const response = await fetch(`/api/worlds/${worldId}/invite-codes`, {
-        method: 'POST',
-      });
-
-      if (response.ok) {
-        // Update inviteCodes state with the new code (from response)
-        // ...
-      } else {
-        // Handle error (e.g., if code limit reached)
-      }
-    } catch (error) {
-      console.error('Error generating invite code:', error);
-      // Handle error
-    }
+  const handleSearchInputChange = (event) => {
+    setSearchQuery(event.target.value);
   };
+
+  const filteredPlayers = allPlayers.filter((player) => {
+    return player.username.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
     <div className="invite-players-page">
-      {/* Header */}
-      <header className="invite-players-header">
-        {/* ... (same as before) ... */}
-      </header>
+      <TopBar /> {/* Your TopBar component */}
 
-      {/* Invite Players Content */}
       <div className="invite-players-content">
-        <h1>Invite Players to {worldName}</h1>
+        <h1>Manage Players in {worldName}</h1>
 
-        <p>
-          Players should click 'Join a World' on the home screen to find where
-          to enter this code. Each code expires after 5 minutes. Each code may
-          only be used once. To invite multiple players, generate a code for
-          each player you are inviting and send it to them.
-        </p>
+        <div className="invite-info">
+          <p>If your world is private, inviting a player sends that player a notification and allows them to join your world.</p>
+          <p>If your world is public, inviting a player only sends them the invite.</p>
+        </div>
 
-        <button onClick={handleGenerateCode} disabled={inviteCodes.length >= 10}>
-          Generate Code
-        </button>
+        <div className="player-lists">
+          {/* Searchable Player List */}
+          <div className="player-list">
+            <input
+              type="text"
+              placeholder="Search players"
+              className="search-bar"
+              value={searchQuery}
+              onChange={handleSearchInputChange}
+            />
+            <ul>
+              {filteredPlayers.map((player) => (
+                <li key={player.id}>
+                  {player.username} 
+                  <button onClick={() => {/* Handle invite logic */}}>Invite</button>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* List of Invite Codes */}
-        <ul className="invite-code-list">
-          {inviteCodes.map((code) => (
-            <li key={code.id} className={code.status}> {/* Add status class */}
-              <span className="code">{code.code}</span>
-              {/* Display countdown timer for active codes */}
-              {code.status === 'active' && (
-                <span className="countdown">{formatTime(code.expiresAt)}</span>
-              )}
-              <span className="status">{code.status}</span> {/* Display status */}
-            </li>
-          ))}
-        </ul>
+          {/* Invited Players List */}
+          <div className="player-list">
+            <h2>Players You've Invited to {worldName} that haven't yet joined</h2>
+            <ul>
+              {invitedPlayers.map((player) => (
+                <li key={player.id}>
+                  {player.username} 
+                  <button onClick={() => {/* Handle cancel invite logic */}}>Cancel Invite</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Joined Players List */}
+          <div className="player-list">
+            <h2>Players that have joined {worldName}</h2>
+            <ul>
+              {joinedPlayers.map((player) => (
+                <li key={player.id}>
+                  {player.username} 
+                  <button onClick={() => {/* Handle remove player logic */}}>Remove Player</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-// Helper function to format time for countdown
-const formatTime = (expiresAt) => {
-  // ... (Implement your logic to calculate and format the remaining time)
-  // This could use a library like moment.js or date-fns
-};
 
 export default InvitePlayers;

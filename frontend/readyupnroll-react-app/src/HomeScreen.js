@@ -115,7 +115,7 @@ function HomeScreen() {
                       <button>View/Edit Details</button>
                     </Link>
                     {/* <button>Duplicate</button> */} 
-                    <button>Invite a Player</button>
+                    <button>Invite/Kick Players</button>
                   </div>
                 </li>
               ))
