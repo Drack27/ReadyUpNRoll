@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../dbConfig');
-const { uploadWorldImages } = require('../server'); 
-const path = require('path'); 
+const { World, User, WorldInvite } = require('../dbInit'); // Import models
+const { v4: uuidv4 } = require('uuid'); // For generating unique tokens 
 
 // --- Create or Update World (POST /api/worldsgm) ---
 router.post('/api/worldsgm', uploadWorldImages.array('thumbnailImages'), async (req, res) => {
@@ -148,6 +147,55 @@ router.get('/api/worldsgm/:worldId', (req, res) => {
     row.modules = JSON.parse(row.modules); 
     res.json(row); 
   });
+});
+
+router.post('/api/worldsgm/:worldId/invite', async (req, res) => {
+  try {
+    const { worldId } = req.params;
+    const { email } = req.body;
+
+    // TODO: Add validation to check if the user making the request is the owner (gm) of the world
+    // You might need to add authentication middleware for this.
+
+    // Generate a unique token
+    const token = uuidv4();
+
+    // Create the invite in the database
+    const invite = await WorldInvite.create({
+      world_id: worldId,
+      email: email,
+      token: token,
+    });
+
+    // TODO: Send an email to the invitee with the link (using a library like Nodemailer)
+    // The link should be something like: `${process.env.FRONTEND_URL}/invite/${token}`
+
+    res.status(201).json(invite);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to create invite' });
+  }
+});
+
+// GET /api/worldsgm/:worldId/invited - Get list of invited users for a world
+router.get('/api/worldsgm/:worldId/invited', async (req, res) => {
+  try {
+    const { worldId } = req.params;
+
+    // Find all invites for the given worldId
+    const invites = await WorldInvite.findAll({
+      where: { world_id: worldId },
+      include: {
+        model: User,
+        attributes: ['id', 'username'],
+      },
+    });
+
+    res.json(invites);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch invited users' });
+  }
 });
 
 router.put('/api/worldsgm/:worldId', async (req, res) => {

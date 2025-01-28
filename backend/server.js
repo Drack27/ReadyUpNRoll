@@ -29,23 +29,25 @@ const worldImageStorage = multer.diskStorage({
 });
 
 const uploadWorldImages = multer({ storage: worldImageStorage });
-const db = require ('./dbConfig.js');
-module.exports = { uploadProfileImage, uploadWorldImages, db };
+module.exports = { uploadProfileImage, uploadWorldImages};
 //done
+
+const { sequelize, initializeDatabase } = require('./dbInit'); // Import from dbInit
 
 const app = express();
 const port = process.argv[2] || 5000;
 
-const initializeDatabase = require('./dbInit')
+// Initialize the database using Sequelize
 initializeDatabase().then(() => {
-    // Middleware Config
+  // Middleware Config
     const corsOptions = require('./corsConfig');
 
     const worldsGMRoutes = require('./routes/WorldsGMRoutes'); 
     const signupRoutes = require('./routes/SignupRoutes'); 
     const userRoutes = require('./routes/UserRoutes'); 
-    const loginRoutes = require('./routes/LoginRoutes'); 
-
+    const loginRoutes = require('./routes/LoginRoutes');
+    const otherUserRoutes = require('./routes/OtherUserRoutes'); 
+ 
     app.use(cors(corsOptions));
     app.use(express.json({ limit: '7mb' }));
     app.use('/uploads', express.static('uploads')); 
@@ -54,6 +56,7 @@ initializeDatabase().then(() => {
     app.use(signupRoutes); 
     app.use(userRoutes);
     app.use(loginRoutes);
+    app.use(otherUserRoutes)
 
     // Example API route
     app.get('/', (req, res) => {

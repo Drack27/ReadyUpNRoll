@@ -1,54 +1,134 @@
-const db = require('./dbConfig');
+const { Sequelize, DataTypes } = require('sequelize');
 
-function initializeDatabase() {
-  return new Promise((resolve, reject) => {
-    db.serialize(async () => { // Use async/await inside serialize
-      try {
-        console.log("Initializing Database Schema...");
+// Database configuration
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: './readyupandroll.db',
+  logging: false, // Set to true to see SQL queries in the console
+});
 
-        // Use Promise.all to run migrations in parallel if you want
-        await Promise.all([
-          new Promise((resolveTable, rejectTable) => {
-            db.run(`
-              CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT UNIQUE NOT NULL,
-                username TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL,
-                profileImage TEXT 
-              )
-            `, (err) => err ? rejectTable(err) : resolveTable());
-          }),
-          new Promise((resolveTable, rejectTable) => {
-            const createWorldsTableSql = `CREATE TABLE IF NOT EXISTS worlds (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              gm_id INTEGER NOT NULL, 
-              name TEXT NOT NULL,
-              tagline TEXT,
-              description TEXT,
-              visibility TEXT CHECK (visibility IN ('public', 'private')), 
-              thumbnailImages TEXT, 
-              disclaimers TEXT,
-              players_needed INTEGER,
-              require_all_players_for_session_zero INTEGER,
-              game_system TEXT,
-              game_system_description TEXT,
-              modules TEXT,
-              FOREIGN KEY (gm_id) REFERENCES users(id));`;
+// Define the User model
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  email: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    unique: true,
+  },
+  username: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  profileImage: {
+    type: DataTypes.TEXT,
+  },
+});
 
-            db.run(createWorldsTableSql, (err) => err ? rejectTable(err) : resolveTable());
-          }),
-          // ... other table creation promises here
-        ]);
+// Define the World model
+const World = sequelize.define('World', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  tagline: {
+    type: DataTypes.TEXT,
+  },
+  description: {
+    type: DataTypes.TEXT,
+  },
+  visibility: {
+    type: DataTypes.TEXT,
+    validate: {
+      isIn: [['public', 'private']],
+    },
+  },
+  thumbnailImages: {
+    type: DataTypes.TEXT,
+  },
+  disclaimers: {
+    type: DataTypes.TEXT,
+  },
+  players_needed: {
+    type: DataTypes.INTEGER,
+  },
+  require_all_players_for_session_zero: {
+    type: DataTypes.INTEGER,
+  },
+  game_system: {
+    type: DataTypes.TEXT,
+  },
+  game_system_description: {
+    type: DataTypes.TEXT,
+  },
+  modules: {
+    type: DataTypes.TEXT,
+  },
+});
 
-        console.log('Database schema initialized');
-        resolve(); // Resolve the main promise after all tables are created
-      } catch (err) {
-        console.error("Database initialization failed:", err);
-        reject(err); // Reject the main promise if any table creation fails
-      }
-    });
-  });
+// Define the WorldInvite model (for your invite system)
+const WorldInvite = sequelize.define('WorldInvite', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+    email: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    token: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        unique: true
+    },
+    used: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    }
+});
+
+// Define associations
+World.belongsTo(User, { foreignKey: 'gm_id' });
+User.hasMany(World, { foreignKey: 'gm_id' });
+World.hasMany(WorldInvite, { foreignKey: 'world_id' });
+WorldInvite.belongsTo(World, { foreignKey: 'world_id' });
+
+// Function to initialize the database
+async function initializeDatabase() {
+  try {
+    await sequelize.authenticate();
+    console.log('Connection to the database has been established successfully.');
+
+    // Synchronize models with the database
+    await User.sync();
+    await World.sync();
+    await WorldInvite.sync();
+
+    console.log('Database schema initialized or updated.');
+  } catch (error) {
+    console.error('Unable to connect to or initialize the database:', error);
+  }
 }
 
-module.exports = initializeDatabase;
+// Export the models and the initialization function
+module.exports = {
+  sequelize,
+  User,
+  World,
+  WorldInvite,
+  initializeDatabase,
+};

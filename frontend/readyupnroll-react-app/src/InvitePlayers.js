@@ -10,20 +10,19 @@ function InvitePlayers() {
   const [joinedPlayers, setJoinedPlayers] = useState([]);
   const [allPlayers, setAllPlayers] = useState([]); // For the searchable list
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState();
 
   useEffect(() => {
     const fetchWorldData = async () => {
       try {
-        // Fetch world data (replace with your actual API call)
-        const worldResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worlds/${worldId}`); 
+        const worldResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`); 
         if (!worldResponse.ok) {
           throw new Error('Failed to fetch world data');
         }
         const worldData = await worldResponse.json();
         setWorldName(worldData.name);
 
-        // Fetch invited players (replace with your actual API call)
-        const invitedResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worlds/${worldId}/invited`);
+        const invitedResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}/invited`);
         if (!invitedResponse.ok) {
           throw new Error('Failed to fetch invited players');
         }
@@ -44,27 +43,35 @@ function InvitePlayers() {
       }
     };
 
-    const fetchAllPlayers = async () => {
-      try {
-        // Fetch all players (replace with your actual API call)
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users`); 
-        if (!response.ok) {
-          throw new Error('Failed to fetch all players');
-        }
-        const data = await response.json();
-        setAllPlayers(data);
-      } catch (error) {
-        console.error('Error fetching all players:', error);
-        // Handle error
-      }
-    };
+    
 
     fetchWorldData();
-    fetchAllPlayers(); 
   }, [worldId]);
 
-  const handleSearchInputChange = (event) => {
+  const handleSearchInputChange = async (event) => {
     setSearchQuery(event.target.value);
+  };
+
+  const handleSearchKeyDown = async (event) => {
+    if (event.key === 'Enter') { // Check if Enter key is pressed
+      const query = event.target.value;
+  
+      if (query.length >= 3) { // Only search if query is at least 3 characters
+        try {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/search?q=${query}`);
+          if (!response.ok) {
+            throw new Error('Failed to search users');
+          }
+          const data = await response.json();
+          setSearchResults(data);
+        } catch (error) {
+          console.error('Error searching users:', error);
+          // Handle error (e.g., display an error message)
+        }
+      } else {
+        setSearchResults(); // Clear results if query is too short
+      }
+    }
   };
 
   const filteredPlayers = allPlayers.filter((player) => {
@@ -92,14 +99,19 @@ function InvitePlayers() {
               className="search-bar"
               value={searchQuery}
               onChange={handleSearchInputChange}
+              onKeyDown={handleSearchKeyDown} // Add onKeyDown handler
             />
             <ul>
-              {filteredPlayers.map((player) => (
+            {searchResults && searchResults.length > 0? ( // Check if there are search results
+            searchResults.map((player) => (
                 <li key={player.id}>
                   {player.username} 
                   <button onClick={() => {/* Handle invite logic */}}>Invite</button>
                 </li>
-              ))}
+              ))
+            ): (
+              <li> No users found.</li> 
+            )}
             </ul>
           </div>
 

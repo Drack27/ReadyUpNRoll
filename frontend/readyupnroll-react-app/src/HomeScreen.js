@@ -115,7 +115,9 @@ function HomeScreen() {
                       <button>View/Edit Details</button>
                     </Link>
                     {/* <button>Duplicate</button> */} 
-                    <button>Invite/Kick Players</button>
+                    <Link to={`/InvitePlayers/${world.id}`}>
+                      <button>Invite/Kick Players</button>
+                    </Link>
                   </div>
                 </li>
               ))
