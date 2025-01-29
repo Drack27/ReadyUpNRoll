@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react'; // Import useEffect
-import './TopBar.css'; 
-import { Link, useNavigate, useLocation } from 'react-router-dom'; 
+import React, { useState, useEffect } from 'react';
+import './TopBar.css';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import LogoutButton from './LogoutButton';
 
 function TopBar({ hideHomeButton, hideSettingsButton }) {
-  const navigate = useNavigate(); // Initialize useNavigate
-  const location = useLocation(); // Get the current location
-  const [profileImage, setProfileImage] = useState(null); // State for the profile image
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [profileImage, setProfileImage] = useState(null);
+  const [error, setError] = useState(null); // Add state for error handling
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const token = localStorage.getItem('token'); 
+      const token = localStorage.getItem('token');
       if (token) {
         try {
           const response = await fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
@@ -19,40 +20,44 @@ function TopBar({ hideHomeButton, hideSettingsButton }) {
 
           if (response.ok) {
             const data = await response.json();
-            // Construct the image path
-            const imagePath = `${process.env.REACT_APP_API_URL}/uploads/${data.profileImage}`;
-            setProfileImage(imagePath); 
-
+            // Construct the image path only if data.profileImage is not null
+            const imagePath = data.profileImage
+              ? `${process.env.REACT_APP_API_URL}/uploads/${data.profileImage}`
+              : null;
+            setProfileImage(imagePath);
+            setError(null); // Clear any previous errors
           } else {
             console.error('Failed to fetch user data:', response.status);
-            navigate('/login'); 
+            setError(`Failed to fetch user data: ${response.status}`); // Set error message
+            if (response.status === 404) {
+              navigate('/login');
+            }
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
+          setError('Error fetching user data'); // Set a generic error message
         }
       }
     };
 
     fetchUserData();
-  }, [navigate]); // Add navigate as a dependency 
+  }, [navigate]);
 
-   // Check if the current path is the pricing page
-   const isPricingPage = location.pathname === '/pricing';
+  const isPricingPage = location.pathname === '/pricing';
 
   return (
     <div className="top-bar">
       <div className="left-side">
-        <img src="/logo.png" alt="Ready Up & Roll Logo" className="logo" /> 
-        {/* Replace /logo.png with the actual path to your logo */}
-        {!hideSettingsButton &&(
-          <Link to='/settings'>
-          <button className="top-bar-button">Settings</button>
+        <img src="/logo.png" alt="Ready Up & Roll Logo" className="logo" />
+        {!hideSettingsButton && (
+          <Link to="/settings">
+            <button className="top-bar-button">Settings</button>
           </Link>
         )}
-        <LogoutButton></LogoutButton>
+        <LogoutButton />
         {!hideHomeButton && (
-          <Link to='/home'>
-          <button className="top-bar-button">Return to Home Screen</button>
+          <Link to="/home">
+            <button className="top-bar-button">Return to Home Screen</button>
           </Link>
         )}
       </div>
@@ -64,12 +69,13 @@ function TopBar({ hideHomeButton, hideSettingsButton }) {
         )}
       </div>
       <div className="right-side">
-      {profileImage ? ( // Conditionally render the image
+        {error && <div className="error-message">{error}</div>} {/* Display error message */}
+        {profileImage ? (
           <img src={profileImage} alt="User Avatar" className="user-avatar" />
         ) : (
-          <div className="user-avatar placeholder">{/* Placeholder if no image */}</div> 
-        )}      
-        </div>
+          <div className="user-avatar placeholder"></div>
+        )}
+      </div>
     </div>
   );
 }

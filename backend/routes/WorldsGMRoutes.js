@@ -4,7 +4,7 @@ const { World, User, WorldInvite } = require('../dbInit'); // Import models
 const { v4: uuidv4 } = require('uuid'); // For generating unique tokens 
 
 // --- Create or Update World (POST /api/worldsgm) ---
-router.post('/api/worldsgm', uploadWorldImages.array('thumbnailImages'), async (req, res) => {
+router.post('/api/worldsgm', async (req, res) => {
   const { 
     id, // Include id in the request body for both create and update
     gm_id, 

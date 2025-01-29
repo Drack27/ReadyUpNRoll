@@ -88,7 +88,7 @@ const formDataObject = {};
 formData.forEach((value, key) => formDataObject[key] = value);
 console.log("FormData as an object:", formDataObject); 
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users`, { // Send a POST request to backend API, using .env variable in .env.development
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/signup`, { // Send a POST request to backend API, using .env variable in .env.development
         method: 'POST',
         body: formData, // Send formData as the body
       });

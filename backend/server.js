@@ -40,23 +40,26 @@ const port = process.argv[2] || 5000;
 // Initialize the database using Sequelize
 initializeDatabase().then(() => {
   // Middleware Config
-    const corsOptions = require('./corsConfig');
+  const corsOptions = require('./corsConfig');
 
-    const worldsGMRoutes = require('./routes/WorldsGMRoutes'); 
-    const signupRoutes = require('./routes/SignupRoutes'); 
-    const userRoutes = require('./routes/UserRoutes'); 
-    const loginRoutes = require('./routes/LoginRoutes');
-    const otherUserRoutes = require('./routes/OtherUserRoutes'); 
- 
-    app.use(cors(corsOptions));
-    app.use(express.json({ limit: '7mb' }));
-    app.use('/uploads', express.static('uploads')); 
+  // Apply CORS middleware FIRST
+  app.use(cors(corsOptions)); 
+  app.use(express.json({ limit: '7mb' }));
+  app.use('/uploads', express.static('uploads'));
 
-    app.use(worldsGMRoutes); 
-    app.use(signupRoutes); 
-    app.use(userRoutes);
-    app.use(loginRoutes);
-    app.use(otherUserRoutes)
+  // THEN define your routes
+  const signupRoutes = require('./routes/SignupRoutes'); 
+  app.use(signupRoutes);
+
+  const worldsGMRoutes = require('./routes/WorldsGMRoutes'); 
+  const userRoutes = require('./routes/UserRoutes'); 
+  const loginRoutes = require('./routes/LoginRoutes');
+  const otherUserRoutes = require('./routes/OtherUserRoutes'); 
+
+  app.use(worldsGMRoutes); 
+  app.use(userRoutes);
+  app.use(loginRoutes);
+  app.use(otherUserRoutes);
 
     // Example API route
     app.get('/', (req, res) => {

@@ -1,3 +1,4 @@
+// InvitePlayers.js
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './InvitePlayers.css';
@@ -7,15 +8,14 @@ function InvitePlayers() {
   const { worldId } = useParams();
   const [worldName, setWorldName] = useState('');
   const [invitedPlayers, setInvitedPlayers] = useState([]);
-  const [joinedPlayers, setJoinedPlayers] = useState([]);
-  const [allPlayers, setAllPlayers] = useState([]); // For the searchable list
+  const [joinedPlayers, setJoinedPlayers] = useState([]); // You'll need to implement the /api/worlds/:worldId/joined route for this
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState();
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const fetchWorldData = async () => {
       try {
-        const worldResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`); 
+        const worldResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`);
         if (!worldResponse.ok) {
           throw new Error('Failed to fetch world data');
         }
@@ -29,34 +29,30 @@ function InvitePlayers() {
         const invitedData = await invitedResponse.json();
         setInvitedPlayers(invitedData);
 
-        // Fetch joined players (replace with your actual API call)
-        const joinedResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worlds/${worldId}/joined`);
-        if (!joinedResponse.ok) {
-          throw new Error('Failed to fetch joined players');
-        }
-        const joinedData = await joinedResponse.json();
-        setJoinedPlayers(joinedData);
-
+        // Fetch joined players (you need to implement the backend route for this)
+        // const joinedResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worlds/${worldId}/joined`);
+        // if (!joinedResponse.ok) {
+        //   throw new Error('Failed to fetch joined players');
+        // }
+        // const joinedData = await joinedResponse.json();
+        // setJoinedPlayers(joinedData);
       } catch (error) {
         console.error('Error fetching data:', error);
-        // Handle error (e.g., display an error message)
       }
     };
-
-    
 
     fetchWorldData();
   }, [worldId]);
 
-  const handleSearchInputChange = async (event) => {
+  const handleSearchInputChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
   const handleSearchKeyDown = async (event) => {
-    if (event.key === 'Enter') { // Check if Enter key is pressed
+    if (event.key === 'Enter') {
       const query = event.target.value;
-  
-      if (query.length >= 3) { // Only search if query is at least 3 characters
+
+      if (query.length >= 3) {
         try {
           const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/search?q=${query}`);
           if (!response.ok) {
@@ -66,29 +62,55 @@ function InvitePlayers() {
           setSearchResults(data);
         } catch (error) {
           console.error('Error searching users:', error);
-          // Handle error (e.g., display an error message)
         }
       } else {
-        setSearchResults(); // Clear results if query is too short
+        setSearchResults([]);
       }
     }
   };
 
-  const filteredPlayers = allPlayers.filter((player) => {
-    return player.username.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  const handleInvite = async (userId) => {
+    try {
+      // Find the user's email from the search results (or fetch it if necessary)
+      const user = searchResults.find(u => u.id === userId);
+      if (!user) {
+        console.error('User not found');
+        return;
+      }
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}/invite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: user.email }), // Assuming you have the email field
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send invite');
+      }
+
+      // Update the invitedPlayers list
+      setInvitedPlayers([...invitedPlayers, user]);
+
+      // Optionally, remove the invited user from the search results
+      setSearchResults(searchResults.filter(u => u.id !== userId));
+
+      // TODO: Display a success message to the user
+    } catch (error) {
+      console.error('Error sending invite:', error);
+      // TODO: Display an error message to the user
+    }
+  };
 
   return (
     <div className="invite-players-page">
-      <TopBar /> {/* Your TopBar component */}
+      <TopBar />
 
       <div className="invite-players-content">
         <h1>Manage Players in {worldName}</h1>
 
-        <div className="invite-info">
-          <p>If your world is private, inviting a player sends that player a notification and allows them to join your world.</p>
-          <p>If your world is public, inviting a player only sends them the invite.</p>
-        </div>
+        {/* ... (Rest of your JSX) */}
 
         <div className="player-lists">
           {/* Searchable Player List */}
@@ -99,19 +121,19 @@ function InvitePlayers() {
               className="search-bar"
               value={searchQuery}
               onChange={handleSearchInputChange}
-              onKeyDown={handleSearchKeyDown} // Add onKeyDown handler
+              onKeyDown={handleSearchKeyDown}
             />
             <ul>
-            {searchResults && searchResults.length > 0? ( // Check if there are search results
-            searchResults.map((player) => (
-                <li key={player.id}>
-                  {player.username} 
-                  <button onClick={() => {/* Handle invite logic */}}>Invite</button>
-                </li>
-              ))
-            ): (
-              <li> No users found.</li> 
-            )}
+              {searchResults && searchResults.length > 0 ? (
+                searchResults.map((player) => (
+                  <li key={player.id}>
+                    {player.username}
+                    <button onClick={() => handleInvite(player.id)}>Invite</button>
+                  </li>
+                ))
+              ) : (
+                <li>No users found.</li>
+              )}
             </ul>
           </div>
 
@@ -121,25 +143,26 @@ function InvitePlayers() {
             <ul>
               {invitedPlayers.map((player) => (
                 <li key={player.id}>
-                  {player.username} 
-                  <button onClick={() => {/* Handle cancel invite logic */}}>Cancel Invite</button>
+                  {player.username}
+                  {/* Add a button to cancel invite if you implement that functionality */}
+                  {/* <button onClick={() => handleCancelInvite(player.id)}>Cancel Invite</button> */}
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Joined Players List */}
-          <div className="player-list">
+          {/* Joined Players List (You'll need to implement the /api/worlds/:worldId/joined route) */}
+          {/* <div className="player-list">
             <h2>Players that have joined {worldName}</h2>
             <ul>
               {joinedPlayers.map((player) => (
                 <li key={player.id}>
-                  {player.username} 
-                  <button onClick={() => {/* Handle remove player logic */}}>Remove Player</button>
+                  {player.username}
+                  <button onClick={() => handleRemovePlayer(player.id)}>Remove Player</button>
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

@@ -1,52 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import './HomeScreen.css'; 
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import './HomeScreen.css';
+import { Link, useNavigate } from 'react-router-dom';
 import TopBar from './TopBar';
 
 function HomeScreen() {
-  console.log("homescreen rendered");
-  // const [viewMode, setViewMode] = useState('list'); // 'list' or 'gallery'
   const [username, setUsername] = useState('');
   const [worlds, setWorlds] = useState([]);
   const [userId, setUserId] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem('token');
       if (token) {
-        console.log('Token in HomeScreen:', token);
         try {
-          // Fetch user data (including ID)
+          // Fetch user data
           const userResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/me`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          console.log('Response from /api/me:', userResponse);
 
           if (userResponse.ok) {
             const userData = await userResponse.json();
-            console.log('Data from /api/me:', userData);
             setUsername(userData.username);
-            setUserId(userData.id); // Set the user ID
+            setUserId(userData.id);
 
             // Fetch worlds using the user ID
             const worldsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worlds/gm/${userData.id}`, {
               headers: { Authorization: `Bearer ${token}` },
             });
-            console.log('Response from /api/worlds/gm:', worldsResponse);
 
             if (worldsResponse.ok) {
               const worldsData = await worldsResponse.json();
-              console.log('Data from /api/worlds/gm:', worldsData);
               setWorlds(worldsData);
             } else {
               console.error('Failed to fetch worlds:', worldsResponse.status);
             }
           } else {
             console.error('Failed to fetch user data:', userResponse.status);
-            navigate('/login');
+            // If the error is 401 Unauthorized, redirect to login
+            if (userResponse.status === 401) {
+              navigate('/login');
+            }
           }
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -55,33 +50,24 @@ function HomeScreen() {
     };
 
     fetchData();
-  }, []); // Run only once when the component mounts
-  
-/*
-  const handleViewModeChange = (mode) => {
-    setViewMode(mode);
-  };
-  */
+  }, [navigate]); // Add navigate to the dependency array
 
-    // Function to handle search input change
-    const handleSearchInputChange = (event) => {
-      setSearchQuery(event.target.value);
-    };
-  
-    // Filter worlds based on search query
-    const filteredWorlds = worlds.filter((world) => {
-      const nameMatch = world.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const taglineMatch = world.tagline ? world.tagline.toLowerCase().includes(searchQuery.toLowerCase()) : false;
-      return nameMatch || taglineMatch;
-    });
-  
+  const handleSearchInputChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const filteredWorlds = worlds.filter((world) => {
+    const nameMatch = world.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const taglineMatch = world.tagline ? world.tagline.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+    return nameMatch || taglineMatch;
+  });
 
   return (
     <div className="home-screen">
-      <TopBar hideHomeButton={true}></TopBar>
+      <TopBar hideHomeButton={true} />
 
       <h1 className="welcome-header">
-      Howdy, {username || 'Guest'}! This is the Home Screen. 
+        Howdy, {username || 'Guest'}! This is the Home Screen.
       </h1>
 
       <div className="view-mode-toggle">

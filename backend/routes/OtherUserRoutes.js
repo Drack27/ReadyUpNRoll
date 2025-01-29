@@ -1,31 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const { Op } = require('sequelize'); // Import the Op object for operators
-const { db } = require('../dbConfig'); 
+const { User } = require('../dbInit');
+const { Op } = require('sequelize');
 
 router.get('/api/users/search', async (req, res) => {
-  const searchQuery = req.query.q;
-
   try {
-    if (searchQuery.length < 3) {
+    const query = req.query.q;
+
+    if (!query || query.length < 3) {
       return res.status(400).json({ message: 'Search query must be at least 3 characters long' });
     }
 
-    const users = await db.findAll({
+    const users = await User.findAll({
       where: {
         username: {
-          [Op.like]: `%${searchQuery}%`  // Use LIKE operator for partial matching
-        }
+          [Op.iLike]: `%${query}%`, // Case-insensitive search
+        },
       },
-      attributes: ['id', 'username'] 
+      attributes: ['id', 'username'], // Only return id and username
     });
 
-    const allResults = [...users,...similarUsers]; // Combine the results
-
-    res.json(allResults);
-
+    res.json(users);
   } catch (error) {
-    console.error('Error searching users:', error);
+    console.error(error);
     res.status(500).json({ message: 'Failed to search users' });
   }
 });
