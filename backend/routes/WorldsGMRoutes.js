@@ -3,6 +3,8 @@ const router = express.Router();
 const { World, User, WorldInvite } = require('../dbInit'); // Import your Sequelize models
 const { v4: uuidv4 } = require('uuid'); // For generating unique tokens
 
+console.log("GM Route says hi");
+
 // --- Create or Update World (POST /api/worldsgm) ---
 router.post('/api/worldsgm', async (req, res) => {
   const {
@@ -123,6 +125,7 @@ router.get('/api/worlds/gm/:gmId', async (req, res) => {
 
 // --- Get World Details (GET /api/worldsgm/:worldId) ---
 router.get('/api/worldsgm/:worldId', async (req, res) => {
+  console.log("ahoy from route deal");
   const worldIdString = req.params.worldId; // Explicitly name it string
   const worldId = parseInt(worldIdString, 10); // Convert to integer here
   if (isNaN(worldId)) {

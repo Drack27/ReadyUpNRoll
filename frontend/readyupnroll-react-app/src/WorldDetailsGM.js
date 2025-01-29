@@ -128,9 +128,11 @@ function WorldDetailsGM() {
                             modules: modules,
                         });
                     } else {
+                        console.log("tis this one!");
                         console.error('Error fetching world data:', response.status);
                     }
                 } catch (error) {
+                    console.log("nay, quercus, tis this one!");
                     console.error('Error fetching world data:', error);
                 } finally {
                     setLoading(false);
