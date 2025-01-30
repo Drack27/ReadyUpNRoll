@@ -1,4 +1,3 @@
-// InvitePlayers.js
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './InvitePlayers.css';
@@ -8,21 +7,25 @@ function InvitePlayers() {
   const { worldId } = useParams();
   const [worldName, setWorldName] = useState('');
   const [invitedPlayers, setInvitedPlayers] = useState([]);
-  const [joinedPlayers, setJoinedPlayers] = useState([]); // You'll need to implement the /api/worlds/:worldId/joined route for this
+  const [joinedPlayers, setJoinedPlayers] = useState([]); // Implement the /api/worlds/:worldId/joined route for this
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const fetchWorldData = async () => {
       try {
-        const worldResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`);
+        const worldResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}`
+        );
         if (!worldResponse.ok) {
           throw new Error('Failed to fetch world data');
         }
         const worldData = await worldResponse.json();
         setWorldName(worldData.name);
 
-        const invitedResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}/invited`);
+        const invitedResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}/invited`
+        );
         if (!invitedResponse.ok) {
           throw new Error('Failed to fetch invited players');
         }
@@ -32,7 +35,7 @@ function InvitePlayers() {
         // Fetch joined players (you need to implement the backend route for this)
         // const joinedResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/worlds/${worldId}/joined`);
         // if (!joinedResponse.ok) {
-        //   throw new Error('Failed to fetch joined players');
+        //   throw new Error('Failed to fetch joined players');
         // }
         // const joinedData = await joinedResponse.json();
         // setJoinedPlayers(joinedData);
@@ -46,6 +49,9 @@ function InvitePlayers() {
 
   const handleSearchInputChange = (event) => {
     setSearchQuery(event.target.value);
+    if (event.target.value.length === 0) {
+      setSearchResults([]); // Clear results when the search box is empty
+    }
   };
 
   const handleSearchKeyDown = async (event) => {
@@ -54,7 +60,9 @@ function InvitePlayers() {
 
       if (query.length >= 3) {
         try {
-          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/search?q=${query}`);
+          const response = await fetch(
+            `${process.env.REACT_APP_API_URL}/api/users/search?q=${query}`
+          );
           if (!response.ok) {
             throw new Error('Failed to search users');
           }
@@ -71,35 +79,34 @@ function InvitePlayers() {
 
   const handleInvite = async (userId) => {
     try {
-      // Find the user's email from the search results (or fetch it if necessary)
-      const user = searchResults.find(u => u.id === userId);
-      if (!user) {
-        console.error('User not found');
-        return;
-      }
-
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}/invite`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: user.email }), // Assuming you have the email field
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}/invite`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: userId }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to send invite');
       }
 
       // Update the invitedPlayers list
-      setInvitedPlayers([...invitedPlayers, user]);
+      const invitedUser = searchResults.find((u) => u.id === userId);
+      setInvitedPlayers([...invitedPlayers, invitedUser]);
 
-      // Optionally, remove the invited user from the search results
-      setSearchResults(searchResults.filter(u => u.id !== userId));
+      // Remove the invited user from the search results
+      setSearchResults(searchResults.filter((u) => u.id !== userId));
 
-      // TODO: Display a success message to the user
+      // Display a success message to the user (consider using a more user-friendly notification)
+      alert('Invite sent successfully');
     } catch (error) {
       console.error('Error sending invite:', error);
-      // TODO: Display an error message to the user
+      // Display an error message to the user
+      alert('Failed to send invite');
     }
   };
 
@@ -109,8 +116,6 @@ function InvitePlayers() {
 
       <div className="invite-players-content">
         <h1>Manage Players in {worldName}</h1>
-
-        {/* ... (Rest of your JSX) */}
 
         <div className="player-lists">
           {/* Searchable Player List */}
@@ -127,12 +132,17 @@ function InvitePlayers() {
               {searchResults && searchResults.length > 0 ? (
                 searchResults.map((player) => (
                   <li key={player.id}>
-                    {player.username}
-                    <button onClick={() => handleInvite(player.id)}>Invite</button>
+                    {player.username}{' '}
+                    <button onClick={() => handleInvite(player.id)}>
+                      Invite
+                    </button>
                   </li>
                 ))
-              ) : (
+              ) : searchQuery.length > 0 ? (
                 <li>No users found.</li>
+              ) : (
+                // Optionally, display a message when the search bar is empty
+                <li>Type at least 3 characters to search</li>
               )}
             </ul>
           </div>
@@ -153,16 +163,16 @@ function InvitePlayers() {
 
           {/* Joined Players List (You'll need to implement the /api/worlds/:worldId/joined route) */}
           {/* <div className="player-list">
-            <h2>Players that have joined {worldName}</h2>
-            <ul>
-              {joinedPlayers.map((player) => (
-                <li key={player.id}>
-                  {player.username}
-                  <button onClick={() => handleRemovePlayer(player.id)}>Remove Player</button>
-                </li>
-              ))}
-            </ul>
-          </div> */}
+            <h2>Players that have joined {worldName}</h2>
+            <ul>
+              {joinedPlayers.map((player) => (
+                <li key={player.id}>
+                  {player.username}
+                  <button onClick={() => handleRemovePlayer(player.id)}>Remove Player</button>
+                </li>
+              ))}
+            </ul>
+          </div> */}
         </div>
       </div>
     </div>
