@@ -79,33 +79,46 @@ const World = sequelize.define('World', {
   },
 });
 
-// Define the WorldInvite model (for your invite system)
+// Define the WorldInvite model (updated to use username)
 const WorldInvite = sequelize.define('WorldInvite', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },
-    email: {
-        type: DataTypes.TEXT,
-        allowNull: false
-    },
-    token: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-        unique: true
-    },
-    used: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-    }
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  username: { // Changed from 'email' to 'username'
+    type: DataTypes.STRING, // Using STRING type for username
+    allowNull: false,
+  },
+  //You don't necessarily need a token to make invites work, you can remove this
+  //if you choose to later. For now, I've commented it out
+  // token: {
+  //   type: DataTypes.TEXT,
+  //   allowNull: false,
+  //   unique: true,
+  // },
+  status: {
+    type: DataTypes.STRING, // Using STRING to store status like 'pending', 'accepted', etc.
+    allowNull: false,
+    defaultValue: 'pending', // Default status is 'pending'
+  },
 });
 
 // Define associations
 World.belongsTo(User, { foreignKey: 'gm_id' });
 User.hasMany(World, { foreignKey: 'gm_id' });
+
+// Update associations to reflect the change to username
 World.hasMany(WorldInvite, { foreignKey: 'world_id' });
 WorldInvite.belongsTo(World, { foreignKey: 'world_id' });
+
+// New association: User has many WorldInvites through the username
+User.hasMany(WorldInvite, { foreignKey: 'username', sourceKey: 'username' });
+WorldInvite.belongsTo(User, { foreignKey: 'username', targetKey: 'username' });
+
+// Many-to-many association between World and User through WorldInvite
+User.belongsToMany(World, { through: WorldInvite, foreignKey: 'username', otherKey: 'world_id', sourceKey: 'username' });
+World.belongsToMany(User, { through: WorldInvite, foreignKey: 'world_id', otherKey: 'username', targetKey: 'username' });
 
 // Function to initialize the database
 async function initializeDatabase() {
