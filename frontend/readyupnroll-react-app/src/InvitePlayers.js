@@ -161,13 +161,17 @@ function InvitePlayers() {
               Players You've Invited to {worldName} that haven't yet joined
             </h2>
             <ul>
-              {invitedPlayers.map((player) => (
-                <li key={player.id}>
-                  {player.username}
-                  {/* Add a button to cancel invite if you implement that functionality */}
-                  {/* <button onClick={() => handleCancelInvite(player.id)}>Cancel Invite</button> */}
-                </li>
-              ))}
+              {invitedPlayers.length > 0 ? ( // Conditionally render based on invitedPlayers length
+                invitedPlayers.map((player) => (
+                  <li key={player.id}>
+                    {player.username}
+                    {/* Add a button to cancel invite if you implement that functionality */}
+                    {/* <button onClick={() => handleCancelInvite(player.id)}>Cancel Invite</button> */}
+                  </li>
+                ))
+              ) : (
+                <li>No invited nonmembers</li> // Message when no invited players
+              )}
             </ul>
           </div>
 
