@@ -90,13 +90,6 @@ const WorldInvite = sequelize.define('WorldInvite', {
     type: DataTypes.STRING, // Using STRING type for username
     allowNull: false,
   },
-  //You don't necessarily need a token to make invites work, you can remove this
-  //if you choose to later. For now, I've commented it out
-  // token: {
-  //   type: DataTypes.TEXT,
-  //   allowNull: false,
-  //   unique: true,
-  // },
   status: {
     type: DataTypes.STRING, // Using STRING to store status like 'pending', 'accepted', etc.
     allowNull: false,

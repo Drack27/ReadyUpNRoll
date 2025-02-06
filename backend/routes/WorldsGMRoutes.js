@@ -160,28 +160,39 @@ router.get('/api/worldsgm/:worldId', async (req, res) => {
 router.post('/api/worldsgm/:worldId/invite', async (req, res) => {
   try {
     const { worldId } = req.params;
-    const { email } = req.body;
+    const { userId, username } = req.body; // Get userId and username from request body
+
+    if (!userId || !username) {
+      return res.status(400).json({ message: "User ID and Username are required for invite." });
+    }
 
     // TODO: Add validation to check if the user making the request is the owner (gm) of the world
-    // You might need to add authentication middleware for this.
 
-    // Generate a unique token
-    const token = uuidv4();
+    // Check if an invite already exists for this username and world to avoid duplicates
+    const existingInvite = await WorldInvite.findOne({
+      where: {
+        world_id: worldId,
+        username: username // Use username for checking existing invite
+      }
+    });
+
+    if (existingInvite) {
+      return res.status(409).json({ message: "Invite already sent to this user for this world." }); // 409 Conflict
+    }
 
     // Create the invite in the database
     const invite = await WorldInvite.create({
       world_id: worldId,
-      email: email,
-      token: token,
+      username: username,     // Store the username
+      // We are NOT setting 'invitedUserId' as it's not in your schema
+      // We are NOT setting 'token' here for username-based invites (if token is only for email invites)
+      // status: 'pending' - you can set a default status here if needed in the model or set it explicitly
     });
 
-    // TODO: Send an email to the invitee with the link (using a library like Nodemailer)
-    // The link should be something like: `${process.env.FRONTEND_URL}/invite/${token}`
-
-    res.status(201).json(invite);
+    res.status(201).json({ message: "Invite sent successfully", invite: invite });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Failed to create invite' });
+    console.error("Error creating WorldInvite:", error);
+    res.status(500).json({ message: 'Failed to create invite', error: error });
   }
 });
 

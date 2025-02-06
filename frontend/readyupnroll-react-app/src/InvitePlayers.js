@@ -81,6 +81,16 @@ function InvitePlayers() {
   };
 
   const handleInvite = async (userId) => {
+    // Find the invited user from searchResults to get the username
+    const invitedUser = searchResults.find((u) => u.id === userId);
+    const usernameToInvite = invitedUser ? invitedUser.username : null; // Get username
+
+    if (!usernameToInvite) {
+      console.error("Username not found for user ID:", userId);
+      alert("Could not get username for invite. Please try again."); // Handle case where username is unexpectedly missing
+      return;
+    }
+
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/worldsgm/${worldId}/invite`,
@@ -89,7 +99,8 @@ function InvitePlayers() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ userId: userId }),
+          // Send both userId and username in the request body
+          body: JSON.stringify({ userId: userId, username: usernameToInvite }),
         }
       );
 
@@ -97,11 +108,10 @@ function InvitePlayers() {
         throw new Error("Failed to send invite");
       }
 
-      // Update the invitedPlayers list
-      const invitedUser = searchResults.find((u) => u.id === userId);
+      // Update the invitedPlayers list (no change needed here)
       setInvitedPlayers([...invitedPlayers, invitedUser]);
 
-      // Remove the invited user from the search results
+      // Remove the invited user from the search results (no change needed here)
       setSearchResults(searchResults.filter((u) => u.id !== userId));
 
       // Display a success message to the user (consider using a more user-friendly notification)
