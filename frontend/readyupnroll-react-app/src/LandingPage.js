@@ -8,7 +8,7 @@ function LandingPage() {
     <div className="landing-page">
       <header className="landing-page-header">
         <h1>ReadyUp & Roll</h1>
-        <p className="tagline">Real scheduling for fictional worlds</p>
+        <p className="tagline">Real Scheduling for Fantastical Places</p>
       </header>
 
       <div className="button-container">
@@ -33,7 +33,7 @@ function LandingPage() {
             allowFullScreen>
           </iframe>
         </div> 
-        <h3>Easily find time, friends, & worlds for:</h3> {/* Added header */}
+        <h3>Easily find time, friends, & settings for:</h3> {/* Added header */}
         <ul> {/* Added bullet points */}
           <li>Tabletop RPGs, like Dungeons & Dragons, Call of Cthulhu, & Shadowrun</li>
           <li>Self-hosted video games, like Minecraft, The Forest, Rust, & Palworld</li>

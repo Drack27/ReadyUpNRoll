@@ -51,12 +51,14 @@ initializeDatabase().then(() => {
   const signupRoutes = require('./routes/SignupRoutes'); 
   app.use(signupRoutes);
 
-  const worldsGMRoutes = require('./routes/WorldsGMRoutes'); 
+  const worldsGMRoutes = require('./routes/WorldsGMRoutes');
+  const WorldsPlayerRoutes = require('./routes/WorldsPlayerRoutes');
   const userRoutes = require('./routes/UserRoutes'); 
   const loginRoutes = require('./routes/LoginRoutes');
   const otherUserRoutes = require('./routes/OtherUserRoutes'); 
 
   app.use(worldsGMRoutes); 
+  app.use(WorldsPlayerRoutes);
   app.use(userRoutes);
   app.use(loginRoutes);
   app.use(otherUserRoutes);
