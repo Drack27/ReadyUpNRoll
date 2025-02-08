@@ -14,7 +14,12 @@ function JoinWorld() {
         const fetchInvitedWorlds = async () => {
             try {
 
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsplayer/invitedlist`); 
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsplayer/invitedlist`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`, // THIS LINE IS CRITICAL
+                        'Content-Type': 'application/json', // You likely need this too
+                    },
+                }); 
                 if (!response.ok) {
                     if (response.status === 404) {
                         setInvitedWorlds([]); // No invites found, set to empty array
