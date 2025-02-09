@@ -17,9 +17,9 @@ function WorldDetailsPlayer() {
 
         const fetchWorldData = async () => {
             setLoading(true); // Set loading to true before fetching
-            setError(null);    // Clear any previous errors
+            setError(null);     // Clear any previous errors
             try {
-              const token = localStorage.getItem('token'); // Get the token
+                const token = localStorage.getItem('token'); // Get the token
             console.log("Token retrieved from localStorage:", token); // LOG THE TOKEN
                 const response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsplayer/${worldId}`, {
                     headers: {
@@ -61,12 +61,12 @@ function WorldDetailsPlayer() {
 
     // Join World logic (Placeholder - you'll need to implement this)
     const handleJoinWorld = async () => {
-      alert("Join world functionality not yet implemented.");
-    }
+      navigate(`/GroundRulesAcceptance/${worldId}`); // Navigate to GroundRulesAcceptance
+  };
 
     // Leave World logic (Placeholder - you'll need to implement this)
     const handleLeaveWorld = async () => {
-       alert("Leave world functionality not yet implemented.");
+        alert("Leave world functionality not yet implemented.");
     }
 
     if (loading) {
@@ -92,13 +92,18 @@ function WorldDetailsPlayer() {
                 {/* Image Carousel/Panorama */}
                 <div className="world-image-carousel">
                     {/* Implement your image carousel/panorama here */}
-                    {worldData.thumbnailImages.map((image, index) => (
-                        <img
-                            key={index}
-                            src={image}
-                            alt={`${worldData.name} thumbnail ${index + 1}`}
-                        />
-                    ))}
+                    {/* Check if worldData.thumbnailImages is an array before mapping */}
+                    {Array.isArray(worldData.thumbnailImages) ? (
+                        worldData.thumbnailImages.map((image, index) => (
+                            <img
+                                key={index}
+                                src={image}
+                                alt={`${worldData.name} thumbnail ${index + 1}`}
+                            />
+                        ))
+                    ) : (
+                        <p>No images available.</p> // Or some other placeholder/fallback
+                    )}
                 </div>
 
                 {/* World Details */}
@@ -116,9 +121,14 @@ function WorldDetailsPlayer() {
                     {/* Modules */}
                     <h3>Module(s):</h3>
                     <ul>
-                        {worldData.modules.map((module, index) => (
-                            <li key={index}>{module.name}</li>
-                        ))}
+                        {/* Check if worldData.modules is an array before mapping */}
+                        {Array.isArray(worldData.modules) ? (
+                            worldData.modules.map((module, index) => (
+                                <li key={index}>{module.name}</li>,  {/*Access name property*/}
+                            ))
+                        ) : (
+                            <li>No modules listed.</li> // Handle the case where it's not an array
+                        )}
                     </ul>
 
                     {/* GM and Player Info */}
@@ -127,7 +137,7 @@ function WorldDetailsPlayer() {
 
                     {/* Buttons */}
                     <div className="world-buttons">
-                        <button onClick={() => navigate("/join-world")}>
+                        <button onClick={() => navigate("/JoinWorld")}>
                             Back to World Menu
                         </button>
 
@@ -147,7 +157,7 @@ function WorldDetailsPlayer() {
                                 </button>
                             </>
                         )}
-                         {worldData.isGM && (<button onClick={() => navigate(`/worlddetailsgmedit/${worldData.id}`)}>Edit World</button>)}
+                         {worldData.isGM && (<button onClick={() => navigate(`/worlddetailsgmedit/${worldData.id}`)}>Edit World</button>)}
                     </div>
                 </div>
             </div>

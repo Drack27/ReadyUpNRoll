@@ -37,11 +37,11 @@ function App() {
           <Route path="/WorldDetailsGMEdit/:worldId" element={<WorldDetailsGM />} />
           <Route path="/JoinWorld" element={<JoinWorld />} />
           <Route path="/InvitePlayers/:worldId" element={<InvitePlayers />} />
-          <Route path="/ReadyUpScreen" element={<ReadyUpScreen />} />
+          <Route path="/ReadyUpScreen/:worldId" element={<ReadyUpScreen />} />
           <Route path="/AvailabilitySubmitted" element={<AvailabilitySubmitted />} />
           <Route path="/LeaveWorldConfirmation" element={<LeaveWorldConfirmation />} />
           <Route path="/LeaveWorldSuccess" element={<LeaveWorldSuccess />} />
-          <Route path="/GroundRulesAcceptance" element={<GroundRulesAcceptance />} />
+          <Route path="/GroundRulesAcceptance/:worldId" element={<GroundRulesAcceptance />} />
           <Route path="/JoinWorldSuccess" element={<JoinWorldSuccess />} />
         </Route>
     </Routes>

@@ -1,13 +1,13 @@
-// backend/routes/WorldsPlayerRoutes.js
+// backend/WorldsPlayerRoutes.js
 const express = require('express');
 const router = express.Router();
 const { World, WorldInvite, User } = require('../dbInit');
-const authMiddleware = require('../authMiddleware'); 
+const authMiddleware = require('../authMiddleware');
 const { Sequelize } = require('sequelize');
 
-
-// --- Get Invited Worlds for a Player (GET /api/worlds/invited) ---
+// --- Get Invited Worlds for a Player (GET /api/worlds/invited) --- (Correct, no changes needed)
 router.get('/api/worldsplayer/invitedlist', authMiddleware, async (req, res) => {
+    // ... (Your existing code for invited worlds - no changes)
     console.log("invite list of worlds for a player, comin' right up!");
     try {
         const invites = await WorldInvite.findAll({
@@ -47,8 +47,9 @@ router.get('/api/worldsplayer/invitedlist', authMiddleware, async (req, res) => 
     }
 });
 
-// --- Get Public Worlds (GET /api/worlds/public) ---
+// --- Get Public Worlds (GET /api/worlds/public) --- (Correct, no changes needed)
 router.get('/api/worldsplayer/publiclist', async (req, res) => {
+    // ... (Your existing code for public worlds - no changes)
     console.log("public world list information for a player, comin' right up!");
     try {
         const publicWorlds = await World.findAll({
@@ -79,8 +80,9 @@ router.get('/api/worldsplayer/publiclist', async (req, res) => {
     }
 });
 
-// --- Get World Details for a Player (GET /api/worldsplayer/:worldId) ---
+// --- Get World Details for a Player (GET /api/worldsplayer/:worldId) --- (Correct, no changes needed)
 router.get('/api/worldsplayer/:worldId', authMiddleware, async (req, res) => {
+	// ... (Your existing code for world details - no changes)
     const worldId = parseInt(req.params.worldId, 10);
     if (isNaN(worldId)) {
         return res.status(400).json({ message: 'Invalid worldId' });
@@ -127,17 +129,17 @@ router.get('/api/worldsplayer/:worldId', authMiddleware, async (req, res) => {
                 where: {
                     world_id: worldId,
                     username: req.user.username,
-                    [Sequelize.Op.or]: [  // Use Sequelize.Op.or for the OR condition
+                    [Sequelize.Op.or]: [ 	// Use Sequelize.Op.or for the OR condition
                         { status: 'pending' },
                         { status: 'accepted' }
                     ]
                 },
             });
 
-            if (!invite && !isGM) {  // Not invited AND not the GM
+            if (!invite && !isGM) { 	// Not invited AND not the GM
                 return res.status(403).json({ message: 'You are not authorized to view this world.' });
             }
-        } // No 'else' needed for public worlds.  If it's public, just continue.
+        } // No 'else' needed for public worlds.  If it's public, just continue.
 
         const worldData = {
             id: world.id,
@@ -159,6 +161,120 @@ router.get('/api/worldsplayer/:worldId', authMiddleware, async (req, res) => {
     } catch (error) {
         console.error('Error fetching world details for player:', error);
         res.status(500).json({ message: 'Failed to fetch world details' });
+    }
+});
+
+// --- NEW: Get Joined Worlds for a Player (GET /api/worlds/player/:userId) ---
+router.get('/api/worlds/player/:userId', authMiddleware, async (req, res) => {
+    const userId = parseInt(req.params.userId, 10);
+
+    if (isNaN(userId)) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
+    // Verify that the requesting user matches the requested userId
+    if (req.user.id !== userId) {
+        return res.status(403).json({ message: 'Unauthorized: You can only view your own joined worlds.' });
+    }
+
+    try {
+        // Find all accepted invites for the user.
+        const acceptedInvites = await WorldInvite.findAll({
+            where: {
+                username: req.user.username, // Use the username from the token
+                status: 'accepted'
+            },
+            include: [{
+                model: World,
+                as: 'world',
+                attributes: ['id', 'name', 'tagline', 'thumbnailImages'], // Include world details
+            }]
+        });
+
+        // Extract the world data from the invites.
+        const joinedWorlds = acceptedInvites.map(invite => ({
+            id: invite.world.id,
+            name: invite.world.name,
+            tagline: invite.world.tagline,
+            thumbnailImages: invite.world.thumbnailImages ? JSON.parse(invite.world.thumbnailImages) : [],
+        }));
+
+        res.json(joinedWorlds);
+    } catch (error) {
+        console.error('Error fetching joined worlds:', error);
+        res.status(500).json({ message: 'Failed to fetch joined worlds', error: error });
+    }
+});
+
+
+
+
+// --- Join a World (POST /api/worldsplayer/:worldId/join) ---
+router.post('/api/worldsplayer/:worldId/join', authMiddleware, async (req, res) => {
+    const worldId = parseInt(req.params.worldId, 10);
+    if (isNaN(worldId)) {
+        return res.status(400).json({ message: 'Invalid worldId' });
+    }
+
+    try {
+        // 1. Find the world (check if it exists)
+        const world = await World.findByPk(worldId);
+        if (!world) {
+            return res.status(404).json({ message: 'World not found' });
+        }
+
+        // 2. Check if the user is already a member (accepted invite)
+        const existingInvite = await WorldInvite.findOne({
+            where: {
+                world_id: worldId,
+                username: req.user.username,
+                status: 'accepted',
+            },
+        });
+        if (existingInvite) {
+            return res.status(400).json({ message: 'You are already a member of this world.' });
+        }
+
+        // 3. Check for a pending invite.  If none exists, create one.  If one exists, update it.
+        let invite = await WorldInvite.findOne({
+            where: {
+                world_id: worldId,
+                username: req.user.username,
+                status: 'pending',
+            },
+        });
+
+        if (invite) {
+            // Update existing pending invite to 'accepted'
+            invite.status = 'accepted';
+            await invite.save();
+        } else {
+          //check to see if invite has been rejected previously. If so, return an error message
+            let rejectedInvite = await WorldInvite.findOne({
+                where: {
+                  world_id: worldId,
+                  username: req.user.username,
+                  status: 'rejected',
+              },
+          });
+          if(rejectedInvite){
+            return res.status(403).json({message: 'You cannot join a world you previously rejected.'})
+          }
+            // No pending invite, create a new 'accepted' invite
+            invite = await WorldInvite.create({
+                world_id: worldId,
+                username: req.user.username,
+                status: 'accepted', // Directly join (no pending state)
+                invited_by: world.gm_id, // Set the 'invited_by' to the GM's ID
+            });
+        }
+        // 4.  (Optional) Send a notification to the GM that a user joined.
+
+        res.status(200).json({ message: 'Successfully joined the world!' });
+
+    } catch (error) {
+        console.error('Error joining world:', error);
+        res.status(500).json({ message: 'Failed to join world', error: error.message }); // Send error message
     }
 });
 
