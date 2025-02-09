@@ -87,7 +87,7 @@ function JoinWorld() {
                                 <div key={world.id} className="invited-world-card">
                                     <h3>{world.name}</h3>
                                     <p className="tagline">{world.tagline}</p>
-                                    <Link to={`/world/${world.id}`}>
+                                    <Link to={`/WorldDetailsPlayer/${world.id}`}>
                                         <button>View Details</button>
                                     </Link>
                                 </div>
@@ -142,8 +142,8 @@ function JoinWorld() {
                             <h3>{world.name}</h3>
                             <p className="gm-subtitle">GM: {world.gmUsername}</p>
                             <p className="tagline">{world.tagline}</p> {/* Add tagline here */}
-                            <Link to={`/world/${world.id}`}>
-                                <button>View Details/Membership</button>
+                            <Link to={`/WorldDetailsPlayer/${world.id}`}>
+                                <button>View Details</button>
                             </Link>
                         </div>
                     ))}

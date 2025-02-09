@@ -1,28 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, Navigate } from 'react-router-dom'; // Import Navigate
 
 function ProtectedRoute() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(null); // Initialize as null
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkLoginStatus = () => {
-      const token = localStorage.getItem('token');
+    useEffect(() => {
+        const checkLoginStatus = () => {
+            const token = localStorage.getItem('token');
 
-      // *** Replace this with your actual JWT verification logic ***
-      // For this example, we're simply checking if a token exists
-      if (token) { 
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
-        navigate('/login'); // Redirect to login if not logged in
-      }
-    };
+            if (token) {
+                setIsLoggedIn(true);
+            } else {
+                setIsLoggedIn(false);
+                // Use Navigate component instead of navigate() directly
+                // navigate('/login'); // REMOVE THIS LINE
+            }
+        };
 
-    checkLoginStatus();
-  }, []); // Empty dependency array ensures this runs only once
+        checkLoginStatus();
+    }, [navigate]); // Add navigate to the dependency array
 
-  return isLoggedIn ? <Outlet /> : null; 
+    // Handle the loading state explicitly
+    if (isLoggedIn === null) {
+        return <div>Loading...</div>; // Or a more sophisticated loading indicator
+    }
+
+    return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
 export default ProtectedRoute;

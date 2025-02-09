@@ -2,227 +2,157 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import "./WorldDetailsPlayer.css";
 import TopBar from "./TopBar";
- 
+
 
 function WorldDetailsPlayer() {
-  const { worldId } = useParams(); // Get the worldId from the URL
+    const { worldId } = useParams(); // Get the worldId from the URL
     const navigate = useNavigate();
     const [worldData, setWorldData] = useState(null);
-    //const [isPreview, setIsPreview] = useState(false); // New state for preview mode
     const [userIsMember, setUserIsMember] = useState(false); // New state for membership
-    //const queryParams = new URLSearchParams(window.location.search);
+    const [loading, setLoading] = useState(true); // Add loading state
+    const [error, setError] = useState(null); // Add error state
 
-    /*const handleExitPreview = () => {
-      // Construct the URL with the worldId
-      const worldDetailsGMUrl = `/worldsgm/${worldId}`; 
-    
-      // Navigate back to WorldDetailsGM
-      navigate(worldDetailsGMUrl);
-    };*/
 
- {/*
-          // Fetch world details based on worldId
-        const response = await fetch(`/api/worlds/${worldId}`);
-        const data = await response.json();
-        setWorldData(data);
-        */}
+    useEffect(() => {
 
-        useEffect(() => {
-         /* 
-         console.log("Is preview? Before setting:", isPreview); // Add this line
-        const queryParams = new URLSearchParams(window.location.search);
-        setIsPreview(queryParams.get("preview") === "true");
-        console.log("Is preview? After setting:", isPreview); // Add this line
-        */
-          const fetchWorldData = async () => {
+        const fetchWorldData = async () => {
+            setLoading(true); // Set loading to true before fetching
+            setError(null);    // Clear any previous errors
             try {
-              // This is where you'll eventually fetch data from your API
-              // For now, we're using placeholder data:
-        
-              const placeholderWorld = {
-                id: 1,
-                name: "The Forgotten Realms",
-                tagline: "Adventure awaits in Faerûn!",
-                gmUsername: "DungeonMasterDan",
-                thumbnailImages: [
-                  "https://via.placeholder.com/300x200?text=Forgotten+Realms+1",
-                  "https://via.placeholder.com/300x200?text=Forgotten+Realms+2",
-                  "https://via.placeholder.com/300x200?text=Forgotten+Realms+3",
-                ],
-                description:
-                  "Welcome to the Forgotten Realms, a world of magic, mystery, and adventure! " +
-                  "Explore the vast continent of Faerûn, where ancient empires rise and fall, " +
-                  "dragons soar through the skies, and heroes are forged in the fires of conflict. " +
-                  "Join our campaign and create your own legend!",
-                gameSystems: [
-                  {
-                    title: "Dungeons & Dragons 5th Edition",
-                    description: "The latest edition of the world's most popular role-playing game."
-                  }
-                ],
-                modules: [
-                  {
-                    title: "Lost Mine of Phandelver",
-                    description: "A classic introductory adventure for new players."
-                  },
-                  {
-                    title: "Curse of Strahd",
-                    description: "A gothic horror adventure in the domain of the vampire Strahd von Zarovich."
-                  }
-                ],
-                players: [
-                  { username: "AellaTheArcher" },
-                  { username: "BardicInspiration" },
-                  { username: "GrognakTheBarbarian" },
-                ],
-              };
-        
-              setWorldData(placeholderWorld); // Set the world data in state
-        
-              // Check if the user is a member of this world (replace with your actual logic)
-              const isMember = await checkUserMembership(worldId);
-              setUserIsMember(isMember);
-        
+              const token = localStorage.getItem('token'); // Get the token
+            console.log("Token retrieved from localStorage:", token); // LOG THE TOKEN
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/worldsplayer/${worldId}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`, // Send the token
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    // Handle 404 and other errors more gracefully
+                    if (response.status === 404) {
+                        throw new Error("World not found"); // Specific error message
+                    } else if (response.status === 401) {
+                        navigate('/login'); // Redirect to login if unauthorized
+                        return;
+                    }
+                    else if (response.status === 403) {
+                        throw new Error("You are not authorized to view this world.");
+                    }
+                    else {
+                        throw new Error(`Failed to fetch world data: ${response.status}`);
+                    }
+                }
+
+                const data = await response.json();
+                setWorldData(data); // Set the world data in state
+                setUserIsMember(data.isMember); // Set the membership status
+
             } catch (error) {
-              console.error("Error fetching world data:", error);
-              // Handle error (e.g., show an error message)
+                console.error("Error fetching world data:", error);
+                setError(error.message); // Set the error message
+            } finally {
+                setLoading(false); // Set loading to false after fetching
             }
-          };
-        
-          fetchWorldData();
-        }, []); // Run the effect whenever worldId changes
+        };
 
-  // Placeholder for checking user membership
-  const checkUserMembership = async (worldId) => {
-    // Replace with your actual logic to check if the current user
-    // is a member of the world with the given worldId.
-    // This might involve an API call to your backend.
-    // For now, let's simulate it with a random value:
-    return Math.random() < 0.5; // 50% chance of being a member
-  };
+        fetchWorldData();
+    }, [worldId, navigate]); // Run the effect whenever worldId changes.  Include navigate in dependency array
 
-  if (!worldData) {
-    return <div>Loading...</div>; // Or a more informative loading state
-  }
+    // Join World logic (Placeholder - you'll need to implement this)
+    const handleJoinWorld = async () => {
+      alert("Join world functionality not yet implemented.");
+    }
 
-  return (
-    <div className="world-details-page">
-        {/* Header */}
-        <header className="world-details-header">
-            {/* ... (same as before) ... */}
-        </header>
+    // Leave World logic (Placeholder - you'll need to implement this)
+    const handleLeaveWorld = async () => {
+       alert("Leave world functionality not yet implemented.");
+    }
 
-        {/* World Details Content */}
-        <div className="world-details-content">
-            {/* World Name Title */}
-            <h1 className="world-name-title">{worldData.name}</h1>
+    if (loading) {
+        return <div>Loading...</div>; // Show loading indicator
+    }
 
-            {/* Image Carousel/Panorama */}
-            <div className="world-image-carousel">
-                {/* Implement your image carousel/panorama here */}
-                {worldData.thumbnailImages.map((image, index) => (
-                    <img
-                        key={index}
-                        src={image}
-                        alt={`${worldData.name} thumbnail ${index + 1}`}
-                    />
-                ))}
-            </div>
+    if (error) {
+        return <div>Error: {error}</div>; // Show error message
+    }
 
-            {/* World Details */}
-            <div className="world-details-section">
-                <h2>{worldData.name}</h2>
-                <p className="world-tagline">{worldData.tagline}</p>
-                <p className="world-description">{worldData.description}</p>
+    if (!worldData) {
+        return <div>World not found.</div>; // Handle case where world is not found (shouldn't happen with 404 handling)
+    }
 
-                {/* Game Systems */}
-                <h3>Game System(s):</h3>
-                <ul>
-                    {worldData.gameSystems.map((system, index) => (
-                        <li key={index}>{system.title}</li>
+    return (
+        <div className="world-details-page">
+            <TopBar />
+            {/* World Details Content */}
+            <div className="world-details-content">
+                {/* World Name Title */}
+                <h1 className="world-name-title">{worldData.name}</h1>
+
+                {/* Image Carousel/Panorama */}
+                <div className="world-image-carousel">
+                    {/* Implement your image carousel/panorama here */}
+                    {worldData.thumbnailImages.map((image, index) => (
+                        <img
+                            key={index}
+                            src={image}
+                            alt={`${worldData.name} thumbnail ${index + 1}`}
+                        />
                     ))}
-                </ul>
+                </div>
 
-                {/* Modules */}
-                <h3>Module(s):</h3>
-                <ul>
-                    {worldData.modules.map((module, index) => (
-                        <li key={index}>{module.title}</li>
-                    ))}
-                </ul>
+                {/* World Details */}
+                <div className="world-details-section">
+                    <h2>{worldData.name}</h2>
+                    <p className="world-tagline">{worldData.tagline}</p>
+                    <p className="world-description">{worldData.description}</p>
 
-                {/* GM and Player Info */}
-                <p>GM: {worldData.gmUsername}</p>
-                <p>Current Players: {worldData.players.length}</p>
-                <h3>Players:</h3>
-                <ul>
-                    {worldData.players.map((player, index) => (
-                        <li key={index}>{player.username}</li> // Assuming you have a player object with a username property
-                    ))}
-                </ul>
-            </div>
+                    {/* Game Systems */}
+                    <h3>Game System(s):</h3>
+                        {worldData.gameSystem}
+                    <br></br>
+                    {worldData.gameSystemDescription}
 
-            {/* Calendar */}
-            <div className="world-calendar">
-                {/* Implement or replace with your calendar component */}
-                <p>Calendar Placeholder</p>
-            </div>
+                    {/* Modules */}
+                    <h3>Module(s):</h3>
+                    <ul>
+                        {worldData.modules.map((module, index) => (
+                            <li key={index}>{module.name}</li>
+                        ))}
+                    </ul>
 
-            {/* Buttons */}
-            <div className="world-buttons">
+                    {/* GM and Player Info */}
+                    <p>GM: {worldData.gmUsername}</p>
+                    {/*<p>Current Players: {worldData.players.length}</p> */}  {/*You don't have a players array yet!*/}
 
-                {/* Back to World Menu button
-                 {!isPreview && ( 
-                    <button onClick={() => navigate("/join-world")}>
-                        Back to World Menu
-                    </button>
-
-                    
-
-                })}
-                 {isPreview && ( 
-                    <button disabled>
-                        Back to World Menu
-                    </button>
-                 })} */}
-
-                {/* Join This World button */}
-                {/* {!isPreview && */} {userIsMember === false && (
-                    <button onClick={() => {/* Handle join world logic */}}>
-                        Join This World
-                    </button>
-                )}
-                {/*
-                {isPreview && (
-                    <button disabled>
-                        Join This World
-                    </button>
-                )}
-                    */}
-
-                {/* Enter Availability / Leave This World buttons */}
-                {userIsMember && (
-                    <>
-                        <button onClick={() => {/* Handle enter availability logic */}}>
-                            Enter Availability
+                    {/* Buttons */}
+                    <div className="world-buttons">
+                        <button onClick={() => navigate("/join-world")}>
+                            Back to World Menu
                         </button>
-                        <button onClick={() => {/* Handle leave world logic */}}>
-                            Leave This World
-                        </button>
-                    </>
-                )}
 
-                {/* Exit Preview button 
-                {isPreview && (
-                    <button onClick={handleExitPreview}>
-                        Exit Preview
-                    </button>
-                )}
-                    */}
+                        {!worldData.isGM && !userIsMember && (
+                            <button onClick={handleJoinWorld}>
+                                Join This World
+                            </button>
+                        )}
+
+                        {userIsMember && !worldData.isGM && (
+                            <>
+                                <button onClick={() => { /* Handle enter availability logic */ }}>
+                                    Enter Availability
+                                </button>
+                                <button onClick={handleLeaveWorld}>
+                                    Leave This World
+                                </button>
+                            </>
+                        )}
+                         {worldData.isGM && (<button onClick={() => navigate(`/worlddetailsgmedit/${worldData.id}`)}>Edit World</button>)}
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
 }
 
 export default WorldDetailsPlayer;

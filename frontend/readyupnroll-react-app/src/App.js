@@ -32,7 +32,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/home" element={<HomeScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />
-          <Route path="/WorldDetailsPlayer" element={<WorldDetailsPlayer />} />
+          <Route path="/WorldDetailsPlayer/:worldId" element={<WorldDetailsPlayer />} />
           <Route path="/WorldDetailsGMCreate" element={<WorldDetailsGM />} />
           <Route path="/WorldDetailsGMEdit/:worldId" element={<WorldDetailsGM />} />
           <Route path="/JoinWorld" element={<JoinWorld />} />
