@@ -1,38 +1,71 @@
+/* ReadyUpScreen.css */
 .ready-up-screen {
-    /* Overall layout and styling */
-  }
-  
-  .top-bar {
-    /* Top bar styling */
-  }
-  
-  .world-header {
-    /* Header styling */
-  }
-  
-  .availability-calendar {
-    /* Calendar styling */
-  }
-  
-  .session-lists {
-    /* Session lists styling */
-  }
-  
-  .world-details {
-    /* World details styling */
-  }
-  
-  .ready-up-button {
-    background-color: #007bff; /* Blue background color */
-    color: white;
-    padding: 20px 40px; /* Large padding */
-    font-size: 24px; /* Large font size */
-    border: none;
-    border-radius: 10px; /* Rounded corners */
-    cursor: pointer;
-    transition: background-color 0.3s ease; /* Smooth transition on hover */
-  }
-  
-  .ready-up-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.world-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.world-details {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  width: 80%; /* Adjust as needed */
+  max-width: 600px;
+}
+
+.availability-calendar {
+  display: grid;
+  width: 90%; /* Adjust as needed */
+  max-width: 1200px; /* Adjust based on your design */
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+  /* Dynamic grid template columns based on view mode */
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Adjust minmax as needed */
+
+}
+
+.calendar-controls{
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  max-width: 1200px;
+  margin-bottom: 15px;
+
+}
+
+.calendar-cell {
+  border: 1px solid #eee;
+  padding: 5px;
+  min-height: 40px; /* Adjust as needed */
+  cursor: pointer;
+  text-align: center; /*Added to make the day markers centered.*/
+}
+
+.calendar-cell.selected {
+  background-color: #4CAF50; /* Or any color you prefer */
+  color: white;
+}
+
+.session-lists {
+  display: flex;
+  justify-content: space-around;
+  width: 80%; /* Adjust as needed */
+  margin-top: 20px;
+}
+
+.ready-up-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-bottom: 20px;
+}

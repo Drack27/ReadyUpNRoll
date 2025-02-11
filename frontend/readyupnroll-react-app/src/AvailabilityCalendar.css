@@ -1,8 +1,32 @@
+/* AvailabilityCalendar.css */
+.availability-calendar-container {
+  width: 90%; /* Adjust as needed */
+  max-width: 1200px; /* Adjust based on your design */
+  margin-bottom: 20px;
+}
+
+.calendar-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
 .availability-calendar {
-    /* Add any overall styling for the calendar container */
-  }
-  
-  .selected-date-tile {
-    background-color: #007bff; /* Example highlight color */
-    border-radius: 50%;
-  }
+  display: grid;
+  border: 1px solid #ddd;
+  /* Dynamic grid template columns based on view mode */
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Adjust minmax as needed */
+}
+
+.calendar-cell {
+  border: 1px solid #eee;
+  padding: 5px;
+  min-height: 40px; /* Adjust as needed */
+  cursor: pointer;
+  text-align: center;
+}
+
+.calendar-cell.selected {
+  background-color: #4CAF50;
+  color: white;
+}

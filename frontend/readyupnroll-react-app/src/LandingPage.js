@@ -8,7 +8,7 @@ function LandingPage() {
     <div className="landing-page">
       <header className="landing-page-header">
         <h1>ReadyUp & Roll</h1>
-        <p className="tagline">Real Scheduling for Fantastical Places</p>
+        <p className="tagline">Real Scheduling for Fictional Places</p>
       </header>
 
       <div className="button-container">

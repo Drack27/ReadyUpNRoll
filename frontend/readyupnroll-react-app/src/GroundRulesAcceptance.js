@@ -103,7 +103,7 @@ function GroundRulesAcceptance() {
 
     const handleCancel = () => {
         // ... (same as before) ...
-        navigate('/join-world'); // Go back to the world selection screen
+        navigate('/JoinWorld'); // Go back to the world selection screen
 
     };
 
