@@ -1,0 +1,53 @@
+/* YearView.css */
+.year-view {
+    display: flex; /* Use flexbox for arranging month blocks */
+    flex-wrap: wrap; /* Allow wrapping to the next line */
+    justify-content: space-between; /* Distribute space */
+
+}
+
+.year-month-block {
+    width: 30%; /* Adjust as needed, leaving space for margins/padding */
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    box-sizing: border-box; /*Critical so padding doesn't change element size.*/
+}
+.year-month-block h4{
+    text-align: center;
+    user-select: none; /* Prevent text selection */
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+.month-grid{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+.day-label{
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+    user-select: none; /* Prevent text selection */
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+.empty-cell {
+    background-color: #f9f9f9; /* Light gray for empty cells */
+    border: 1px solid #eee;
+}
+.calendar-cell {
+    border: 1px solid #eee;
+    padding: 5px;
+    min-height: 40px; /* Adjust as needed */
+    cursor: pointer;
+    text-align: center;
+    box-sizing: border-box; /* Include padding and border in element's total width/height */
+}
+
+.calendar-cell.selected {
+    background-color: #4CAF50;
+    color: white;
+}

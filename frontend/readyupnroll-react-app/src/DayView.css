@@ -1,0 +1,30 @@
+/* DayView.css */
+.day-view {
+    display: grid;
+    grid-template-columns: auto repeat(60, 1fr); /* Label column, plus 60 minute columns */
+}
+
+.hour-label {
+    grid-column: 1; /* Always in the first column */
+    text-align: right;
+    padding-right: 5px;
+    font-weight: bold;
+    border-right: 1px solid #ddd; /* Separate labels from cells */
+    user-select: none; /* Prevent text selection */
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+.calendar-cell {
+    border: 1px solid #eee;
+    padding: 5px;
+    min-height: 40px; /* Adjust as needed */
+    cursor: pointer;
+    text-align: center;
+    box-sizing: border-box; /* Include padding and border in element's total width/height */
+}
+
+.calendar-cell.selected {
+    background-color: #4CAF50;
+    color: white;
+}

@@ -1,0 +1,43 @@
+/* MonthView.css */
+.month-view {
+    grid-template-columns: repeat(7, 1fr); /* 7 columns for days of week */
+}
+
+.day-cell {
+    border: 1px solid #ddd;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.date-label {
+    text-align: center;
+    font-size: 1.1em;
+    margin-bottom: 4px;
+    user-select: none; /* Prevent text selection */
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+.time-of-day-cell {
+    height: 20px;
+    cursor: pointer;
+}
+.calendar-cell.selected {
+    background-color: #4CAF50;
+    color: white;
+}
+.empty-cell {
+    background-color: #f9f9f9; /* Light gray for empty cells */
+    border: 1px solid #eee;
+}
+.day-label{
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+    user-select: none; /* Prevent text selection */
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}

@@ -3,30 +3,14 @@
   width: 90%; /* Adjust as needed */
   max-width: 1200px; /* Adjust based on your design */
   margin-bottom: 20px;
+  user-select: none; /* Prevent text selection */
+  -moz-user-select: none; /* Firefox */
+  -webkit-user-select: none; /* Safari/Chrome */
+  -ms-user-select: none; /* IE10+ */
 }
 
 .calendar-controls {
   display: flex;
   justify-content: space-between;
   margin-bottom: 15px;
-}
-
-.availability-calendar {
-  display: grid;
-  border: 1px solid #ddd;
-  /* Dynamic grid template columns based on view mode */
-  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Adjust minmax as needed */
-}
-
-.calendar-cell {
-  border: 1px solid #eee;
-  padding: 5px;
-  min-height: 40px; /* Adjust as needed */
-  cursor: pointer;
-  text-align: center;
-}
-
-.calendar-cell.selected {
-  background-color: #4CAF50;
-  color: white;
 }

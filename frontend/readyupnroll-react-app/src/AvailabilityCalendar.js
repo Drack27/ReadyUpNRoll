@@ -1,17 +1,21 @@
 // AvailabilityCalendar.js
 import React, { useState, useEffect, useRef } from 'react';
-import './AvailabilityCalendar.css'; // Separate CSS file
+import DayView from './DayView';
+import WeekView from './WeekView';
+import MonthView from './MonthView';
+import YearView from './YearView';
+import './AvailabilityCalendar.css';
 
 function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewMode, currentDate, setViewMode, handleNext, handlePrevious }) {
     const [availability, setAvailability] = useState(initialAvailability || {});
     const [isPainting, setIsPainting] = useState(false);
     const [paintMode, setPaintMode] = useState(null);
-    const calendarRef = useRef(null);
+    const calendarRef = useRef(null); //Might not be needed anymore, but keeping just in case
 
-    // Deep comparison of availability objects
+    // Deep comparison of availability objects (utility function)
     const areAvailabilitiesEqual = (prevAvailability, currentAvailability) => {
-        if (prevAvailability === currentAvailability) return true; // Same object reference
-        if (!prevAvailability || !currentAvailability) return false; // One is null/undefined
+        if (prevAvailability === currentAvailability) return true;
+        if (!prevAvailability || !currentAvailability) return false;
         if (Object.keys(prevAvailability).length !== Object.keys(currentAvailability).length) return false;
 
         for (const date in prevAvailability) {
@@ -24,54 +28,19 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
         return true;
     };
 
-    // Update local availability when initialAvailability prop changes, *only if content changed*
+    // Update local availability when initialAvailability prop changes (only if different)
     useEffect(() => {
         if (!areAvailabilitiesEqual(availability, initialAvailability)) {
             setAvailability(initialAvailability || {});
         }
-    }, [initialAvailability]); // Only depend on initialAvailability
+    }, [initialAvailability, availability]);
 
-
-    // Call onAvailabilityChange AFTER availability state has been updated
+    // Notify parent component when availability changes
     useEffect(() => {
         onAvailabilityChange(availability);
-    }, [availability]); // onAvailabilityChange removed
+    }, [availability, onAvailabilityChange]);
 
-
-    const generateTimeSlots = (mode) => {
-        let slots = [];
-        const startDate = new Date(currentDate);
-
-        if (mode === 'day') {
-            startDate.setHours(0, 0, 0, 0);
-            for (let i = 0; i < 24 * 60; i++) {
-                const time = new Date(startDate.getTime() + i * 60 * 1000);
-                slots.push(time);
-            }
-        } else if (mode === 'week') {
-            startDate.setDate(startDate.getDate() - startDate.getDay());
-            for (let i = 0; i < 7 * 24; i++) {
-                const time = new Date(startDate.getTime() + i * 60 * 60 * 1000);
-                slots.push(time);
-            }
-        } else if (mode === 'month') {
-            startDate.setDate(1);
-            const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
-            for (let i = 0; i < daysInMonth * 4; i++) {
-                const time = new Date(startDate.getTime() + i * 6 * 60 * 60 * 1000);
-                slots.push(time);
-            }
-        } else if (mode === 'year') {
-            startDate.setMonth(0, 1);
-            for (let i = 0; i < 365; i++) {
-                const time = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
-                slots.push(time);
-            }
-        }
-        return slots;
-    };
-
-    const timeSlots = generateTimeSlots(viewMode);
+    // --- Event Handlers (passed down to child views) ---
 
     const handleCellClick = (time) => {
         const dateString = time.toISOString().split('T')[0];
@@ -97,8 +66,8 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                     initialPaintMode = true;
                 }
             }
-            setPaintMode(initialPaintMode);
-            return newAvailability; // Return the updated state
+            setPaintMode(initialPaintMode); // Set the paint mode *here*
+            return newAvailability;
         });
     };
 
@@ -108,7 +77,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
         const dateString = time.toISOString().split('T')[0];
         const timeString = time.toISOString().split('T')[1].substring(0, 5);
 
-        setAvailability(prevAvailability => { // Use the functional update form
+        setAvailability(prevAvailability => {
             const newAvailability = { ...prevAvailability };
 
             if (paintMode === true) {
@@ -131,36 +100,39 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                     }
                 }
             }
-            return newAvailability; // Return the updated state
+            return newAvailability;
         });
     };
-    const isCellSelected = (time) => {
-        const dateString = time.toISOString().split('T')[0];
-        const timeString = time.toISOString().split('T')[1].substring(0, 5);
-        return availability[dateString] && availability[dateString].includes(timeString);
-    };
 
-    const startPainting = () => {
-        setIsPainting(true);
-    };
 
+    const startPainting = () => { setIsPainting(true); };
     const stopPainting = () => {
         setIsPainting(false);
-        setPaintMode(null);
-    };
+        setPaintMode(null); // Reset paint mode
+     };
 
-      useEffect(() => {
-        window.addEventListener('mouseup', stopPainting);
-        window.addEventListener('touchend', stopPainting);
-        return () => {
-            window.removeEventListener('mouseup', stopPainting);
-            window.removeEventListener('touchend', stopPainting);
+    // --- Global Mouse/Touch Event Handlers ---
+     useEffect(() => {
+        const handleMouseUp = () => {
+            stopPainting();
         };
-    }, []);
+        const handleTouchEnd = () => {
+            stopPainting();
+        }
+
+        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('touchend', handleTouchEnd);
+
+        return () => {
+            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, []); // Empty dependency array: run once on mount/unmount
+
 
     return (
         <div className="availability-calendar-container">
-             <div className="calendar-controls">
+            <div className="calendar-controls">
                 <button onClick={handlePrevious}>&lt; Previous</button>
                 <button onClick={() => setViewMode('day')}>Day</button>
                 <button onClick={() => setViewMode('week')}>Week</button>
@@ -168,34 +140,53 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                 <button onClick={() => setViewMode('year')}>Year</button>
                 <button onClick={handleNext}>Next &gt;</button>
             </div>
-            <div className="availability-calendar" ref={calendarRef} onMouseLeave={stopPainting}>
-                {timeSlots.map((time) => (
-                    <div
-                        key={time.toISOString()}
-                        className={`calendar-cell ${isCellSelected(time) ? 'selected' : ''}`}
-                        onMouseDown={() => { startPainting(); handleCellClick(time); }}
-                        onMouseEnter={() => handleCellHover(time)}
-                        onTouchStart={() => { startPainting(); handleCellClick(time); }}
-                        onTouchMove={(e) => {
-                            e.preventDefault();
-                            const touch = e.touches[0];
-                            const element = document.elementFromPoint(touch.clientX, touch.clientY);
-                            if (element && element.classList.contains('calendar-cell')) {
-                                const timeString = element.getAttribute('key');
-                                if (timeString) {
-                                    const time = new Date(timeString);
-                                    handleCellHover(time);
-                                }
-                            }
-                        }}
-                    >
-                        {viewMode === 'day' && time.getMinutes() === 0 && time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        {viewMode === 'week' && time.getHours() === 0 && time.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                        {viewMode === 'month' && time.getHours() === 0 && time.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                        {viewMode === 'year' && time.getMonth() === 0 && time.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
-                    </div>
-                ))}
-            </div>
+
+            {/* Conditionally render the appropriate view component */}
+            {viewMode === 'day' && (
+                <DayView
+                    currentDate={currentDate}
+                    availability={availability}
+                    onCellClick={handleCellClick}
+                    onCellHover={handleCellHover}
+                    isPainting={isPainting}
+                    startPainting={startPainting}
+                    onMouseLeave={stopPainting}
+                />
+            )}
+            {viewMode === 'week' && (
+                <WeekView
+                    currentDate={currentDate}
+                    availability={availability}
+                    onCellClick={handleCellClick}
+                    onCellHover={handleCellHover}
+                    isPainting={isPainting}
+                    startPainting={startPainting}
+                    onMouseLeave={stopPainting}
+
+                />
+            )}
+            {viewMode === 'month' && (
+                <MonthView
+                    currentDate={currentDate}
+                    availability={availability}
+                    onCellClick={handleCellClick}
+                    onCellHover={handleCellHover}
+                    isPainting={isPainting}
+                    startPainting={startPainting}
+                    onMouseLeave={stopPainting}
+                />
+            )}
+            {viewMode === 'year' && (
+                <YearView
+                    currentDate={currentDate}
+                    availability={availability}
+                    onCellClick={handleCellClick}
+                    onCellHover={handleCellHover}
+                    isPainting={isPainting}
+                    startPainting={startPainting}
+                    onMouseLeave={stopPainting}
+                />
+            )}
         </div>
     );
 }
