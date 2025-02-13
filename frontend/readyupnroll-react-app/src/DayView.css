@@ -1,30 +1,67 @@
 /* DayView.css */
-.day-view {
-    display: grid;
-    grid-template-columns: auto repeat(60, 1fr); /* Label column, plus 60 minute columns */
+.availability-calendar-container.day-view-override { /* Add a more specific selector */
+    max-width: none !important;  /* Override parent's max-width */
+    width: auto !important;      /* Allow DayView to control its own width */
 }
 
-.hour-label {
-    grid-column: 1; /* Always in the first column */
-    text-align: right;
-    padding-right: 5px;
-    font-weight: bold;
-    border-right: 1px solid #ddd; /* Separate labels from cells */
-    user-select: none; /* Prevent text selection */
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
+.day-view {
+    display: grid;
+    width: 100%; /* Ensure it takes full width *within its container* */
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
+
+.wide-view {
+    grid-template-columns: repeat(16, 60px); /* 16 columns, fixed width */
+     grid-template-rows: repeat(6, 60px);
+     /*max-width: 960px;  Removed - now controlled by grid-template-columns/rows */
+     margin: 0 auto; /*Center*/
+}
+
+.narrow-view {
+    grid-template-columns: repeat(8, 60px); /* 8 columns, fixed width */
+    grid-template-rows: repeat(12, 60px); /* 12 rows*/
+    /*max-width: 480px; Removed - now controlled by grid-template-columns/rows */
+    margin: 0 auto;
+}
+
+
 .calendar-cell {
     border: 1px solid #eee;
-    padding: 5px;
-    min-height: 40px; /* Adjust as needed */
     cursor: pointer;
     text-align: center;
-    box-sizing: border-box; /* Include padding and border in element's total width/height */
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    height: 60px; /* Fixed height */
+}
+
+.hour-start {
+    border-left: 3px solid #0d6efd;
+}
+
+.midday-divider {
+    border-top: 2px solid #0d6efd; /* Add a top border for midday */
 }
 
 .calendar-cell.selected {
     background-color: #4CAF50;
     color: white;
+}
+
+.calendar-cell:hover {
+    background-color: #e9ecef;
+}
+
+.time-label {
+    font-size: 0.75em;
+}
+
+.hour-label {
+    font-weight: bold;
 }

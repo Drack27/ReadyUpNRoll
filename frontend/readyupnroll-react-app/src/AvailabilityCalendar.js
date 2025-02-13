@@ -28,12 +28,12 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
         return true;
     };
 
-    // Update local availability when initialAvailability prop changes (only if different)
+    // Update local availability ONLY when initialAvailability prop changes *from the parent*
     useEffect(() => {
         if (!areAvailabilitiesEqual(availability, initialAvailability)) {
             setAvailability(initialAvailability || {});
         }
-    }, [initialAvailability, availability]);
+    }, [initialAvailability]); // Removed 'availability' from dependencies!  This is the fix.
 
     // Notify parent component when availability changes
     useEffect(() => {
