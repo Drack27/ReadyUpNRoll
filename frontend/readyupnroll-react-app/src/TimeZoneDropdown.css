@@ -1,0 +1,23 @@
+/* TimeZoneDropdown.css */
+.timezone-dropdown {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    appearance: none; /* Remove default dropdown arrow (optional) */
+    -webkit-appearance: none; /* For Safari */
+    -moz-appearance: none; /* For Firefox */
+    /* Add a custom dropdown arrow (optional - if you removed default)*/
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="%23888" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+  }
+  
+  .timezone-dropdown:focus {
+    outline: none;
+    border-color: #007bff; /* Or your preferred focus color */
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); /* Optional focus ring */
+  }
