@@ -33,7 +33,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
         if (!areAvailabilitiesEqual(availability, initialAvailability)) {
             setAvailability(initialAvailability || {});
         }
-    }, [initialAvailability]); // Removed 'availability' from dependencies!  This is the fix.
+    }, [initialAvailability]); // Removed 'availability' from dependencies!
 
     // Notify parent component when availability changes
     useEffect(() => {
@@ -131,7 +131,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
 
 
     return (
-        <div className="availability-calendar-container">
+        <div className={`availability-calendar-container ${viewMode === 'day' ? 'day-view-active' : ''}`}>
             <div className="calendar-controls">
                 <button onClick={handlePrevious}>&lt; Previous</button>
                 <button onClick={() => setViewMode('day')}>Day</button>

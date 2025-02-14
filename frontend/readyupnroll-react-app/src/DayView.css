@@ -1,12 +1,9 @@
 /* DayView.css */
-.availability-calendar-container.day-view-override { /* Add a more specific selector */
-    max-width: none !important;  /* Override parent's max-width */
-    width: auto !important;      /* Allow DayView to control its own width */
-}
-
 .day-view {
     display: grid;
-    width: 100%; /* Ensure it takes full width *within its container* */
+    width: 90%; /* Use percentage for responsiveness */
+    max-width: 960px; /* Max width for wide view */
+    margin: 0 auto; /* Center the calendar */
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 4px;
@@ -14,19 +11,19 @@
 }
 
 .wide-view {
-    grid-template-columns: repeat(16, 60px); /* 16 columns, fixed width */
-     grid-template-rows: repeat(6, 60px);
-     /*max-width: 960px;  Removed - now controlled by grid-template-columns/rows */
-     margin: 0 auto; /*Center*/
+    grid-template-columns: repeat(16, 1fr); /* 16 flexible columns */
+    grid-template-rows: repeat(6, 1fr);   /* 6 flexible rows */
 }
 
 .narrow-view {
-    grid-template-columns: repeat(8, 60px); /* 8 columns, fixed width */
-    grid-template-rows: repeat(12, 60px); /* 12 rows*/
-    /*max-width: 480px; Removed - now controlled by grid-template-columns/rows */
-    margin: 0 auto;
+    grid-template-columns: repeat(8, 1fr);  /* 8 flexible columns */
+    grid-template-rows: repeat(12, 1fr);  /* 12 flexible rows */
 }
-
+.day-view-heading{
+    grid-column: 1 / -1; /* Span all columns */
+    text-align: center; /* Center */
+    width: 100%; /* Occupy the full space */
+}
 
 .calendar-cell {
     border: 1px solid #eee;
@@ -38,24 +35,26 @@
     justify-content: center;
     user-select: none;
     transition: background-color 0.2s ease;
-    height: 60px; /* Fixed height */
+    /* Removed fixed height and aspect-ratio */
 }
 
 .hour-start {
     border-left: 3px solid #0d6efd;
 }
 
-.midday-divider {
-    border-top: 2px solid #0d6efd; /* Add a top border for midday */
+/* AM/PM Divider - Applied to the *cells* on the border */
+.am-pm-border {
+    border-bottom: 3px solid #0d6efd; /*  divider */
+    z-index: 10; /* Ensure divider is visible */
 }
 
 .calendar-cell.selected {
-    background-color: #4CAF50;
+    /* No default background color - handled by inline styles */
     color: white;
 }
 
 .calendar-cell:hover {
-    background-color: #e9ecef;
+    background-color: #e9ecef; /* Keep the hover effect */
 }
 
 .time-label {
@@ -64,4 +63,8 @@
 
 .hour-label {
     font-weight: bold;
+}
+
+.hour-label::after{
+    content: '';
 }

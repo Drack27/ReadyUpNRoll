@@ -1,13 +1,15 @@
 /* AvailabilityCalendar.css */
 .availability-calendar-container {
   width: 90%; /* Adjust as needed */
-  max-width: 1200px; /* Adjust based on your design */
   margin-bottom: 20px;
-  user-select: none; /* Prevent text selection */
-  -moz-user-select: none; /* Firefox */
-  -webkit-user-select: none; /* Safari/Chrome */
-  -ms-user-select: none; /* IE10+ */
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  margin: 0 auto; /* Added to center */
 }
+
+/* Removed .day-view-active class and max-width override */
 
 .calendar-controls {
   display: flex;
