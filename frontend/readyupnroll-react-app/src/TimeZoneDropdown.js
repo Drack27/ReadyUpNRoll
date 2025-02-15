@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import './TimeZoneDropdown.css';
 
 function TimeZoneDropdown({ onTimeZoneChange, selectedTimeZone }) {
-    const timeZones = moment.tz.names();
+    const timeZones = moment.tz.names().filter(tz => !tz.match(/^(Etc|SystemV)/) && tz.includes('/')); //Keep only the ones that use the proper format.
 
     return (
         <select

@@ -2,10 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import './DayView.css';
 import moment from 'moment-timezone';
-import tzLookup from 'tz-lookup';
+import SunCalc from 'suncalc';
+import getTimeZoneCoordinates from './TimeZoneCoordinates'; // Import the FUNCTION
 
 function DayView({ currentDate, availability, onCellClick, onCellHover, isPainting, startPainting, onMouseLeave, selectedTimeZone }) {
     const [isNarrow, setIsNarrow] = useState(window.innerWidth <= 768);
+    const [sunrise, setSunrise] = useState(6 * 60); // Default: 6 AM
+    const [sunset, setSunset] = useState(18 * 60); // Default: 6 PM
+    const [timeZoneData, setTimeZoneData] = useState(getTimeZoneCoordinates()); // Call the function!
 
     useEffect(() => {
         const handleResize = () => {
@@ -17,10 +21,57 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    useEffect(() => {
+        const updateSunriseSunset = () => {
+            if (!selectedTimeZone) {
+                return;
+            }
+
+            let latitude, longitude;
+            try {
+                const coords = timeZoneData[selectedTimeZone]; // Use the loaded data
+                if (coords) {
+                    latitude = coords.latitude;
+                    longitude = coords.longitude;
+                } else {
+                    // This is now a more accurate error message.
+                    throw new Error(`Timezone not found in lookup: ${selectedTimeZone}`);
+                }
+            } catch (err) {
+                console.error("Error looking up lat and long: ", err);
+                latitude = 0;  // Default values if lookup fails
+                longitude = 0;
+                return; //Important: exit if we don't have coordinates
+            }
+
+            // Get year, month, and day from currentDate (works for both Date and Moment objects).
+            const year = moment(currentDate).year();
+            const month = moment(currentDate).month(); // Month is 0-indexed (0 = January)
+            const day = moment(currentDate).date();
+
+            // Create a UTC Date object, and specifically set hours, minutes, seconds to 0
+            const date = new Date(Date.UTC(year, month, day, 0, 0, 0));
+
+
+            const times = SunCalc.getTimes(date, latitude, longitude);
+
+            // Use moment.tz to *format* the sunrise/sunset times into the selected timezone.
+            const sunriseMoment = moment.tz(times.sunrise, selectedTimeZone);
+            const sunsetMoment = moment.tz(times.sunset, selectedTimeZone);
+
+
+            setSunrise(sunriseMoment.hours() * 60 + sunriseMoment.minutes());
+            setSunset(sunsetMoment.hours() * 60 + sunsetMoment.minutes());
+        };
+        updateSunriseSunset();
+    }, [selectedTimeZone, currentDate, timeZoneData]); // Add timeZoneData as a dependency
+
+    // ... (rest of your DayView component remains the same) ...
+
     const generateTimeSlots = () => {
         let slots = [];
-        const startDate = moment(currentDate).tz(selectedTimeZone); //Use moment-timezone here.
-        startDate.startOf('day'); //Sets to the start of the day, in the selected timezone.
+        const startDate = moment(currentDate).tz(selectedTimeZone);
+        startDate.startOf('day');
 
         for (let i = 0; i < 24; i++) {
             for (let j = 0; j < 4; j++) {
@@ -34,63 +85,17 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
     const timeSlots = generateTimeSlots();
 
     const isCellSelected = (time) => {
-        // Convert the moment object to a standard Date object for comparison
         const dateString = time.format('YYYY-MM-DD');
         const timeString = time.format('HH:mm');
         return availability[dateString] && availability[dateString].includes(timeString);
     };
 
-     const getTimeOfDayColor = (time, isSelected) => {
-        //Get the lat and long of the timezone.
-        let latitude, longitude;
-        try{
-            latitude = tzLookup(selectedTimeZone);
-            longitude = tzLookup(selectedTimeZone, true); // Get longitude
-        } catch (error){
-            console.error("TZ Lookup Error:", error);
-            latitude = 0; //Default
-            longitude = 0;
-        }
-
-
-        const dateStr = currentDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-        let sunrise, sunset;
-        //Async fetch
-        (async () => {try {
-
-                const response = await fetch(`https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${dateStr}&formatted=0`);
-                const data = await response.json();
-
-                if (data.status === 'OK') {
-                    const sunriseTime = new Date(data.results.sunrise);
-                    const sunsetTime = new Date(data.results.sunset);
-                    //Convert to total minutes.
-                    sunrise = sunriseTime.getHours() * 60 + sunriseTime.getMinutes();
-                    sunset = sunsetTime.getHours() * 60 + sunsetTime.getMinutes();
-
-
-                } else {
-                    console.error('Failed to fetch sunrise/sunset data.');
-                    //Defaults:
-                    sunrise = 6*60;
-                    sunset = 18*60;
-                }
-            } catch (error) {
-                console.error("Error fetching sunrise/sunset:", error);
-                //Defaults:
-                sunrise = 6*60;
-                sunset = 18*60;
-
-            }})();
-        if(!sunrise){ //If the values are not ready yet, just show a neutral color.
-            return isSelected? '#aaaaaa' : '#dddddd';
-        }
-        const hour = time.hour(); // Use .hour() from moment-timezone
-        const minute = time.minute(); // Use .minute() from moment-timezone
+    const getTimeOfDayColor = (time, isSelected) => {
+        const hour = time.hour();
+        const minute = time.minute();
         const totalMinutes = hour * 60 + minute;
 
         let h, s, l;
-
 
         if (totalMinutes < sunrise) {
             h = 240;
@@ -118,52 +123,8 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
 
         return `hsl(${h}, ${s}%, ${l}%)`;
     };
+
     const getTextColor = (time) => {
-        //Get the lat and long of the timezone.
-        let latitude, longitude;
-        try{
-            latitude = tzLookup(selectedTimeZone);
-            longitude = tzLookup(selectedTimeZone, true); // Get longitude
-        } catch (error){
-            console.error("TZ Lookup Error:", error);
-            latitude = 0; //Default
-            longitude = 0;
-        }
-
-
-        const dateStr = currentDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-        let sunrise, sunset;
-        //Async fetch
-        (async () => {try {
-
-                const response = await fetch(`https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${dateStr}&formatted=0`);
-                const data = await response.json();
-
-                if (data.status === 'OK') {
-                    const sunriseTime = new Date(data.results.sunrise);
-                    const sunsetTime = new Date(data.results.sunset);
-                    //Convert to total minutes.
-                    sunrise = sunriseTime.getHours() * 60 + sunriseTime.getMinutes();
-                    sunset = sunsetTime.getHours() * 60 + sunsetTime.getMinutes();
-
-
-                } else {
-                    console.error('Failed to fetch sunrise/sunset data.');
-                    //Defaults:
-                    sunrise = 6*60;
-                    sunset = 18*60;
-                }
-            } catch (error) {
-                console.error("Error fetching sunrise/sunset:", error);
-                //Defaults:
-                sunrise = 6*60;
-                sunset = 18*60;
-
-            }})();
-        if(!sunrise){ //If the values are not ready yet, just show a neutral color.
-            return 'black';
-        }
-
         const hour = time.hour();
         const minute = time.minute();
         const totalMinutes = hour * 60 + minute;
@@ -174,26 +135,21 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
         return 'black';
     };
 
-
     let lastHoveredCell = null;
 
     return (
         <>
             <h3 className="day-view-heading">{currentDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
-
             <div
                 className={`availability-calendar day-view ${isNarrow ? 'narrow-view' : 'wide-view'}`}
                 onMouseLeave={onMouseLeave}
             >
-
                 {timeSlots.map((time) => {
                     const hour = time.hour();
                     const minute = time.minute();
                     const isHourStart = minute === 0;
-                    const isPM = hour >= 12;
                     const isSelected = isCellSelected(time);
                     const timeString = time.toISOString();
-
                     const isAmPmBorder = (hour === 11 && minute === 45) || (hour === 12 && minute === 0);
 
                     return (
@@ -208,32 +164,27 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
                                 const touch = e.touches[0];
                                 const element = document.elementFromPoint(touch.clientX, touch.clientY);
                                 if (element && element.classList.contains('calendar-cell')) {
-                                    //Use the data-time.
                                     const timeString = element.dataset.time;
                                     if (timeString) {
                                         try {
-                                            // Convert data-time using moment-timezone
-                                            const currentTime = moment.tz(timeString, selectedTimeZone);
-
-                                            if (lastHoveredCell !== timeString) {
+                                            const currentTime = moment(timeString, moment.ISO_8601).tz(selectedTimeZone);
+                                            if (lastHoveredCell !== currentTime) {
                                                 onCellHover(currentTime);
-                                                lastHoveredCell = timeString;
+                                                lastHoveredCell = currentTime;
                                             }
                                         } catch (error) {
-                                            console.error("Invalid date string:", timeString, error);
+                                            console.error("Invalid date string in onTouchMove:", timeString, error);
                                         }
                                     }
                                 }
                             }}
                             data-time={time.format()}
-
                             style={{
                                 backgroundColor: getTimeOfDayColor(time, isSelected),
                                 color: getTextColor(time)
                             }}
                         >
                             <span className={`time-label ${isHourStart ? 'hour-label' : ''}`}>
-                               {/*Use moment-timezone to format.*/}
                                 {isHourStart ? time.format('LT') : `:${time.format('mm')}`}
                             </span>
                         </div>
