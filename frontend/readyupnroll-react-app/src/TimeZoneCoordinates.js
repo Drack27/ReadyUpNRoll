@@ -485,7 +485,51 @@ const timeZoneCoordinates = {
     "Pacific/Tarawa": { latitude: 1.33, longitude: 172.98 },
     "Pacific/Tongatapu": { latitude: -21.18, longitude: -175.19 },
     "Pacific/Wake": { latitude: 19.28, longitude: 166.65 },
-    "Pacific/Wallis": { latitude: -13.30, longitude: -176.17 }
+    "Pacific/Wallis": { latitude: -13.30, longitude: -176.17 },
+    "Pacific/Yap": { latitude: 9.52, longitude: 138.12 },
+
+    // Generic US Time Zones
+    "US/Alaska": { latitude: 61.22, longitude: -149.90 }, // Anchorage
+    "US/Arizona": { latitude: 33.45, longitude: -112.07 }, // Phoenix
+    "US/Central": { latitude: 41.88, longitude: -87.63 },  // Chicago
+    "US/Eastern": { latitude: 40.71, longitude: -74.01 },  // New York
+    "US/Hawaii": { latitude: 21.31, longitude: -157.86 }, // Honolulu
+    "US/Mountain": { latitude: 39.74, longitude: -104.99 }, // Denver
+    "US/Pacific": { latitude: 34.05, longitude: -118.24 }, // Los Angeles
+
+    // Generic Canada Time Zones
+    "Canada/Atlantic": { latitude: 44.65, longitude: -63.57 }, // Halifax
+    "Canada/Central": { latitude: 49.90, longitude: -97.14 }, // Winnipeg
+    "Canada/Eastern": { latitude: 43.65, longitude: -79.38 }, // Toronto
+    "Canada/Mountain": { latitude: 53.55, longitude: -113.49 }, // Edmonton
+    "Canada/Newfoundland": { latitude: 47.57, longitude: -52.71 }, // St. John's
+    "Canada/Pacific": { latitude: 49.28, longitude: -123.12 }, // Vancouver
+    "Canada/Saskatchewan": { latitude: 50.45, longitude: -104.62 }, // Regina (No DST)
+   "Canada/Yukon": { latitude: 60.72, longitude: -135.06},
+
+    // Generic Brazil Time Zones
+    "Brazil/Acre": { latitude: -9.97, longitude: -67.81 },    // Rio Branco
+    "Brazil/DeNoronha": { latitude: -3.84, longitude: -32.40 }, // Noronha
+    "Brazil/East": { latitude: -23.55, longitude: -46.64 },   // Sao Paulo
+    "Brazil/West": { latitude: -3.12, longitude: -60.03 },    // Manaus
+
+    // Chile
+    "Chile/Continental": { latitude: -33.45, longitude: -70.67 }, // Santiago
+    "Chile/EasterIsland": { latitude: -27.15, longitude: -109.43 }, // Easter Island
+
+     // More Generic Regions
+     "Europe/Central": { latitude: 52.52, longitude: 13.41 },   // Berlin (Representative)
+     "Europe/Eastern": { latitude: 37.98, longitude: 23.73 },   // Athens (Representative)
+     "Europe/Western": { latitude: 51.51, longitude: -0.13 },   // London (Representative)
+     "Australia/East": { latitude: -33.87, longitude: 151.21 },  // Sydney (Representative)
+     "Australia/West": { latitude: -31.95, longitude: 115.86 },  // Perth
+     "Australia/Central": { latitude: -34.93, longitude: 138.60 }, // Adelaide (Representative)
+ 
+       // Generic Mexico Time Zones
+        "Mexico/BajaNorte": { latitude: 32.53, longitude: -117.03 }, // Tijuana
+        "Mexico/BajaSur": { latitude: 24.14, longitude: -110.31 }, // La Paz (Baja California Sur)
+        "Mexico/General": { latitude: 19.43, longitude: -99.13 },  // Mexico City
+    
 };
 
 const getTimeZoneCoordinates = () => {
