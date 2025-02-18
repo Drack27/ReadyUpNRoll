@@ -1,17 +1,19 @@
 // AvailabilityCalendar.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import DayView from './DayView';
 import WeekView from './WeekView';
 import MonthView from './MonthView';
 import YearView from './YearView';
 import TimeZoneDropdown from './TimeZoneDropdown'; // Import the new component
 import './AvailabilityCalendar.css';
+import throttle from 'lodash.throttle'; // Import throttle
+
 
 function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewMode, currentDate, setViewMode, handleNext, handlePrevious }) {
     const [availability, setAvailability] = useState(initialAvailability || {});
     const [isPainting, setIsPainting] = useState(false);
     const [paintMode, setPaintMode] = useState(null);
-    const [selectedTimeZone, setSelectedTimeZone] = useState(null); // Add selectedTimeZone state
+    const [selectedTimeZone, setSelectedTimeZone] = useState(null);
 
     // Deep comparison of availability objects (utility function)
     const areAvailabilitiesEqual = (prevAvailability, currentAvailability) => {
@@ -75,39 +77,41 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                 });
     };
 
-    const handleCellHover = (time) => {
-        /* ... (same as before) ... */
-        if (!isPainting) return;
+    const handleCellHover = useCallback(
+         throttle((time) => { // Wrap with throttle
+             if (!isPainting) return;
 
-                const dateString = time.toISOString().split('T')[0];
-                const timeString = time.toISOString().split('T')[1].substring(0, 5);
+             const dateString = time.toISOString().split('T')[0];
+             const timeString = time.toISOString().split('T')[1].substring(0, 5);
 
-                setAvailability(prevAvailability => {
-                    const newAvailability = { ...prevAvailability };
+             setAvailability(prevAvailability => {
+                 const newAvailability = { ...prevAvailability };
 
-                    if (paintMode === true) {
-                        if (!newAvailability[dateString]) {
-                            newAvailability[dateString] = [timeString];
-                        } else {
-                            const existingTimes = newAvailability[dateString];
-                            if (!existingTimes.includes(timeString)) {
-                                newAvailability[dateString] = [...existingTimes, timeString].sort();
-                            }
-                        }
-                    } else {
-                        if (newAvailability[dateString]) {
-                            const existingTimes = newAvailability[dateString];
-                            if (existingTimes.includes(timeString)) {
-                                newAvailability[dateString] = existingTimes.filter(t => t !== timeString);
-                                if (newAvailability[dateString].length === 0) {
-                                    delete newAvailability[dateString];
-                                }
-                            }
-                        }
-                    }
-                    return newAvailability;
-                });
-    };
+                 if (paintMode === true) {
+                     if (!newAvailability[dateString]) {
+                         newAvailability[dateString] = [timeString];
+                     } else {
+                         const existingTimes = newAvailability[dateString];
+                         if (!existingTimes.includes(timeString)) {
+                             newAvailability[dateString] = [...existingTimes, timeString].sort();
+                         }
+                     }
+                 } else {
+                     if (newAvailability[dateString]) {
+                         const existingTimes = newAvailability[dateString];
+                         if (existingTimes.includes(timeString)) {
+                             newAvailability[dateString] = existingTimes.filter(t => t !== timeString);
+                             if (newAvailability[dateString].length === 0) {
+                                 delete newAvailability[dateString];
+                             }
+                         }
+                     }
+                 }
+                 return newAvailability;
+             });
+         }, 16), // Throttle to 16ms (approx. 60fps)
+         [isPainting, paintMode, setAvailability] // Dependencies for useCallback
+     );
 
 
     const startPainting = () => { setIsPainting(true); };

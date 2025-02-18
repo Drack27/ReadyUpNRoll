@@ -7,6 +7,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@turf/turf": "^7.2.0",
+    "lodash.throttle": "^4.1.1",
     "moment-timezone": "^0.5.47",
     "react": "^18.3.1",
     "react-calendar": "^5.1.0",
@@ -15,6 +16,7 @@
     "react-scripts": "^5.0.1",
     "suncalc": "^1.9.0",
     "tz-lookup": "^6.1.25",
+    "tzdata": "^1.0.43",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

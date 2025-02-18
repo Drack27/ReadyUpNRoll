@@ -1,5 +1,5 @@
 // DayView.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import './DayView.css';
 import moment from 'moment-timezone';
 import SunCalc from 'suncalc';
@@ -10,6 +10,7 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
     const [sunrise, setSunrise] = useState(6 * 60); // Default: 6 AM
     const [sunset, setSunset] = useState(18 * 60); // Default: 6 PM
     const [timeZoneData, setTimeZoneData] = useState(getTimeZoneCoordinates()); // Call the function!
+    const calendarRef = useRef(null); // Add a ref to the calendar container
 
     useEffect(() => {
         const handleResize = () => {
@@ -143,6 +144,7 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
             <div
                 className={`availability-calendar day-view ${isNarrow ? 'narrow-view' : 'wide-view'}`}
                 onMouseLeave={onMouseLeave}
+                ref={calendarRef} // Assign the ref here
             >
                 {timeSlots.map((time) => {
                     const hour = time.hour();
@@ -154,40 +156,80 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
 
                     return (
                         <div
-                            key={timeString}
-                            className={`calendar-cell ${isSelected ? 'selected' : ''} ${isHourStart ? 'hour-start' : ''} ${isAmPmBorder ? 'am-pm-border' : ''}`}
-                            onMouseDown={() => { startPainting(); onCellClick(time); }}
-                            onMouseEnter={() => onCellHover(time)}
-                            onTouchStart={() => { startPainting(); onCellClick(time); }}
-                            onTouchMove={(e) => {
-                                e.preventDefault();
-                                const touch = e.touches[0];
-                                const element = document.elementFromPoint(touch.clientX, touch.clientY);
-                                if (element && element.classList.contains('calendar-cell')) {
+                        key={timeString}
+                        className={`calendar-cell ${isSelected ? 'selected' : ''} ${isHourStart ? 'hour-start' : ''} ${isAmPmBorder ? 'am-pm-border' : ''}`}
+                        onMouseDown={() => { startPainting(); onCellClick(time); }}
+                        onMouseEnter={() => onCellHover(time)}
+                        onMouseMove={(e) => {
+                            e.preventDefault();
+                            if (!isPainting) return; // Add this check!
+
+                            // Get bounding rectangle of the calendar grid
+                            const rect = calendarRef.current.getBoundingClientRect();
+
+                            // Calculate relative coordinates
+                            const x = e.clientX - rect.left;
+                            const y = e.clientY - rect.top;
+
+                            // Get the element at the *relative* coordinates
+                            const element = document.elementFromPoint(e.clientX, e.clientY);
+
+
+                            if (element && element.classList.contains('calendar-cell')) {
+                                const timeString = element.dataset.time;
+                                if (timeString) {
+                                    try {
+                                        const currentTime = moment(timeString, moment.ISO_8601).tz(selectedTimeZone);
+                                          if (lastHoveredCell !== currentTime) {
+                                                onCellHover(currentTime);
+                                                lastHoveredCell = currentTime;
+                                          }
+                                    } catch (error) {
+                                        console.error("Invalid date string in onMouseMove:", timeString, error);
+                                    }
+                                }
+                            }
+                        }}
+                        onTouchStart={() => { startPainting(); onCellClick(time); }}
+                        onTouchMove={(e) => {
+                            e.preventDefault();
+                            if (!isPainting) return; // Add this check!
+
+                            const touch = e.touches[0];
+                            const rect = calendarRef.current.getBoundingClientRect(); // Get calendar bounds
+
+                            // Calculate *relative* coordinates
+                            const x = touch.clientX - rect.left;
+                            const y = touch.clientY - rect.top;
+
+                            // Get element at *relative* coordinates
+                            const element = document.elementFromPoint(touch.clientX, touch.clientY);
+
+                            if (element && element.classList.contains('calendar-cell')) {
                                     const timeString = element.dataset.time;
                                     if (timeString) {
-                                        try {
-                                            const currentTime = moment(timeString, moment.ISO_8601).tz(selectedTimeZone);
-                                            if (lastHoveredCell !== currentTime) {
+                                          try{
+                                              const currentTime = moment(timeString, moment.ISO_8601).tz(selectedTimeZone);
+                                              if (lastHoveredCell !== currentTime) {
                                                 onCellHover(currentTime);
                                                 lastHoveredCell = currentTime;
                                             }
-                                        } catch (error) {
-                                            console.error("Invalid date string in onTouchMove:", timeString, error);
+                                          } catch (error) {
+                                            console.error("Invalid time string:", timeString, error);
                                         }
                                     }
                                 }
-                            }}
-                            data-time={time.format()}
-                            style={{
-                                backgroundColor: getTimeOfDayColor(time, isSelected),
-                                color: getTextColor(time)
-                            }}
-                        >
-                            <span className={`time-label ${isHourStart ? 'hour-label' : ''}`}>
-                                {isHourStart ? time.format('LT') : `:${time.format('mm')}`}
-                            </span>
-                        </div>
+                        }}
+                        data-time={time.format()}
+                        style={{
+                            backgroundColor: getTimeOfDayColor(time, isSelected),
+                            color: getTextColor(time)
+                        }}
+                    >
+                        <span className={`time-label ${isHourStart ? 'hour-label' : ''}`}>
+                            {isHourStart ? time.format('LT') : `:${time.format('mm')}`}
+                        </span>
+                    </div>
                     );
                 })}
             </div>
