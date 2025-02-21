@@ -1,17 +1,17 @@
-//ReadyUpScreen.js
-import React, { useState, useCallback } from 'react'; // Import useCallback
+// ReadyUpScreen.js (CORRECTED with useMemo)
+import React, { useState, useCallback, useMemo } from 'react'; // Import useMemo
 import TopBar from './TopBar';
 import SessionList from './SessionList';
-import AvailabilityCalendar from './AvailabilityCalendar'; // Import the new component
+import AvailabilityCalendar from './AvailabilityCalendar';
 import './ReadyUpScreen.css';
 
 function ReadyUpScreen(props) {
     const { worldName, minTime, minPlayers, pastSessions, upcomingSessions, worldDetails } = props;
-    const [availability, setAvailability] = useState({}); // Moved to ReadyUpScreen
+    const [availability, setAvailability] = useState({});
     const [viewMode, setViewMode] = useState('week');
     const [currentDate, setCurrentDate] = useState(new Date());
 
-     const handleNext = () => {
+    const handleNext = () => {
         const newDate = new Date(currentDate);
         if (viewMode === 'day') {
             newDate.setDate(newDate.getDate() + 1);
@@ -24,6 +24,7 @@ function ReadyUpScreen(props) {
         }
         setCurrentDate(newDate);
     };
+
     const handlePrevious = () => {
         const newDate = new Date(currentDate);
         if (viewMode === 'day') {
@@ -38,23 +39,19 @@ function ReadyUpScreen(props) {
         setCurrentDate(newDate);
     };
 
-
     const handleReadyUpSubmit = () => {
         console.log("Submitting Availability:", availability);
         alert("Availability submitted! (Not really, this is a placeholder.)");
     };
 
-    // Helper function to format date.
     const formatDate = (dateString) => {
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-      return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    };
 
-    // Use useCallback to memoize onAvailabilityChange
     const handleAvailabilityChange = useCallback((newAvailability) => {
         setAvailability(newAvailability);
-    }, []); // Dependency: setAvailability (which is stable)
-
+    }, []);
 
     const WorldHeader = () => (
         <div className="world-header">
@@ -65,23 +62,28 @@ function ReadyUpScreen(props) {
 
     const WorldDetails = () => (
         worldDetails ?
-        <div className="world-details">
-            <h2>World Details:</h2>
-            <p>Game System: {worldDetails.gameSystem}</p>
-            <p>Modules: {worldDetails.modules}</p>
-        </div> :
-        <div className="world-details">Loading world details...</div>
+            <div className="world-details">
+                <h2>World Details:</h2>
+                <p>Game System: {worldDetails.gameSystem}</p>
+                <p>Modules: {worldDetails.modules}</p>
+            </div> :
+            <div className="world-details">Loading world details...</div>
     );
+
+
+    // Use useMemo to memoize the initialAvailability prop
+    const memoizedInitialAvailability = useMemo(() => {
+        return {}; // Or any initial value you want
+    }, []); // Empty dependency array: only create once!
 
     return (
         <div className="ready-up-screen">
             <TopBar />
             <WorldHeader />
             <WorldDetails />
-            {/* Use the AvailabilityCalendar component */}
             <AvailabilityCalendar
-                initialAvailability={availability}
-                onAvailabilityChange={handleAvailabilityChange} // Pass the memoized function
+                initialAvailability={memoizedInitialAvailability} // Use the memoized value
+                onAvailabilityChange={handleAvailabilityChange}
                 viewMode={viewMode}
                 currentDate={currentDate}
                 setViewMode={setViewMode}
