@@ -218,6 +218,7 @@ const timeZoneCoordinates = {
     "Antarctica/Syowa": { latitude: -69.01, longitude: 39.59 },
     "Antarctica/Troll": { latitude: -72.01, longitude: 2.53 },
     "Antarctica/Vostok": { latitude: -78.46, longitude: 106.87 },
+    "Antarctica/South_Pole": { latitude: -90.00, longitude: 45.00 },
 
     // Asia
     "Asia/Aden": { latitude: 12.78, longitude: 45.04 },

@@ -4,10 +4,9 @@ import DayView from './DayView';
 import WeekView from './WeekView';
 import MonthView from './MonthView';
 import YearView from './YearView';
-import TimeZoneDropdown from './TimeZoneDropdown'; // Import the new component
+import TimeZoneDropdown from './TimeZoneDropdown';
 import './AvailabilityCalendar.css';
-import throttle from 'lodash.throttle'; // Import throttle
-
+import throttle from 'lodash.throttle';
 
 function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewMode, currentDate, setViewMode, handleNext, handlePrevious }) {
     const [availability, setAvailability] = useState(initialAvailability || {});
@@ -17,27 +16,26 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
 
     // Deep comparison of availability objects (utility function)
     const areAvailabilitiesEqual = (prevAvailability, currentAvailability) => {
-        /* ... (same as before) ... */
-        if (prevAvailability === currentAvailability) return true;
-                if (!prevAvailability || !currentAvailability) return false;
-                if (Object.keys(prevAvailability).length !== Object.keys(currentAvailability).length) return false;
 
-                for (const date in prevAvailability) {
-                    if (!currentAvailability.hasOwnProperty(date)) return false;
-                    if (prevAvailability[date].length !== currentAvailability[date].length) return false;
-                    for (let i = 0; i < prevAvailability[date].length; i++) {
-                        if (prevAvailability[date][i] !== currentAvailability[date][i]) return false;
-                    }
-                }
-                return true;
+        if (prevAvailability === currentAvailability) return true;
+        if (!prevAvailability || !currentAvailability) return false;
+        if (Object.keys(prevAvailability).length !== Object.keys(currentAvailability).length) return false;
+
+        for (const date in prevAvailability) {
+            if (!currentAvailability.hasOwnProperty(date)) return false;
+            if (prevAvailability[date].length !== currentAvailability[date].length) return false;
+            for (let i = 0; i < prevAvailability[date].length; i++) {
+                if (prevAvailability[date][i] !== currentAvailability[date][i]) return false;
+            }
+        }
+        return true;
     };
 
     // Update local availability ONLY when initialAvailability prop changes *from the parent*
     useEffect(() => {
-        /* ... (same as before) ... */
         if (!areAvailabilitiesEqual(availability, initialAvailability)) {
-                        setAvailability(initialAvailability || {});
-                    }
+                setAvailability(initialAvailability || {});
+            }
     }, [initialAvailability]); // Removed 'availability' from dependencies!
 
     // Notify parent component when availability changes
@@ -45,99 +43,94 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
         onAvailabilityChange(availability);
     }, [availability, onAvailabilityChange]);
 
-    // --- Event Handlers (passed down to child views) ---
+  const handleCellClick = (time) => {
+    const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
+    const timeString = time.clone().tz(selectedTimeZone).format('HH:mm');
 
-    const handleCellClick = (time) => {
-        /* ... (same as before) ... */
-        const dateString = time.toISOString().split('T')[0];
-                const timeString = time.toISOString().split('T')[1].substring(0, 5);
+    setAvailability(prevAvailability => {
+        const newAvailability = { ...prevAvailability };
+        let initialPaintMode;
 
-                setAvailability(prevAvailability => {
-                    const newAvailability = { ...prevAvailability };
-                    let initialPaintMode;
+        if (!newAvailability[dateString]) {
+            newAvailability[dateString] = [timeString];
+            initialPaintMode = true;
+        } else {
+            const existingTimes = newAvailability[dateString];
+            if (existingTimes.includes(timeString)) {
+                newAvailability[dateString] = existingTimes.filter(t => t !== timeString);
+                initialPaintMode = false;
+                if (newAvailability[dateString].length === 0) {
+                    delete newAvailability[dateString];
+                }
+            } else {
+                newAvailability[dateString] = [...existingTimes, timeString].sort();
+                initialPaintMode = true;
+            }
+        }
+        setPaintMode(initialPaintMode); // Correct placement
+        return newAvailability;
+    });
+};
 
-                    if (!newAvailability[dateString]) {
-                        newAvailability[dateString] = [timeString];
-                        initialPaintMode = true;
-                    } else {
-                        const existingTimes = newAvailability[dateString];
-                        if (existingTimes.includes(timeString)) {
-                            newAvailability[dateString] = existingTimes.filter(t => t !== timeString);
-                            initialPaintMode = false;
-                            if (newAvailability[dateString].length === 0) {
-                                delete newAvailability[dateString];
-                            }
-                        } else {
-                            newAvailability[dateString] = [...existingTimes, timeString].sort();
-                            initialPaintMode = true;
-                        }
-                    }
-                    setPaintMode(initialPaintMode); // Set the paint mode *here*
-                    return newAvailability;
-                });
-    };
 
-    const handleCellHover = useCallback(
-         throttle((time) => { // Wrap with throttle
-             if (!isPainting) return;
+const handleCellHover = useCallback(
+    throttle((time) => {
+        if (!isPainting) return;
 
-             const dateString = time.toISOString().split('T')[0];
-             const timeString = time.toISOString().split('T')[1].substring(0, 5);
+        const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD'); //TZ Fix
+        const timeString = time.clone().tz(selectedTimeZone).format('HH:mm'); //TZ Fix
 
-             setAvailability(prevAvailability => {
-                 const newAvailability = { ...prevAvailability };
+        setAvailability(prevAvailability => {
+            const newAvailability = { ...prevAvailability };
 
-                 if (paintMode === true) {
-                     if (!newAvailability[dateString]) {
-                         newAvailability[dateString] = [timeString];
-                     } else {
-                         const existingTimes = newAvailability[dateString];
-                         if (!existingTimes.includes(timeString)) {
-                             newAvailability[dateString] = [...existingTimes, timeString].sort();
-                         }
-                     }
-                 } else {
-                     if (newAvailability[dateString]) {
-                         const existingTimes = newAvailability[dateString];
-                         if (existingTimes.includes(timeString)) {
-                             newAvailability[dateString] = existingTimes.filter(t => t !== timeString);
-                             if (newAvailability[dateString].length === 0) {
-                                 delete newAvailability[dateString];
-                             }
-                         }
-                     }
-                 }
-                 return newAvailability;
-             });
-         }, 16), // Throttle to 16ms (approx. 60fps)
-         [isPainting, paintMode, setAvailability] // Dependencies for useCallback
-     );
-
+            if (paintMode === true) {
+                if (!newAvailability[dateString]) {
+                    newAvailability[dateString] = [timeString];
+                } else {
+                    const existingTimes = newAvailability[dateString];
+                    if (!existingTimes.includes(timeString)) {
+                        newAvailability[dateString] = [...existingTimes, timeString].sort();
+                    }
+                }
+            } else { // paintMode === false
+                if (newAvailability[dateString]) {
+                    const existingTimes = newAvailability[dateString];
+                    if (existingTimes.includes(timeString)) {
+                        newAvailability[dateString] = existingTimes.filter(t => t !== timeString);
+                        if (newAvailability[dateString].length === 0) {
+                            delete newAvailability[dateString];
+                        }
+                    }
+                }
+            }
+            return newAvailability;
+        });
+    }, 16),
+    [isPainting, paintMode] // Corrected dependencies
+);
 
     const startPainting = () => { setIsPainting(true); };
     const stopPainting = () => {
         setIsPainting(false);
-        setPaintMode(null); // Reset paint mode
+        setPaintMode(null);
     };
 
-    // --- Global Mouse/Touch Event Handlers ---
-    useEffect(() => {
-        /* ... (same as before) ... */
+     useEffect(() => {
         const handleMouseUp = () => {
-                        stopPainting();
-                    };
-                    const handleTouchEnd = () => {
-                        stopPainting();
-                    }
+            stopPainting();
+        };
+        const handleTouchEnd = () => {
+            stopPainting();
+        }
 
-                    window.addEventListener('mouseup', handleMouseUp);
-                    window.addEventListener('touchend', handleTouchEnd);
+        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('touchend', handleTouchEnd);
 
-                    return () => {
-                        window.removeEventListener('mouseup', handleMouseUp);
-                        window.removeEventListener('touchend', handleTouchEnd);
-                    };
-    }, []); // Empty dependency array: run once on mount/unmount
+        return () => {
+            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, []);
 
     const handleTimeZoneChange = (timeZone) => {
         setSelectedTimeZone(timeZone);
@@ -157,8 +150,6 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                     selectedTimeZone={selectedTimeZone}
                 />
             </div>
-
-            {/* Conditionally render either the calendar or the message */}
             {selectedTimeZone ? (
                 <>
                     {viewMode === 'day' && (
@@ -170,7 +161,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                             isPainting={isPainting}
                             startPainting={startPainting}
                             onMouseLeave={stopPainting}
-                            selectedTimeZone={selectedTimeZone} // Pass selectedTimeZone
+                            selectedTimeZone={selectedTimeZone}
                         />
                     )}
                     {viewMode === 'week' && (
@@ -183,7 +174,6 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                         startPainting={startPainting}
                         onMouseLeave={stopPainting}
                         selectedTimeZone={selectedTimeZone}
-
                         />
                     )}
                     {viewMode === 'month' && (
@@ -199,16 +189,16 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                         />
                     )}
                     {viewMode === 'year' && (
-                         <YearView
-                         currentDate={currentDate}
-                         availability={availability}
-                         onCellClick={handleCellClick}
-                         onCellHover={handleCellHover}
-                         isPainting={isPainting}
-                         startPainting={startPainting}
-                         onMouseLeave={stopPainting}
-                         selectedTimeZone={selectedTimeZone}
-                         />
+                    <YearView
+                        currentDate={currentDate}
+                        availability={availability}
+                        onCellClick={handleCellClick}
+                        onCellHover={handleCellHover}
+                        isPainting={isPainting}
+                        startPainting={startPainting}
+                        onMouseLeave={stopPainting}
+                        selectedTimeZone={selectedTimeZone}
+                        />
                     )}
                 </>
             ) : (
