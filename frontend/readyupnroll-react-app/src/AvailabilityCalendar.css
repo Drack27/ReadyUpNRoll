@@ -1,12 +1,13 @@
 /* AvailabilityCalendar.css */
 .availability-calendar-container {
-  width: 90%; /*  Full width */
+  width: 90%; /* Use percentage width for responsiveness. */
+  max-width: 1200px;  /* Add a max-width for larger screens */
   margin-bottom: 20px;
   user-select: none;
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
-  margin: 0 auto; /*  Center horizontally */
+  margin: 0 auto; /* Center horizontally */
 }
 
 .calendar-controls {
@@ -17,13 +18,9 @@
 }
 
 .timezone-message {
-    font-size: 1.2em;
-    text-align: center;
-    padding: 20px;
-    border: 1px solid #ccc;
-    background-color: #f8f9fa;
-}
-
-.week-view-active .week-view{ /*This is important!*/
-  width: 100%;
+  font-size: 1.2em;
+  text-align: center;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background-color: #f8f9fa;
 }

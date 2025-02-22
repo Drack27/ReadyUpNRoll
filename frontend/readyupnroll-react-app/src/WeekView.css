@@ -1,16 +1,17 @@
 /* WeekView.css */
 .week-view {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* 7 columns for days */
-    grid-template-rows: auto repeat(24, minmax(20px, 1fr)); /* Labels + 24 hour rows. */
+    grid-template-columns: repeat(7, 1fr); /* Back to 1fr for distribution */
+    grid-template-rows: auto repeat(24, minmax(40px, 1fr));
     gap: 1px;
-    width: 100%;  /* Fill available width */
+    width: calc(7 * max(50px, (100% / 7))); /* KEY CHANGE: Calculate width */
     box-sizing: border-box;
+    /* overflow: hidden; Remove this. It is unnecessary now. */
+    margin: 0 auto; /* Center the grid itself */
 }
 
 .day-label {
-    /* grid-row: 1;  <-- REMOVE THIS */
-    grid-column: span 1; /*  Occupy one column */
+    grid-column: span 1;
     text-align: center;
     font-weight: bold;
     padding: 5px;
@@ -37,10 +38,10 @@
 .calendar-cell {
     border: 1px solid #eee;
     padding: 2px;
-    min-height: 20px;
+    min-height: 40px;
     cursor: pointer;
     text-align: center;
-    font-size: 0.65em;
+    font-size: 0.75em;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -53,13 +54,13 @@
 }
 
 .week-start-toggle {
-     margin-bottom: 1rem;
-     text-align: center;
+    margin-bottom: 1rem;
+    text-align: center;
 }
 
 .disgust-message {
-     font-size: 0.7rem;
-     color: #999;
-     margin-top: 0.25rem;
-     display: block;
+    font-size: 0.7rem;
+    color: #999;
+    margin-top: 0.25rem;
+    display: block;
 }

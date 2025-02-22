@@ -24,7 +24,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
             if (prevAvailability[date] && !currentAvailability[date]) return false;
             if (!prevAvailability[date] && currentAvailability[date]) return false;
             if (prevAvailability[date] && currentAvailability[date] && prevAvailability[date].length !== currentAvailability[date].length) return false;
-             for (let i = 0; i < (prevAvailability[date] ? prevAvailability[date].length : 0); i++) { // Safe iteration
+            for (let i = 0; i < (prevAvailability[date] ? prevAvailability[date].length : 0); i++) { // Safe iteration
                 if (prevAvailability[date][i] !== currentAvailability[date][i]) return false;
             }
         }
@@ -113,7 +113,7 @@ const handleCellHover = useCallback(
         setPaintMode(null);
     };
 
-     useEffect(() => {
+    useEffect(() => {
         const handleMouseUp = () => {
             stopPainting();
         };
@@ -135,7 +135,7 @@ const handleCellHover = useCallback(
     };
 
     return (
-        <div className={`availability-calendar-container ${viewMode === 'day' ? 'day-view-active' : ''} ${viewMode === 'week' ? 'week-view-active' : ''}`}>
+        <div className={`availability-calendar-container ${viewMode === 'week' ? 'week-view-active' : ''}`}>
             <div className="calendar-controls">
                 <button onClick={handlePrevious}>&lt; Previous</button>
                 <button onClick={() => setViewMode('day')}>Day</button>
@@ -176,26 +176,26 @@ const handleCellHover = useCallback(
                     )}
                     {viewMode === 'month' && (
                         <MonthView
-                        currentDate={currentDate}
-                        availability={availability}
-                        onCellClick={handleCellClick}
-                        onCellHover={handleCellHover}
-                        isPainting={isPainting}
-                        startPainting={startPainting}
-                        onMouseLeave={stopPainting}
-                        selectedTimeZone={selectedTimeZone}
+                            currentDate={currentDate}
+                            availability={availability}
+                            onCellClick={handleCellClick}
+                            onCellHover={handleCellHover}
+                            isPainting={isPainting}
+                            startPainting={startPainting}
+                            onMouseLeave={stopPainting}
+                            selectedTimeZone={selectedTimeZone}
                         />
                     )}
                     {viewMode === 'year' && (
-                    <YearView
-                        currentDate={currentDate}
-                        availability={availability}
-                        onCellClick={handleCellClick}
-                        onCellHover={handleCellHover}
-                        isPainting={isPainting}
-                        startPainting={startPainting}
-                        onMouseLeave={stopPainting}
-                        selectedTimeZone={selectedTimeZone}
+                        <YearView
+                            currentDate={currentDate}
+                            availability={availability}
+                            onCellClick={handleCellClick}
+                            onCellHover={handleCellHover}
+                            isPainting={isPainting}
+                            startPainting={startPainting}
+                            onMouseLeave={stopPainting}
+                            selectedTimeZone={selectedTimeZone}
                         />
                     )}
                 </>
