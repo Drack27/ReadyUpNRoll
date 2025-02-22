@@ -1,81 +1,164 @@
 // WeekView.js
-import React from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import './WeekView.css';
+import moment from 'moment-timezone';
+import throttle from 'lodash.throttle';
 
-function WeekView({ currentDate, availability, onCellClick, onCellHover, isPainting, startPainting, onMouseLeave }) {
+function WeekView({ currentDate, availability, onCellClick, onCellHover, isPainting, startPainting, onMouseLeave, selectedTimeZone }) {
+    const calendarRef = useRef(null);
+    const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(true); // State for week start
+    let lastHoveredCell = null;
 
-    const generateTimeSlots = () => {
+    const handleWeekStartToggle = () => {
+        setWeekStartsOnMonday(prev => !prev);
+    };
+
+    const generateTimeSlots = useCallback(() => {
+        if (!selectedTimeZone) {
+            return [];
+        }
         let slots = [];
-        const startDate = new Date(currentDate);
-        startDate.setDate(currentDate.getDate() - currentDate.getDay()); // Start of current week (Sunday)
-        for (let i = 0; i < 7 * 24; i++) { // Hour-by-hour
-            const time = new Date(startDate.getTime() + i * 60 * 60 * 1000);
-            slots.push(time);
+        const startOfWeek = moment(currentDate).tz(selectedTimeZone).startOf(weekStartsOnMonday ? 'isoWeek' : 'week');
+
+        for (let day = 0; day < 7; day++) {
+            const dayStart = startOfWeek.clone().add(day, 'days');
+            for (let hour = 0; hour < 24; hour++) {
+                const time = dayStart.clone().add(hour, 'hours');
+                slots.push(time);
+            }
         }
         return slots;
-    };
+    }, [currentDate, selectedTimeZone, weekStartsOnMonday]);
 
     const timeSlots = generateTimeSlots();
 
+
     const isCellSelected = (time) => {
-        const dateString = time.toISOString().split('T')[0];
-        const timeString = time.toISOString().split('T')[1].substring(0, 5);
+        const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
+        const timeString = time.clone().tz(selectedTimeZone).format('HH:mm');
         return availability[dateString] && availability[dateString].includes(timeString);
     };
 
-    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const startDate = new Date(currentDate);
-    startDate.setDate(currentDate.getDate() - currentDate.getDay()); // Start of the week
-    const monthYear = startDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    const handleMouseMove = useCallback(
+      throttle((e) => {
+        e.preventDefault();
+        if (!isPainting) return;
+
+        const rect = calendarRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const element = document.elementFromPoint(e.clientX, e.clientY);
+
+        if (element && element.classList.contains('calendar-cell')) {
+          const timeString = element.dataset.time;
+          if (timeString) {
+            try {
+              const currentTime = moment(timeString, moment.ISO_8601).tz(selectedTimeZone);
+              if(lastHoveredCell !== currentTime){
+                onCellHover(currentTime);
+                lastHoveredCell = currentTime;
+              }
+            } catch (error) {
+              console.error("Invalid date string in onMouseMove:", timeString, error);
+            }
+          }
+        }
+    }, 16), [isPainting, onCellHover, selectedTimeZone]);
+
+    const handleTouchMove = useCallback(throttle((e) => {
+        e.preventDefault();
+        if (!isPainting) return;
+
+        const touch = e.touches[0];
+        const rect = calendarRef.current.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+
+
+        if (element && element.classList.contains('calendar-cell')) {
+          const timeString = element.dataset.time;
+            if (timeString) {
+              try{
+                const currentTime = moment(timeString, moment.ISO_8601).tz(selectedTimeZone);
+                if(lastHoveredCell !== currentTime){
+                  onCellHover(currentTime);
+                  lastHoveredCell = currentTime;
+                }
+              } catch(error){
+                console.error("Invalid date string in handleTouchMove", timeString, error);
+              }
+            }
+        }
+    }, 16), [isPainting, onCellHover, selectedTimeZone]);
+
+
+    const daysOfWeek = weekStartsOnMonday
+        ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    const startDate = moment(currentDate).tz(selectedTimeZone).startOf(weekStartsOnMonday ? 'isoWeek' : 'week');
 
     return (
         <>
-            <h3>{monthYear}</h3>
-            <div className="availability-calendar week-view" onMouseLeave={onMouseLeave}>
-                {/* Day labels */}
-                {daysOfWeek.map((day, index) => (
-                    <div key={`day-label-${index}`} className="day-label">{day}</div>
-                ))}
-
-                {/* Date Labels */}
-                {Array.from({ length: 7 }).map((_, dayIndex) => {
-                    const date = new Date(startDate);
-                    date.setDate(startDate.getDate() + dayIndex);
+            <h3>{moment(currentDate).tz(selectedTimeZone).format('MMMM YYYY')}</h3>
+             <div className="week-start-toggle">
+                <label>
+                    Week starts on Monday:
+                    <input
+                        type="checkbox"
+                        checked={weekStartsOnMonday}
+                        onChange={handleWeekStartToggle}
+                    />
+                </label>
+                {!weekStartsOnMonday && <span className="disgust-message">You disgust me.</span>}
+            </div>
+            <div
+                className="availability-calendar week-view"
+                onMouseLeave={onMouseLeave}
+                ref={calendarRef}
+                onMouseMove={handleMouseMove}
+                onTouchMove={handleTouchMove}
+            >
+                {/* Day and Date Labels (Combined) */}
+                {daysOfWeek.map((day, index) => {
+                    const date = moment(startDate).tz(selectedTimeZone).add(index, 'days');
                     return (
-                        <div key={`date-label-${dayIndex}`} className="date-label">
-                            {date.toLocaleDateString(undefined, { day: 'numeric' })}
+                        <div key={`day-label-${index}`} className="day-label">
+                            <div>{day}</div>
+                            <div>{date.format('D')}</div>
                         </div>
                     );
                 })}
 
                 {/* Time slots */}
                 {timeSlots.map((time) => {
+                    const isSelected = isCellSelected(time);
+                    const dayIndex = time.day();
+                    const hourIndex = time.hour();
+
+                    // Adjust day index for Monday start
+                    const adjustedDayIndex = weekStartsOnMonday ? (dayIndex + 6) % 7 : dayIndex;
+
+
                     return (
                         <div
                             key={time.toISOString()}
-                            className={`calendar-cell ${isCellSelected(time) ? 'selected' : ''}`}
+                            className={`calendar-cell ${isSelected ? 'selected' : ''}`}
                             onMouseDown={() => { startPainting(); onCellClick(time); }}
                             onMouseEnter={() => onCellHover(time)}
                             onTouchStart={() => { startPainting(); onCellClick(time); }}
-                            onTouchMove={(e) => {
-                                e.preventDefault();
-                                const touch = e.touches[0];
-                                const element = document.elementFromPoint(touch.clientX, touch.clientY);
-                                if (element && element.classList.contains('calendar-cell')) {
-                                    const timeString = element.getAttribute('key');
-                                    if (timeString) {
-                                        try {
-                                            const time = new Date(timeString);
-                                            onCellHover(time);
-                                        } catch (error) {
-                                            console.error("Invalid date string:", timeString, error);
-                                        }
-                                    }
-                                }
+
+                            data-time={time.format()}
+                            style={{
+                                gridColumn: adjustedDayIndex + 1,
+                                gridRow: hourIndex + 2,
                             }}
                         >
+                            {/* Display full hour at start of day, minutes otherwise */}
+                            {time.format('ha')}
                         </div>
-                    )
+                    );
                 })}
             </div>
         </>

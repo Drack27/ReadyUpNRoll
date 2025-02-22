@@ -1,28 +1,67 @@
 /* WeekView.css */
 .week-view {
-    grid-template-columns: repeat(7, 1fr); /* 7 columns for days of the week */
-  }
-  
-  .day-label, .date-label {
-      text-align: center;
-      font-weight: bold;
-      padding: 5px;
-      border-bottom: 1px solid #ddd;
-      user-select: none; /* Prevent text selection */
-      -moz-user-select: none;
-      -webkit-user-select: none;
-      -ms-user-select: none;
-  }
-  .calendar-cell {
-      border: 1px solid #eee;
-      padding: 5px;
-      min-height: 40px; /* Adjust as needed */
-      cursor: pointer;
-      text-align: center;
-      box-sizing: border-box; /* Include padding and border in element's total width/height */
-  }
-  
-  .calendar-cell.selected {
-      background-color: #4CAF50;
-      color: white;
-  }
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 columns for days */
+    grid-template-rows: auto repeat(24, minmax(20px, 1fr)); /* Labels + 24 hour rows.  minmax is important! */
+    gap: 1px;
+    width: 95%;  /* Fill most of the container width */
+    max-width: 1200px; /* Or whatever max width you want */
+    margin: 0 auto; /* Center horizontally */
+    box-sizing: border-box; /* Include padding and border in width/height */
+}
+
+.day-label {
+    grid-row: 1;
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    position: sticky;  /*Make the header sticky!*/
+    top: 0;
+    background-color: white;
+    z-index: 2;
+}
+
+.day-label div:first-child {
+    font-weight: bold;
+}
+
+.day-label div:last-child {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.calendar-cell {
+    border: 1px solid #eee;
+    padding: 2px; /* Reduced padding */
+    min-height: 20px; /*  Smaller min-height */
+    cursor: pointer;
+    text-align: center;
+     font-size: 0.65em; /* Smaller font */
+    box-sizing: border-box;
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Vertical center */
+    justify-content: center; /* Horizontal center */
+}
+
+
+.calendar-cell.selected {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.week-start-toggle {
+     margin-bottom: 1rem;
+     text-align: center;
+}
+
+.disgust-message {
+     font-size: 0.7rem;
+     color: #999;
+     margin-top: 0.25rem;
+     display: block;
+}
