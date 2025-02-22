@@ -14,31 +14,29 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
     const [paintMode, setPaintMode] = useState(null);
     const [selectedTimeZone, setSelectedTimeZone] = useState(null);
 
-    // Deep comparison of availability objects (utility function)
     const areAvailabilitiesEqual = (prevAvailability, currentAvailability) => {
-
         if (prevAvailability === currentAvailability) return true;
         if (!prevAvailability || !currentAvailability) return false;
         if (Object.keys(prevAvailability).length !== Object.keys(currentAvailability).length) return false;
 
         for (const date in prevAvailability) {
             if (!currentAvailability.hasOwnProperty(date)) return false;
-            if (prevAvailability[date].length !== currentAvailability[date].length) return false;
-            for (let i = 0; i < prevAvailability[date].length; i++) {
+            if (prevAvailability[date] && !currentAvailability[date]) return false;
+            if (!prevAvailability[date] && currentAvailability[date]) return false;
+            if (prevAvailability[date] && currentAvailability[date] && prevAvailability[date].length !== currentAvailability[date].length) return false;
+             for (let i = 0; i < (prevAvailability[date] ? prevAvailability[date].length : 0); i++) { // Safe iteration
                 if (prevAvailability[date][i] !== currentAvailability[date][i]) return false;
             }
         }
         return true;
     };
 
-    // Update local availability ONLY when initialAvailability prop changes *from the parent*
     useEffect(() => {
         if (!areAvailabilitiesEqual(availability, initialAvailability)) {
-                setAvailability(initialAvailability || {});
-            }
-    }, [initialAvailability]); // Removed 'availability' from dependencies!
+            setAvailability(initialAvailability || {});
+        }
+    }, [initialAvailability, availability]);
 
-    // Notify parent component when availability changes
     useEffect(() => {
         onAvailabilityChange(availability);
     }, [availability, onAvailabilityChange]);
@@ -67,7 +65,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                 initialPaintMode = true;
             }
         }
-        setPaintMode(initialPaintMode); // Correct placement
+        setPaintMode(initialPaintMode);
         return newAvailability;
     });
 };
@@ -77,8 +75,8 @@ const handleCellHover = useCallback(
     throttle((time) => {
         if (!isPainting) return;
 
-        const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD'); //TZ Fix
-        const timeString = time.clone().tz(selectedTimeZone).format('HH:mm'); //TZ Fix
+        const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
+        const timeString = time.clone().tz(selectedTimeZone).format('HH:mm');
 
         setAvailability(prevAvailability => {
             const newAvailability = { ...prevAvailability };
@@ -92,7 +90,7 @@ const handleCellHover = useCallback(
                         newAvailability[dateString] = [...existingTimes, timeString].sort();
                     }
                 }
-            } else { // paintMode === false
+            } else {
                 if (newAvailability[dateString]) {
                     const existingTimes = newAvailability[dateString];
                     if (existingTimes.includes(timeString)) {
@@ -106,7 +104,7 @@ const handleCellHover = useCallback(
             return newAvailability;
         });
     }, 16),
-    [isPainting, paintMode] // Corrected dependencies
+    [isPainting, paintMode, selectedTimeZone]
 );
 
     const startPainting = () => { setIsPainting(true); };
@@ -137,7 +135,7 @@ const handleCellHover = useCallback(
     };
 
     return (
-        <div className={`availability-calendar-container ${viewMode === 'day' ? 'day-view-active' : ''}`}>
+        <div className={`availability-calendar-container ${viewMode === 'day' ? 'day-view-active' : ''} ${viewMode === 'week' ? 'week-view-active' : ''}`}>
             <div className="calendar-controls">
                 <button onClick={handlePrevious}>&lt; Previous</button>
                 <button onClick={() => setViewMode('day')}>Day</button>

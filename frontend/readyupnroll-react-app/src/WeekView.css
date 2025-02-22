@@ -2,16 +2,15 @@
 .week-view {
     display: grid;
     grid-template-columns: repeat(7, 1fr); /* 7 columns for days */
-    grid-template-rows: auto repeat(24, minmax(20px, 1fr)); /* Labels + 24 hour rows.  minmax is important! */
+    grid-template-rows: auto repeat(24, minmax(20px, 1fr)); /* Labels + 24 hour rows. */
     gap: 1px;
-    width: 95%;  /* Fill most of the container width */
-    max-width: 1200px; /* Or whatever max width you want */
-    margin: 0 auto; /* Center horizontally */
-    box-sizing: border-box; /* Include padding and border in width/height */
+    width: 100%;  /* Fill available width */
+    box-sizing: border-box;
 }
 
 .day-label {
-    grid-row: 1;
+    /* grid-row: 1;  <-- REMOVE THIS */
+    grid-column: span 1; /*  Occupy one column */
     text-align: center;
     font-weight: bold;
     padding: 5px;
@@ -20,7 +19,7 @@
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
-    position: sticky;  /*Make the header sticky!*/
+    position: sticky;
     top: 0;
     background-color: white;
     z-index: 2;
@@ -37,17 +36,16 @@
 
 .calendar-cell {
     border: 1px solid #eee;
-    padding: 2px; /* Reduced padding */
-    min-height: 20px; /*  Smaller min-height */
+    padding: 2px;
+    min-height: 20px;
     cursor: pointer;
     text-align: center;
-     font-size: 0.65em; /* Smaller font */
+    font-size: 0.65em;
     box-sizing: border-box;
-    display: flex; /* Use flexbox for centering */
-    align-items: center; /* Vertical center */
-    justify-content: center; /* Horizontal center */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-
 
 .calendar-cell.selected {
     background-color: #4CAF50;

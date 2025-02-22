@@ -1,25 +1,29 @@
 /* AvailabilityCalendar.css */
 .availability-calendar-container {
-  width: 90%; /* Adjust as needed */
+  width: 90%; /*  Full width */
   margin-bottom: 20px;
   user-select: none;
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
-  margin: 0 auto; /* Added to center */
+  margin: 0 auto; /*  Center horizontally */
 }
 
 .calendar-controls {
   display: flex;
   justify-content: space-between;
   margin-bottom: 15px;
-  align-items: center; /* Vertically center items */
+  align-items: center;
 }
 
 .timezone-message {
-  font-size: 1.2em;
-  text-align: center;
-  padding: 20px;
-  border: 1px solid #ccc;
-  background-color: #f8f9fa;
+    font-size: 1.2em;
+    text-align: center;
+    padding: 20px;
+    border: 1px solid #ccc;
+    background-color: #f8f9fa;
+}
+
+.week-view-active .week-view{ /*This is important!*/
+  width: 100%;
 }
