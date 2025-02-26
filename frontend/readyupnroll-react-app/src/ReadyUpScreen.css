@@ -19,16 +19,18 @@
   max-width: 600px;
 }
 
+/* REMOVE THIS ENTIRE BLOCK 
 .availability-calendar {
   display: grid;
-  width: 90%; /* Adjust as needed */
-  max-width: 1200px; /* Adjust based on your design */
+  width: 90%; 
+  max-width: 1200px; 
   border: 1px solid #ddd;
   margin-bottom: 20px;
-  /* Dynamic grid template columns based on view mode */
-  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); /* Adjust minmax as needed */
+
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); 
 
 }
+*/
 
 .calendar-controls{
   display: flex;

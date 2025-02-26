@@ -1,13 +1,12 @@
 /* WeekView.css */
 .week-view {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* Back to 1fr for distribution */
-    grid-template-rows: auto repeat(24, minmax(40px, 1fr));
+    grid-template-columns: repeat(7, 1fr); /* Equal-width columns */
+    grid-template-rows: auto repeat(24, minmax(40px, 1fr)); /* Correct row sizing */
     gap: 1px;
-    width: calc(7 * max(50px, (100% / 7))); /* KEY CHANGE: Calculate width */
+    width: 100%;  /* KEY CHANGE: Fill available width from parent */
     box-sizing: border-box;
-    /* overflow: hidden; Remove this. It is unnecessary now. */
-    margin: 0 auto; /* Center the grid itself */
+    /* margin: 0 auto;  Remove: Centering is handled by parent */
 }
 
 .day-label {

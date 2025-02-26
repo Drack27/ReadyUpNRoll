@@ -11,10 +11,17 @@
 }
 
 .calendar-controls {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
-  align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.availability-calendar {
+    width: 100%; /* Let the calendar fill its container */
+    /* REMOVE display: grid; */
+    /* REMOVE grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); */
+    /* Removed border as well, since WeekView provides the borders */
 }
 
 .timezone-message {
