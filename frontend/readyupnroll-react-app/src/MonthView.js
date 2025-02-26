@@ -1,49 +1,68 @@
 // MonthView.js
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import './MonthView.css';
+import moment from 'moment-timezone';
 
-function MonthView({ currentDate, availability, onCellClick, onCellHover, isPainting, startPainting, onMouseLeave }) {
+function MonthView({ currentDate, availability, onCellClick, onCellHover, isPainting, startPainting, onMouseLeave, selectedTimeZone, weekStartsOnMonday, onWeekStartToggle}) {
 
-    const generateTimeSlots = () => {
-        const startDate = new Date(currentDate);
-        startDate.setDate(1); // Start of the current month
-        const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
+    const handleWeekStartToggle = () => {
+      onWeekStartToggle(); //call handler from parent component.
+    }
+    const generateTimeSlots = useCallback(() => {
+        if (!selectedTimeZone) {
+            return [];
+        }
+        const startDate = moment(currentDate).tz(selectedTimeZone).startOf('month');
+        const daysInMonth = startDate.daysInMonth();
         let slots = [];
-        for (let i = 0; i < daysInMonth; i++) { // Iterate over days
-          for (let j = 0; j < 4; j++) { // Four 6-hour slots per day
-            const time = new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000) + (j * 6 * 60 * 60 * 1000));
-            slots.push(time);
-          }
+
+        for (let i = 0; i < daysInMonth; i++) {
+            const day = startDate.clone().add(i, 'days');
+            for (let j = 0; j < 4; j++) { // Four 6-hour slots per day
+                const time = day.clone().add(j * 6, 'hours');
+                slots.push(time);
+            }
         }
         return slots;
-    };
-      const timeSlots = generateTimeSlots();
+    }, [currentDate, selectedTimeZone]); // Add selectedTimeZone to dependency array
 
-    const isCellSelected = (time) => {
-        const dateString = time.toISOString().split('T')[0];
-        const timeString = time.toISOString().split('T')[1].substring(0, 5);
-        return availability[dateString] && availability[dateString].includes(timeString);
-    };
-
-    const startDate = new Date(currentDate);
-    startDate.setDate(1); // Start of the month
-    const daysInMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0).getDate();
-    const startDayOfWeek = startDate.getDay(); // 0 (Sun) to 6 (Sat)
-    const monthName = startDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-    const timeOfDayLabels = ['Morning', 'Afternoon', 'Evening', 'Night'];
-
-    // Create an array representing the entire month grid, including empty cells for previous/next month days
-    const monthGrid = [];
-    for (let i = 0; i < startDayOfWeek; i++) {
-        monthGrid.push({ type: 'empty' }); // Empty cells before the 1st
+    const timeSlots = generateTimeSlots();
+const isCellSelected = (time) => {
+    if (!selectedTimeZone) {
+        return false; // Or handle appropriately if no timezone
     }
+    const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
+    const timeString = time.clone().tz(selectedTimeZone).format('HH:mm');
+    return availability[dateString] && availability[dateString].includes(timeString);
+};
+
+    const startDate = moment(currentDate).tz(selectedTimeZone).startOf('month');
+    const daysInMonth = startDate.daysInMonth();
+    const startDayOfWeek = startDate.clone().startOf(weekStartsOnMonday ? 'isoWeek' : 'week').day(); // Get the starting day *of the week*, adjusted
+    const monthName = startDate.format('MMMM YYYY');
+
+    const timeOfDayLabels = ['Morning', 'Afternoon', 'Evening', 'Night'];
+    const timeOfDayIcons = ['☀️', '🌤️', '🌅', '🌙']; // Example icons
+    const timeOfDayColors = ['#FFECB3', '#BBDEFB', '#FFCC80', '#B39DDB']; // Example colors
+
+    const daysOfWeek = weekStartsOnMonday
+        ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+       // Create an array representing the entire month grid, including empty cells for previous/next month days
+
+    const monthGrid = [];
+    //Empty cells. Now, adjusted for week start.
+    for (let i = 0; i < startDayOfWeek; i++) {
+        monthGrid.push({ type: 'empty' });
+    }
+    //Day cells
     for (let i = 1; i <= daysInMonth; i++) {
-        monthGrid.push({ type: 'day', date: i }); // Day cells
+        monthGrid.push({ type: 'day', date: i });
     }
     // Fill in empty cells to complete the last week
     const totalCells = monthGrid.length;
-    const remainingCells = 7 - (totalCells % 7);
-    if (remainingCells < 7) {
+    const remainingCells = (7 * 6) - totalCells; //For a 7X6 grid
+    if (remainingCells < (7*6)) {
         for (let i = 0; i < remainingCells; i++) {
             monthGrid.push({ type: 'empty' });
         }
@@ -52,10 +71,22 @@ function MonthView({ currentDate, availability, onCellClick, onCellHover, isPain
     return (
         <>
             <h3>{monthName}</h3>
+            <div className="week-start-toggle">
+                <label>
+                    Week starts on Monday:
+                    <input
+                        type="checkbox"
+                        checked={weekStartsOnMonday}
+                        onChange={handleWeekStartToggle}
+                    />
+                </label>
+            </div>
             <div className="availability-calendar month-view" onMouseLeave={onMouseLeave}>
                 {/* Days of the week labels */}
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-                    <div key={`day-label-${index}`} className="day-label">{day}</div>
+                {daysOfWeek.map((day, index) => (
+                    <div key={`day-label-${index}`} className="day-label">
+                        {day}
+                    </div>
                 ))}
 
                 {/* Render the month grid */}
@@ -63,44 +94,30 @@ function MonthView({ currentDate, availability, onCellClick, onCellHover, isPain
                     if (cell.type === 'empty') {
                         return <div key={`empty-${index}`} className="empty-cell"></div>;
                     } else {
-                        const date = new Date(startDate);
-                        date.setDate(cell.date); // Set the correct day
+                        const day = startDate.clone().add(cell.date -1, 'days');
 
                         return (
                             <div key={`day-${cell.date}`} className="day-cell">
                                 <div className="date-label">{cell.date}</div>
-                                {timeOfDayLabels.map((label, labelIndex) => {
-                                    //Create times for each segment
-                                    const time = new Date(date);
-                                    time.setHours(labelIndex * 6); //0, 6, 12, 18
-
-                                    return (
-                                        <div
-                                            key={`${cell.date}-${label}`}
-                                            className={`calendar-cell time-of-day-cell ${isCellSelected(time) ? 'selected' : ''}`}
-                                            onMouseDown={() => { startPainting(); onCellClick(time); }}
-                                            onMouseEnter={() => onCellHover(time)}
-                                            onTouchStart={() => { startPainting(); onCellClick(time); }}
-                                            onTouchMove={(e) => {
-                                                e.preventDefault();
-                                                const touch = e.touches[0];
-                                                const element = document.elementFromPoint(touch.clientX, touch.clientY);
-                                                if (element && element.classList.contains('calendar-cell')) {
-                                                    const timeString = element.getAttribute('key');
-                                                    if (timeString) {
-                                                        try {
-                                                            const time = new Date(timeString);
-                                                            onCellHover(time);
-                                                        } catch (error) {
-                                                            console.error("Invalid date string:", timeString, error);
-                                                        }
-                                                    }
-                                                }
-                                            }}
-                                        >
-                                        </div>
-                                    );
-                                })}
+                                <div className="time-of-day-grid">
+                                    {timeOfDayLabels.map((label, labelIndex) => {
+                                        const time = day.clone().add(labelIndex * 6, 'hours');
+                                        const isSelected = isCellSelected(time);
+                                        return (
+                                            <div
+                                                key={`${cell.date}-${label}`}
+                                                className={`calendar-cell time-of-day-cell ${isSelected ? 'selected' : ''}`}
+                                                onMouseDown={() => { startPainting(); onCellClick(time); }}
+                                                onMouseEnter={() => onCellHover(time)}
+                                                onTouchStart={() => { startPainting(); onCellClick(time); }}
+                                                style={{ backgroundColor: timeOfDayColors[labelIndex] }}
+                                            >
+                                                <span className="time-of-day-icon">{timeOfDayIcons[labelIndex]}</span>
+                                                {/*<span className="time-of-day-label">{label}</span> Removed labels for now */}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         );
                     }

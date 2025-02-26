@@ -13,6 +13,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
     const [isPainting, setIsPainting] = useState(false);
     const [paintMode, setPaintMode] = useState(null);
     const [selectedTimeZone, setSelectedTimeZone] = useState(null);
+    const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(true); // Add state for week start
 
     const areAvailabilitiesEqual = (prevAvailability, currentAvailability) => {
         if (prevAvailability === currentAvailability) return true;
@@ -41,71 +42,71 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
         onAvailabilityChange(availability);
     }, [availability, onAvailabilityChange]);
 
-  const handleCellClick = (time) => {
-    const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
-    const timeString = time.clone().tz(selectedTimeZone).format('HH:mm');
-
-    setAvailability(prevAvailability => {
-        const newAvailability = { ...prevAvailability };
-        let initialPaintMode;
-
-        if (!newAvailability[dateString]) {
-            newAvailability[dateString] = [timeString];
-            initialPaintMode = true;
-        } else {
-            const existingTimes = newAvailability[dateString];
-            if (existingTimes.includes(timeString)) {
-                newAvailability[dateString] = existingTimes.filter(t => t !== timeString);
-                initialPaintMode = false;
-                if (newAvailability[dateString].length === 0) {
-                    delete newAvailability[dateString];
-                }
-            } else {
-                newAvailability[dateString] = [...existingTimes, timeString].sort();
-                initialPaintMode = true;
-            }
-        }
-        setPaintMode(initialPaintMode);
-        return newAvailability;
-    });
-};
-
-
-const handleCellHover = useCallback(
-    throttle((time) => {
-        if (!isPainting) return;
-
+    const handleCellClick = (time) => {
         const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
         const timeString = time.clone().tz(selectedTimeZone).format('HH:mm');
 
         setAvailability(prevAvailability => {
             const newAvailability = { ...prevAvailability };
+            let initialPaintMode;
 
-            if (paintMode === true) {
-                if (!newAvailability[dateString]) {
-                    newAvailability[dateString] = [timeString];
-                } else {
-                    const existingTimes = newAvailability[dateString];
-                    if (!existingTimes.includes(timeString)) {
-                        newAvailability[dateString] = [...existingTimes, timeString].sort();
-                    }
-                }
+            if (!newAvailability[dateString]) {
+                newAvailability[dateString] = [timeString];
+                initialPaintMode = true;
             } else {
-                if (newAvailability[dateString]) {
-                    const existingTimes = newAvailability[dateString];
-                    if (existingTimes.includes(timeString)) {
-                        newAvailability[dateString] = existingTimes.filter(t => t !== timeString);
-                        if (newAvailability[dateString].length === 0) {
-                            delete newAvailability[dateString];
+                const existingTimes = newAvailability[dateString];
+                if (existingTimes.includes(timeString)) {
+                    newAvailability[dateString] = existingTimes.filter(t => t !== timeString);
+                    initialPaintMode = false;
+                    if (newAvailability[dateString].length === 0) {
+                        delete newAvailability[dateString];
+                    }
+                } else {
+                    newAvailability[dateString] = [...existingTimes, timeString].sort();
+                    initialPaintMode = true;
+                }
+            }
+            setPaintMode(initialPaintMode);
+            return newAvailability;
+        });
+    };
+
+
+    const handleCellHover = useCallback(
+        throttle((time) => {
+            if (!isPainting) return;
+
+            const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
+            const timeString = time.clone().tz(selectedTimeZone).format('HH:mm');
+
+            setAvailability(prevAvailability => {
+                const newAvailability = { ...prevAvailability };
+
+                if (paintMode === true) {
+                    if (!newAvailability[dateString]) {
+                        newAvailability[dateString] = [timeString];
+                    } else {
+                        const existingTimes = newAvailability[dateString];
+                        if (!existingTimes.includes(timeString)) {
+                            newAvailability[dateString] = [...existingTimes, timeString].sort();
+                        }
+                    }
+                } else {
+                    if (newAvailability[dateString]) {
+                        const existingTimes = newAvailability[dateString];
+                        if (existingTimes.includes(timeString)) {
+                            newAvailability[dateString] = existingTimes.filter(t => t !== timeString);
+                            if (newAvailability[dateString].length === 0) {
+                                delete newAvailability[dateString];
+                            }
                         }
                     }
                 }
-            }
-            return newAvailability;
-        });
-    }, 16),
-    [isPainting, paintMode, selectedTimeZone]
-);
+                return newAvailability;
+            });
+        }, 16),
+        [isPainting, paintMode, selectedTimeZone]
+    );
 
     const startPainting = () => { setIsPainting(true); };
     const stopPainting = () => {
@@ -134,6 +135,10 @@ const handleCellHover = useCallback(
         setSelectedTimeZone(timeZone);
     };
 
+    const handleWeekStartToggle = useCallback(() => {
+      setWeekStartsOnMonday(prev => !prev);
+    }, []);
+
     return (
         <div className={`availability-calendar-container ${viewMode === 'week' ? 'week-view-active' : ''}`}>
             <div className="calendar-controls">
@@ -160,18 +165,22 @@ const handleCellHover = useCallback(
                             startPainting={startPainting}
                             onMouseLeave={stopPainting}
                             selectedTimeZone={selectedTimeZone}
+                            weekStartsOnMonday={weekStartsOnMonday}
+                            onWeekStartToggle={handleWeekStartToggle}
                         />
                     )}
                     {viewMode === 'week' && (
                         <WeekView
-                        currentDate={currentDate}
-                        availability={availability}
-                        onCellClick={handleCellClick}
-                        onCellHover={handleCellHover}
-                        isPainting={isPainting}
-                        startPainting={startPainting}
-                        onMouseLeave={stopPainting}
-                        selectedTimeZone={selectedTimeZone}
+                            currentDate={currentDate}
+                            availability={availability}
+                            onCellClick={handleCellClick}
+                            onCellHover={handleCellHover}
+                            isPainting={isPainting}
+                            startPainting={startPainting}
+                            onMouseLeave={stopPainting}
+                            selectedTimeZone={selectedTimeZone}
+                            weekStartsOnMonday={weekStartsOnMonday}
+                            onWeekStartToggle={handleWeekStartToggle}
                         />
                     )}
                     {viewMode === 'month' && (
@@ -184,6 +193,8 @@ const handleCellHover = useCallback(
                             startPainting={startPainting}
                             onMouseLeave={stopPainting}
                             selectedTimeZone={selectedTimeZone}
+                            weekStartsOnMonday={weekStartsOnMonday}
+                            onWeekStartToggle={handleWeekStartToggle}
                         />
                     )}
                     {viewMode === 'year' && (
@@ -191,18 +202,13 @@ const handleCellHover = useCallback(
                             currentDate={currentDate}
                             availability={availability}
                             onCellClick={handleCellClick}
-                            onCellHover={handleCellHover}
-                            isPainting={isPainting}
-                            startPainting={startPainting}
-                            onMouseLeave={stopPainting}
                             selectedTimeZone={selectedTimeZone}
                         />
                     )}
                 </>
+
             ) : (
-                <div className="timezone-message">
-                    You gotta pick a timezone before you can see the calendar.
-                </div>
+                <div className="timezone-message">Please select a time zone to view the calendar.</div>
             )}
         </div>
     );

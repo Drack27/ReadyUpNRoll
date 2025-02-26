@@ -93,18 +93,21 @@ function WeekView({ currentDate, availability, onCellClick, onCellHover, isPaint
 
     return (
         <>
-            <h3>{moment(currentDate).tz(selectedTimeZone).format('MMMM')}</h3>
+                <h3>
+            
+                {/* Corrected line below */}
+                <h3 className="centered-heading">{moment(currentDate).tz(selectedTimeZone).format('MMMM YYYY')}</h3>
+            </h3>
             <div className="week-start-toggle">
-                <label>
-                    Week starts on Monday:
-                    <input
-                        type="checkbox"
-                        checked={weekStartsOnMonday}
-                        onChange={handleWeekStartToggle}
-                    />
-                </label>
-                {!weekStartsOnMonday && <span className="disgust-message">You disgust me.</span>}
-            </div>
+                    <label>
+                        Week starts on Monday:
+                        <input
+                            type="checkbox"
+                            checked={weekStartsOnMonday}
+                            onChange={handleWeekStartToggle}
+                        />
+                    </label>
+                </div>
             <div
                 className="availability-calendar week-view"
                 onMouseLeave={onMouseLeave}

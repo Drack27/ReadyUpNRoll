@@ -1,42 +1,71 @@
 /* MonthView.css */
 .month-view {
-    grid-template-columns: repeat(7, 1fr); /* 7 columns for days of week */
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: auto repeat(5, 1fr);
+    gap: 1px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .day-cell {
     border: 1px solid #ddd;
     padding: 5px;
     box-sizing: border-box;
+    /* NEW: Make day-cell a flex container */
+    display: flex;
+    flex-direction: column;
 }
 
 .date-label {
     text-align: center;
     font-size: 1.1em;
     margin-bottom: 4px;
-    user-select: none; /* Prevent text selection */
+    user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
 }
 
-.time-of-day-cell {
-    height: 20px;
-    cursor: pointer;
+.time-of-day-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    /* NEW: Take up all remaining space in day-cell */
+    flex: 1;
 }
+
+.time-of-day-cell {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+    box-sizing: border-box;
+}
+
+.time-of-day-icon {
+    margin-right: 2px; /* Add some spacing between icon and label */
+    font-size: 0.8em; /* Adjust icon size as needed */
+}
+/* Removed .time-of-day-label */
+
 .calendar-cell.selected {
     background-color: #4CAF50;
     color: white;
 }
+
 .empty-cell {
-    background-color: #f9f9f9; /* Light gray for empty cells */
+    background-color: #f9f9f9;
     border: 1px solid #eee;
 }
-.day-label{
+
+.day-label {
     text-align: center;
     font-weight: bold;
     padding: 5px;
     border-bottom: 1px solid #ddd;
-    user-select: none; /* Prevent text selection */
+    user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
