@@ -6,7 +6,7 @@ import moment from 'moment-timezone';
 function MonthView({ currentDate, availability, onCellClick, onCellHover, isPainting, startPainting, onMouseLeave, selectedTimeZone, weekStartsOnMonday, onWeekStartToggle}) {
 
     const handleWeekStartToggle = () => {
-      onWeekStartToggle(); //call handler from parent component.
+        onWeekStartToggle(); //call handler from parent component.
     }
     const generateTimeSlots = useCallback(() => {
         if (!selectedTimeZone) {
@@ -24,50 +24,58 @@ function MonthView({ currentDate, availability, onCellClick, onCellHover, isPain
             }
         }
         return slots;
-    }, [currentDate, selectedTimeZone]); // Add selectedTimeZone to dependency array
+    }, [currentDate, selectedTimeZone]);
 
     const timeSlots = generateTimeSlots();
-const isCellSelected = (time) => {
-    if (!selectedTimeZone) {
-        return false; // Or handle appropriately if no timezone
-    }
-    const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
-    const timeString = time.clone().tz(selectedTimeZone).format('HH:mm');
-    return availability[dateString] && availability[dateString].includes(timeString);
-};
+    const isCellSelected = (time) => {
+        if (!selectedTimeZone) {
+            return false;
+        }
+        const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
+        const timeString = time.clone().tz(selectedTimeZone).format('HH:mm');
+        return availability[dateString] && availability[dateString].includes(timeString);
+    };
 
     const startDate = moment(currentDate).tz(selectedTimeZone).startOf('month');
     const daysInMonth = startDate.daysInMonth();
-    const startDayOfWeek = startDate.clone().startOf(weekStartsOnMonday ? 'isoWeek' : 'week').day(); // Get the starting day *of the week*, adjusted
+    // CORRECT: Get the day of the week (0-6, Sun-Sat or Mon-Sun)
+    const startDayOfWeek = startDate.clone().day();
+
+    //Adjust the Start Day of Week, now that we have the *actual* start.
+    const adjustedStartDayOfWeek = weekStartsOnMonday
+      ? (startDayOfWeek + 6) % 7 //If starts on Monday, transforms 0->6, 1->0, 2->1, ...
+      : startDayOfWeek; //If starts on Sunday, no change is needed
+
     const monthName = startDate.format('MMMM YYYY');
 
     const timeOfDayLabels = ['Morning', 'Afternoon', 'Evening', 'Night'];
-    const timeOfDayIcons = ['☀️', '🌤️', '🌅', '🌙']; // Example icons
-    const timeOfDayColors = ['#FFECB3', '#BBDEFB', '#FFCC80', '#B39DDB']; // Example colors
+    const timeOfDayIcons = ['🐔', '☀️', '🌅', '🌙'];
+    const timeOfDayColors = ['#FFECB3', '#BBDEFB', '#FFCC80', '#B39DDB'];
 
     const daysOfWeek = weekStartsOnMonday
         ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-       // Create an array representing the entire month grid, including empty cells for previous/next month days
+
 
     const monthGrid = [];
-    //Empty cells. Now, adjusted for week start.
-    for (let i = 0; i < startDayOfWeek; i++) {
+    // Add empty cells for days before the first of the month
+    for (let i = 0; i < adjustedStartDayOfWeek; i++) {
         monthGrid.push({ type: 'empty' });
     }
-    //Day cells
+
+    // Add day cells for the current month
     for (let i = 1; i <= daysInMonth; i++) {
         monthGrid.push({ type: 'day', date: i });
     }
-    // Fill in empty cells to complete the last week
+
+    // Fill in any remaining cells to complete the last week
     const totalCells = monthGrid.length;
-    const remainingCells = (7 * 6) - totalCells; //For a 7X6 grid
-    if (remainingCells < (7*6)) {
+    const remainingCells = (7 * 6) - totalCells; //For a 7x6 grid
+     if (remainingCells < (7*6)) {
         for (let i = 0; i < remainingCells; i++) {
             monthGrid.push({ type: 'empty' });
         }
-    }
-
+     }
     return (
         <>
             <h3>{monthName}</h3>
@@ -94,7 +102,7 @@ const isCellSelected = (time) => {
                     if (cell.type === 'empty') {
                         return <div key={`empty-${index}`} className="empty-cell"></div>;
                     } else {
-                        const day = startDate.clone().add(cell.date -1, 'days');
+                        const day = startDate.clone().add(cell.date - 1, 'days');
 
                         return (
                             <div key={`day-${cell.date}`} className="day-cell">
