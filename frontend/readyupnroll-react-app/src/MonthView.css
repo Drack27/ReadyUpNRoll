@@ -2,7 +2,7 @@
 .month-view {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: auto repeat(5, 1fr);
+    grid-template-rows: auto repeat(6, auto); /* Adjusted rows */
     gap: 1px;
     width: 100%;
     box-sizing: border-box;
@@ -10,12 +10,22 @@
 
 .day-cell {
     border: 1px solid #ddd;
-    padding: 5px;
+    padding: 20px; /* Increased padding for larger cells */
     box-sizing: border-box;
-    /* NEW: Make day-cell a flex container */
     display: flex;
     flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center;     /* Center content horizontally */
+    cursor: pointer;          /* Indicate clickable */
+    min-height: 80px;        /* Set a minimum height */
+    background-color: white; /* DEFAULT BACKGROUND COLOR */
+    transition: background-color 0.2s ease; /* Smooth transition */
 }
+
+.day-cell:hover {
+    background-color: #f0f0f0; /* Light gray on hover */
+}
+
 
 .date-label {
     text-align: center;
@@ -27,34 +37,16 @@
     -ms-user-select: none;
 }
 
-.time-of-day-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    /* NEW: Take up all remaining space in day-cell */
-    flex: 1;
-}
+/* Removed .time-of-day-grid and .time-of-day-cell styles */
 
-.time-of-day-cell {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #eee;
-    box-sizing: border-box;
-}
-
-.time-of-day-icon {
-    margin-right: 2px; /* Add some spacing between icon and label */
-    font-size: 0.8em; /* Adjust icon size as needed */
-}
-/* Removed .time-of-day-label */
-
-.calendar-cell.selected {
-    background-color: #4CAF50;
+/*  MORE SPECIFIC SELECTOR */
+.month-view .day-cell.selected {
+    background-color: #4CAF50; /* Or any color you prefer */
     color: white;
 }
-
+.month-view .day-cell.selected:hover{
+    background-color: #388e3c;
+}
 .empty-cell {
     background-color: #f9f9f9;
     border: 1px solid #eee;
