@@ -6,6 +6,7 @@ import YearView from './YearView';
 import TimeZoneDropdown from './TimeZoneDropdown';
 import './AvailabilityCalendar.css';
 import throttle from 'lodash.throttle';
+import moment from 'moment-timezone';
 
 function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewMode, currentDate, setViewMode, handleNext, handlePrevious }) {
     const [availability, setAvailability] = useState(initialAvailability || {});
@@ -47,7 +48,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
     }, [availability, onAvailabilityChange]);
 
     const handleCellClick = (time) => {
-        const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
+        const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD'); // Wrap with moment
         console.log("Clicked Cell:", dateString);
 
         setAvailability(prevAvailability => {
@@ -82,8 +83,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
         throttle((time) => {
             if (!isPainting) return;
 
-            const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
-            console.log("Hovered Cell (while painting):", dateString);
+            const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD');            console.log("Hovered Cell (while painting):", dateString);
 
             setAvailability(prevAvailability => {
                 const newAvailability = { ...prevAvailability };
@@ -117,7 +117,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
 
     const startPainting = (time) => {
         setIsPainting(true);
-        const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
+        const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD'); //Wrap with moment!
 
        // Determine paintMode based on whether the cell is ALREADY fully selected
         setPaintMode(prevPaintMode => {
@@ -225,13 +225,18 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                         />
                     )}
                     {viewMode === 'year' && (
-                        <YearView
-                            currentDate={currentDate}
-                            availability={availability}
-                            onCellClick={handleCellClick}
-                            selectedTimeZone={selectedTimeZone}
-                        />
-                    )}
+                    <YearView
+                        currentDate={currentDate}
+                        availability={availability}
+                        onCellClick={handleCellClick}
+                        onCellHover={handleCellHover} // ADD THIS LINE
+                        selectedTimeZone={selectedTimeZone}
+                        isPainting={isPainting} //Need to pass these for painting
+                        startPainting={startPainting}
+                        onMouseLeave={stopPainting}
+
+                    />
+                )}
                 </>
 
             ) : (

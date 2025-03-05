@@ -66,12 +66,12 @@ function YearView({ currentDate, availability, onCellClick, onCellHover, isPaint
                                         const time = new Date(year, cell.month, cell.date); // Month is 0-indexed
                                         return (
                                             <div
-                                                key={`${year}-${cell.month}-${cell.date}`}
-                                                className={`calendar-cell ${isCellSelected(time) ? 'selected' : ''}`}
-                                                onMouseDown={() => { startPainting(); onCellClick(time); }}
-                                                onMouseEnter={() => onCellHover(time)}
-                                                onTouchStart={() => { startPainting(); onCellClick(time); }}
-                                                onTouchMove={(e) => {
+                                                    key={`<span class="math-inline">\{year\}\-</span>{cell.month}-${cell.date}`}
+                                                    className={`calendar-cell ${isCellSelected(time) ? 'selected' : ''}`}
+                                                    onMouseDown={() => { startPainting(time); onCellClick(time); }}  // Pass 'time' here
+                                                    onMouseEnter={() => onCellHover(time)}
+                                                    onTouchStart={() => { startPainting(time); onCellClick(time); }} // Pass 'time' here
+                                                    onTouchMove={(e) => {
                                                     e.preventDefault();
                                                     const touch = e.touches[0];
                                                     const element = document.elementFromPoint(touch.clientX, touch.clientY);
