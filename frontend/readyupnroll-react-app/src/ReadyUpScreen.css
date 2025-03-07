@@ -19,19 +19,19 @@
   max-width: 600px;
 }
 
-/* REMOVE THIS ENTIRE BLOCK 
+/* REMOVED THIS BLOCK - Cell styling is handled within individual view components */
+/*
 .availability-calendar {
   display: grid;
-  width: 90%; 
-  max-width: 1200px; 
+  width: 90%;
+  max-width: 1200px;
   border: 1px solid #ddd;
   margin-bottom: 20px;
 
-  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); 
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
 
 }
 */
-
 .calendar-controls{
   display: flex;
   justify-content: space-between;
@@ -41,18 +41,20 @@
 
 }
 
+/* REMOVED: Cell styling handled by child components
 .calendar-cell {
   border: 1px solid #eee;
   padding: 5px;
-  min-height: 40px; /* Adjust as needed */
+  min-height: 40px; 
   cursor: pointer;
-  text-align: center; /*Added to make the day markers centered.*/
+  text-align: center;
 }
 
 .calendar-cell.selected {
-  background-color: #4CAF50; /* Or any color you prefer */
+  background-color: #4CAF50;
   color: white;
 }
+*/
 
 .session-lists {
   display: flex;

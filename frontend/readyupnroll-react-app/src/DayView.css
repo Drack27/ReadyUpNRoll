@@ -12,12 +12,12 @@
 
 .wide-view {
     grid-template-columns: repeat(16, 1fr); /* 16 flexible columns */
-    grid-template-rows: repeat(6, 1fr);   /* 6 flexible rows */
+    grid-template-rows: repeat(6, auto);  /*  auto-sized rows */
 }
 
 .narrow-view {
     grid-template-columns: repeat(8, 1fr);  /* 8 flexible columns */
-    grid-template-rows: repeat(12, 1fr);  /* 12 flexible rows */
+    grid-template-rows: repeat(12, auto); /*  auto-sized rows */
 }
 .day-view-heading{
     grid-column: 1 / -1; /* Span all columns */
@@ -36,6 +36,7 @@
     user-select: none;
     transition: background-color 0.2s ease;
     /* Removed fixed height and aspect-ratio */
+    aspect-ratio: 1 / 1;
 }
 
 .hour-start {

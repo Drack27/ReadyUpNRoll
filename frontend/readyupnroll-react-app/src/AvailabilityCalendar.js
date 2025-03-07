@@ -16,7 +16,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
     const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(true);
 
     const areAvailabilitiesEqual = (prevAvailability, currentAvailability) => {
-       if (prevAvailability === currentAvailability) return true;
+        if (prevAvailability === currentAvailability) return true;
         if (!prevAvailability || !currentAvailability) return false;
         if (Object.keys(prevAvailability).length !== Object.keys(currentAvailability).length) return false;
 
@@ -48,100 +48,88 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
     }, [availability, onAvailabilityChange]);
 
     const handleCellClick = (time) => {
-        const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD'); // Wrap with moment
-        console.log("Clicked Cell:", dateString);
+        const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD');
+        const timeString = moment(time).clone().tz(selectedTimeZone).format('HH:mm');
+        console.log("Clicked Cell:", dateString, timeString);
 
         setAvailability(prevAvailability => {
+            console.log("handleCellClick - Previous Availability:", prevAvailability); // LOG PREVIOUS STATE
             const newAvailability = { ...prevAvailability };
-            const fullDay = [];
-            for (let i = 0; i < 24; i++) {
-                for (let j = 0; j < 60; j+= 60) {
-                const hour = i.toString().padStart(2, '0');
-                const minute = j.toString().padStart(2,'0');
-                fullDay.push(`${hour}:${minute}`);
-                }
-            }
+            console.log("handleCellClick - dateString:", dateString, "timeString:", timeString); // LOG DATE AND TIME
 
             if (newAvailability[dateString]) {
-                 // Check if it's a full day.  If so, remove it.  If not, make it a full day.
-                const isFullDay = fullDay.every(timeSlot => newAvailability[dateString].includes(timeSlot));
-                if(isFullDay) {
-                    delete newAvailability[dateString];
+                // Toggle the specific time slot
+                if (newAvailability[dateString].includes(timeString)) {
+                    newAvailability[dateString] = newAvailability[dateString].filter(t => t !== timeString);
+                    if (newAvailability[dateString].length === 0) {
+                        delete newAvailability[dateString]; // Clean up empty date entries
+                    }
                 } else {
-                    newAvailability[dateString] = fullDay;
+                    newAvailability[dateString].push(timeString);
+                    newAvailability[dateString].sort(); // Keep times sorted
                 }
-
             } else {
-                newAvailability[dateString] = fullDay;
+                newAvailability[dateString] = [timeString];
             }
+            console.log("handleCellClick - New Availability (before set):", newAvailability); // LOG NEW STATE
             return newAvailability;
         });
     };
-
 
     const handleCellHover = useCallback(
         throttle((time) => {
             if (!isPainting) return;
 
-            const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD');            console.log("Hovered Cell (while painting):", dateString);
+            const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD');
+            const timeString = moment(time).clone().tz(selectedTimeZone).format('HH:mm');
+            console.log("Hovered Cell (while painting):", dateString, timeString);
 
             setAvailability(prevAvailability => {
+                console.log("handleCellHover - Previous Availability:", prevAvailability); // LOG PREVIOUS STATE
                 const newAvailability = { ...prevAvailability };
-                const fullDay = [];
-                for (let i = 0; i < 24; i++) {
-                   for (let j = 0; j < 60; j+= 60) {
-                        const hour = i.toString().padStart(2, '0');
-                        const minute = j.toString().padStart(2,'0');
-                        fullDay.push(`${hour}:${minute}`);
+                console.log("handleCellHover - dateString:", dateString, "timeString:", timeString); // LOG DATE AND TIME
+
+                if (paintMode) { // Add time
+                    if (!newAvailability[dateString]) {
+                        newAvailability[dateString] = [timeString];
+                    } else if (!newAvailability[dateString].includes(timeString)) {
+                        newAvailability[dateString].push(timeString);
+                        newAvailability[dateString].sort();
                     }
-                }
-
-
-                if (paintMode === true) {
-                    //Add full day if not there.
-                    if(!newAvailability[dateString]) {
-                        newAvailability[dateString] = fullDay;
-                    }
-
-                } else if (paintMode === false) {
-                    //Remove if there.
+                } else { // Remove time
                     if (newAvailability[dateString]) {
-                        delete newAvailability[dateString];
+                        newAvailability[dateString] = newAvailability[dateString].filter(t => t !== timeString);
+                        if (newAvailability[dateString].length === 0) {
+                            delete newAvailability[dateString]; // Clean up empty date entries
+                        }
                     }
                 }
+                console.log("handleCellHover - New Availability (before set):", newAvailability); // LOG NEW STATE
                 return newAvailability;
             });
         }, 16, { trailing: true }),
         [isPainting, paintMode, selectedTimeZone]
     );
 
+
     const startPainting = (time) => {
         setIsPainting(true);
-        const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD'); //Wrap with moment!
+        const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD');
+        const timeString = moment(time).clone().tz(selectedTimeZone).format('HH:mm');
 
-       // Determine paintMode based on whether the cell is ALREADY fully selected
+        // Determine paintMode based on the *initial* state of the cell
         setPaintMode(prevPaintMode => {
-			const fullDay = [];
-            for (let i = 0; i < 24; i++) {
-               for (let j = 0; j < 60; j+= 60) {
-                    const hour = i.toString().padStart(2, '0');
-                    const minute = j.toString().padStart(2,'0');
-                    fullDay.push(`${hour}:${minute}`);
-                }
-            }
-            const alreadyFullySelected = availability[dateString] && fullDay.every(timeslot => availability[dateString].includes(timeslot))
-            return !alreadyFullySelected;
+            const alreadySelected = availability[dateString] && availability[dateString].includes(timeString);
+            return !alreadySelected;
         });
     };
-
     const stopPainting = () => {
         setIsPainting(false);
         setPaintMode(null);
     };
 
     useEffect(() => {
-      //... (same as before)
-      const handleMouseUp = () => {
+        const handleMouseUp = () => {
             stopPainting();
         };
         const handleTouchEnd = () => {
@@ -165,8 +153,17 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
         setWeekStartsOnMonday(prev => !prev);
     }, []);
 
+     // Add this useEffect for logging
+    useEffect(() => {
+        const logInterval = setInterval(() => {
+            console.log("Current Availability:", availability);
+        }, 10000); // Log every 10 seconds
+
+        return () => clearInterval(logInterval); // Cleanup on unmount
+    }, [availability]); // Depend on availability
+
+
     return (
-        // ... (rest of the component, no changes) ...
         <div className={`availability-calendar-container ${viewMode === 'week' ? 'week-view-active' : ''}`}>
             <div className="calendar-controls">
                 <button onClick={handlePrevious}>&lt; Previous</button>
@@ -225,18 +222,17 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                         />
                     )}
                     {viewMode === 'year' && (
-                    <YearView
-                        currentDate={currentDate}
-                        availability={availability}
-                        onCellClick={handleCellClick}
-                        onCellHover={handleCellHover} // ADD THIS LINE
-                        selectedTimeZone={selectedTimeZone}
-                        isPainting={isPainting} //Need to pass these for painting
-                        startPainting={startPainting}
-                        onMouseLeave={stopPainting}
-
-                    />
-                )}
+                        <YearView
+                            currentDate={currentDate}
+                            availability={availability}
+                            onCellClick={handleCellClick}
+                            onCellHover={handleCellHover}
+                            selectedTimeZone={selectedTimeZone}
+                            isPainting={isPainting}
+                            startPainting={startPainting}
+                            onMouseLeave={stopPainting}
+                        />
+                    )}
                 </>
 
             ) : (

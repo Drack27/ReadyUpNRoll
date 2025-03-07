@@ -1,7 +1,7 @@
 /* AvailabilityCalendar.css */
 .availability-calendar-container {
-  width: 90%; /* Use percentage width for responsiveness. */
-  max-width: 1200px;  /* Add a max-width for larger screens */
+  width: 90%;
+  max-width: 1200px;
   margin-bottom: 20px;
   user-select: none;
   -moz-user-select: none;
@@ -11,17 +11,17 @@
 }
 
 .calendar-controls {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  align-items: center;
 }
 
 .availability-calendar {
-    width: 100%; /* Let the calendar fill its container */
-    /* REMOVE display: grid; */
-    /* REMOVE grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); */
-    /* Removed border as well, since WeekView provides the borders */
+  width: 100%; /* Let the calendar fill its container */
+  /* REMOVE display: grid; */
+  /* REMOVE grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); */
+  /* Removed border as well, since WeekView provides the borders */
 }
 
 .timezone-message {

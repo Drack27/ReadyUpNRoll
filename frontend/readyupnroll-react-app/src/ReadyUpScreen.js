@@ -1,43 +1,47 @@
-// ReadyUpScreen.js (CORRECTED with useMemo)
-import React, { useState, useCallback, useMemo } from 'react'; // Import useMemo
+import React, { useState, useCallback, useMemo } from 'react';
 import TopBar from './TopBar';
 import SessionList from './SessionList';
 import AvailabilityCalendar from './AvailabilityCalendar';
 import './ReadyUpScreen.css';
+import moment from 'moment-timezone'; // Import moment-timezone
 
 function ReadyUpScreen(props) {
     const { worldName, minTime, minPlayers, pastSessions, upcomingSessions, worldDetails } = props;
     const [availability, setAvailability] = useState({});
     const [viewMode, setViewMode] = useState('week');
-    const [currentDate, setCurrentDate] = useState(new Date());
+    // Initialize currentDate with moment-timezone, defaulting to UTC
+    const [currentDate, setCurrentDate] = useState(moment.tz(new Date(), "UTC"));
+    const [selectedTimeZone, setSelectedTimeZone] = useState("UTC"); // Add selectedTimeZone
 
-    const handleNext = () => {
-        const newDate = new Date(currentDate);
+    // Update handleNext to use moment-timezone
+    const handleNext = useCallback(() => {
+        const newDate = moment(currentDate).tz(selectedTimeZone); // Use moment-timezone
         if (viewMode === 'day') {
-            newDate.setDate(newDate.getDate() + 1);
+            newDate.add(1, 'day');
         } else if (viewMode === 'week') {
-            newDate.setDate(newDate.getDate() + 7);
+            newDate.add(7, 'days');
         } else if (viewMode === 'month') {
-            newDate.setMonth(newDate.getMonth() + 1);
+            newDate.add(1, 'month');
         } else if (viewMode === 'year') {
-            newDate.setFullYear(newDate.getFullYear() + 1);
+            newDate.add(1, 'year');
         }
         setCurrentDate(newDate);
-    };
+    }, [currentDate, viewMode, selectedTimeZone]);
 
-    const handlePrevious = () => {
-        const newDate = new Date(currentDate);
+    // Update handlePrevious to use moment-timezone
+    const handlePrevious = useCallback(() => {
+        const newDate = moment(currentDate).tz(selectedTimeZone); // Use moment-timezone
         if (viewMode === 'day') {
-            newDate.setDate(newDate.getDate() - 1);
+            newDate.subtract(1, 'day');
         } else if (viewMode === 'week') {
-            newDate.setDate(newDate.getDate() - 7);
+            newDate.subtract(7, 'days');
         } else if (viewMode === 'month') {
-            newDate.setMonth(newDate.getMonth() - 1);
+            newDate.subtract(1, 'month');
         } else if (viewMode === 'year') {
-            newDate.setFullYear(newDate.getFullYear() - 1);
+            newDate.subtract(1, 'year');
         }
         setCurrentDate(newDate);
-    };
+    }, [currentDate, viewMode, selectedTimeZone]);
 
     const handleReadyUpSubmit = () => {
         console.log("Submitting Availability:", availability);
@@ -52,6 +56,11 @@ function ReadyUpScreen(props) {
     const handleAvailabilityChange = useCallback((newAvailability) => {
         setAvailability(newAvailability);
     }, []);
+
+    const handleTimeZoneChange = useCallback((newTimeZone) => { // Add handleTimeZoneChange
+        setSelectedTimeZone(newTimeZone);
+        setCurrentDate(moment.tz(currentDate, newTimeZone)); // Update currentDate to new timezone
+    }, [currentDate]);
 
     const WorldHeader = () => (
         <div className="world-header">
@@ -85,16 +94,18 @@ function ReadyUpScreen(props) {
                 initialAvailability={memoizedInitialAvailability} // Use the memoized value
                 onAvailabilityChange={handleAvailabilityChange}
                 viewMode={viewMode}
-                currentDate={currentDate}
+                currentDate={currentDate.toDate()} // Pass as Date object
                 setViewMode={setViewMode}
                 handleNext={handleNext}
                 handlePrevious={handlePrevious}
+                initialTimeZone={selectedTimeZone} // Pass initial timezone
+                onTimeZoneChange={handleTimeZoneChange} // Pass timezone change handler
             />
             <button className="ready-up-button" onClick={handleReadyUpSubmit}>ReadyUp! (submit availability)</button>
 
             <div className="session-lists">
-                <SessionList title="Past Sessions" sessions={pastSessions || []} formatDate={formatDate}/>
-                <SessionList title="Upcoming Sessions" sessions={upcomingSessions || []} formatDate={formatDate}/>
+                <SessionList title="Past Sessions" sessions={pastSessions || []} formatDate={formatDate} />
+                <SessionList title="Upcoming Sessions" sessions={upcomingSessions || []} formatDate={formatDate} />
             </div>
         </div>
     );
