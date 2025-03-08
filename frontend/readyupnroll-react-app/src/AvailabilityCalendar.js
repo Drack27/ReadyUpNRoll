@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import DayView from './DayView';
 import WeekView from './WeekView';
 import MonthView from './MonthView';
@@ -8,71 +8,62 @@ import './AvailabilityCalendar.css';
 import throttle from 'lodash.throttle';
 import moment from 'moment-timezone';
 
-function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewMode, currentDate, setViewMode, handleNext, handlePrevious }) {
-    const [availability, setAvailability] = useState(initialAvailability || {});
+function AvailabilityCalendar({ currentDate, setViewMode, viewMode, handleNext, handlePrevious, initialTimeZone, onTimeZoneChange }) { //Removed props
+    const [submittedAvailability, setSubmittedAvailability] = useState({}); // Now internal state
+    const [pendingAvailability, setPendingAvailability] = useState({});
     const [isPainting, setIsPainting] = useState(false);
     const [paintMode, setPaintMode] = useState(null);
-    const [selectedTimeZone, setSelectedTimeZone] = useState(null);
+    const [selectedTimeZone, setSelectedTimeZone] = useState(initialTimeZone || "UTC"); // Use initialTimeZone prop, default to UTC
     const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(true);
 
-    const areAvailabilitiesEqual = (prevAvailability, currentAvailability) => {
-        if (prevAvailability === currentAvailability) return true;
-        if (!prevAvailability || !currentAvailability) return false;
-        if (Object.keys(prevAvailability).length !== Object.keys(currentAvailability).length) return false;
 
-        for (const date in prevAvailability) {
-            if (!currentAvailability.hasOwnProperty(date)) return false;
-            if (prevAvailability[date] && !currentAvailability[date]) return false;
-            if (!prevAvailability[date] && currentAvailability[date]) return false;
-            if (prevAvailability[date] && currentAvailability[date] && prevAvailability[date].length !== currentAvailability[date].length) return false;
+     // Simulate fetching submitted availability on mount
+    useEffect(() => {
+        const simulatedFetchedAvailability = {
+            "2025-03-08": ["10:00", "11:00"], // Your simulated data
+            "2025-03-09": ["14:00", "15:00"]
+        };
+        setSubmittedAvailability(simulatedFetchedAvailability);
+    }, []); // Empty dependency array: runs only once on mount
 
-            // Sort both arrays before comparing
-            const prevSorted = [...prevAvailability[date]].sort();
-            const currentSorted = [...currentAvailability[date]].sort();
+    // Combined Availability (remains the same)
+    const combinedAvailability = useMemo(() => {
+        const combined = { ...submittedAvailability };
 
-            for (let i = 0; i < prevSorted.length; i++) {
-                if (prevSorted[i] !== currentSorted[i]) return false;
+        for (const date in pendingAvailability) {
+            if (pendingAvailability[date]) {
+                combined[date] = pendingAvailability[date];
+            } else {
+              delete combined[date]
             }
         }
-        return true;
-    };
 
-    useEffect(() => {
-        if (!areAvailabilitiesEqual(availability, initialAvailability)) {
-            setAvailability(initialAvailability || {});
-        }
-    }, [initialAvailability, availability]);
-
-    useEffect(() => {
-        onAvailabilityChange(availability);
-    }, [availability, onAvailabilityChange]);
+        return combined;
+    }, [submittedAvailability, pendingAvailability]);
 
     const handleCellClick = (time) => {
         const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD');
         const timeString = moment(time).clone().tz(selectedTimeZone).format('HH:mm');
         console.log("Clicked Cell:", dateString, timeString);
 
-        setAvailability(prevAvailability => {
-            console.log("handleCellClick - Previous Availability:", prevAvailability); // LOG PREVIOUS STATE
-            const newAvailability = { ...prevAvailability };
-            console.log("handleCellClick - dateString:", dateString, "timeString:", timeString); // LOG DATE AND TIME
+        setPendingAvailability(prevPending => {
+            const newPending = { ...prevPending };
 
-            if (newAvailability[dateString]) {
-                // Toggle the specific time slot
-                if (newAvailability[dateString].includes(timeString)) {
-                    newAvailability[dateString] = newAvailability[dateString].filter(t => t !== timeString);
-                    if (newAvailability[dateString].length === 0) {
-                        delete newAvailability[dateString]; // Clean up empty date entries
+            if (newPending[dateString]) {
+                if (newPending[dateString].includes(timeString)) {
+                    newPending[dateString] = newPending[dateString].filter(t => t !== timeString);
+                    if (newPending[dateString].length === 0) {
+                        delete newPending[dateString];
                     }
                 } else {
-                    newAvailability[dateString].push(timeString);
-                    newAvailability[dateString].sort(); // Keep times sorted
+                    newPending[dateString].push(timeString);
+                    newPending[dateString].sort();
                 }
             } else {
-                newAvailability[dateString] = [timeString];
+                newPending[dateString] = [timeString];
             }
-            console.log("handleCellClick - New Availability (before set):", newAvailability); // LOG NEW STATE
-            return newAvailability;
+            console.log("handleCellClick - New Pending Availability (before set):", JSON.stringify(newPending, null, 2));
+            return newPending;
         });
     };
 
@@ -84,45 +75,41 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
             const timeString = moment(time).clone().tz(selectedTimeZone).format('HH:mm');
             console.log("Hovered Cell (while painting):", dateString, timeString);
 
-            setAvailability(prevAvailability => {
-                console.log("handleCellHover - Previous Availability:", prevAvailability); // LOG PREVIOUS STATE
-                const newAvailability = { ...prevAvailability };
-                console.log("handleCellHover - dateString:", dateString, "timeString:", timeString); // LOG DATE AND TIME
+            setPendingAvailability(prevPending => {
+                const newPending = { ...prevPending };
 
-                if (paintMode) { // Add time
-                    if (!newAvailability[dateString]) {
-                        newAvailability[dateString] = [timeString];
-                    } else if (!newAvailability[dateString].includes(timeString)) {
-                        newAvailability[dateString].push(timeString);
-                        newAvailability[dateString].sort();
+                if (paintMode) {
+                    if (!newPending[dateString]) {
+                        newPending[dateString] = [timeString];
+                    } else if (!newPending[dateString].includes(timeString)) {
+                        newPending[dateString].push(timeString);
+                        newPending[dateString].sort();
                     }
-                } else { // Remove time
-                    if (newAvailability[dateString]) {
-                        newAvailability[dateString] = newAvailability[dateString].filter(t => t !== timeString);
-                        if (newAvailability[dateString].length === 0) {
-                            delete newAvailability[dateString]; // Clean up empty date entries
+                } else {
+                    if (newPending[dateString]) {
+                        newPending[dateString] = newPending[dateString].filter(t => t !== timeString);
+                        if (newPending[dateString].length === 0) {
+                            delete newPending[dateString];
                         }
                     }
                 }
-                console.log("handleCellHover - New Availability (before set):", newAvailability); // LOG NEW STATE
-                return newAvailability;
+                console.log("handleCellHover - New Pending Availability (before set):", JSON.stringify(newPending, null, 2));
+                return newPending;
             });
         }, 16, { trailing: true }),
         [isPainting, paintMode, selectedTimeZone]
     );
 
-
     const startPainting = (time) => {
         setIsPainting(true);
         const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD');
         const timeString = moment(time).clone().tz(selectedTimeZone).format('HH:mm');
-
-        // Determine paintMode based on the *initial* state of the cell
         setPaintMode(prevPaintMode => {
-            const alreadySelected = availability[dateString] && availability[dateString].includes(timeString);
-            return !alreadySelected;
+          const alreadySelected = combinedAvailability[dateString] && combinedAvailability[dateString].includes(timeString);
+          return !alreadySelected;
         });
     };
+
     const stopPainting = () => {
         setIsPainting(false);
         setPaintMode(null);
@@ -145,23 +132,26 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
         };
     }, []);
 
-    const handleTimeZoneChange = (timeZone) => {
-        setSelectedTimeZone(timeZone);
-    };
+    // No longer needed, handled via prop
+    // const handleTimeZoneChange = (timeZone) => {
+    //     setSelectedTimeZone(timeZone);
+    // };
+     useEffect(() => {
+        setSelectedTimeZone(initialTimeZone)
+    }, [initialTimeZone]);
 
     const handleWeekStartToggle = useCallback(() => {
         setWeekStartsOnMonday(prev => !prev);
     }, []);
 
-     // Add this useEffect for logging
     useEffect(() => {
         const logInterval = setInterval(() => {
-            console.log("Current Availability:", availability);
-        }, 10000); // Log every 10 seconds
+            console.log("Current Submitted Availability:", submittedAvailability);
+            console.log("Current Pending Availability:", pendingAvailability);
+        }, 10000);
 
-        return () => clearInterval(logInterval); // Cleanup on unmount
-    }, [availability]); // Depend on availability
-
+        return () => clearInterval(logInterval);
+    }, [submittedAvailability, pendingAvailability]);
 
     return (
         <div className={`availability-calendar-container ${viewMode === 'week' ? 'week-view-active' : ''}`}>
@@ -173,7 +163,7 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                 <button onClick={() => setViewMode('year')}>Year</button>
                 <button onClick={handleNext}>Next &gt;</button>
                 <TimeZoneDropdown
-                    onTimeZoneChange={handleTimeZoneChange}
+                    onTimeZoneChange={onTimeZoneChange}
                     selectedTimeZone={selectedTimeZone}
                 />
             </div>
@@ -182,12 +172,12 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                     {viewMode === 'day' && (
                         <DayView
                             currentDate={currentDate}
-                            availability={availability}
+                            availability={combinedAvailability}
                             onCellClick={handleCellClick}
                             onCellHover={handleCellHover}
                             isPainting={isPainting}
                             startPainting={startPainting}
-                            onMouseLeave={stopPainting}
+                            stopPainting={stopPainting}
                             selectedTimeZone={selectedTimeZone}
                             weekStartsOnMonday={weekStartsOnMonday}
                             onWeekStartToggle={handleWeekStartToggle}
@@ -196,45 +186,44 @@ function AvailabilityCalendar({ initialAvailability, onAvailabilityChange, viewM
                     {viewMode === 'week' && (
                         <WeekView
                             currentDate={currentDate}
-                            availability={availability}
+                            availability={combinedAvailability}
                             onCellClick={handleCellClick}
                             onCellHover={handleCellHover}
                             isPainting={isPainting}
                             startPainting={startPainting}
-                            onMouseLeave={stopPainting}
+                            stopPainting={stopPainting}
                             selectedTimeZone={selectedTimeZone}
                             weekStartsOnMonday={weekStartsOnMonday}
                             onWeekStartToggle={handleWeekStartToggle}
                         />
                     )}
-                    {viewMode === 'month' && (
+                     {viewMode === 'month' && (
                         <MonthView
                             currentDate={currentDate}
-                            availability={availability}
+                            availability={combinedAvailability}
                             onCellClick={handleCellClick}
                             onCellHover={handleCellHover}
                             isPainting={isPainting}
                             startPainting={startPainting}
-                            onMouseLeave={stopPainting}
+                            stopPainting={stopPainting}
                             selectedTimeZone={selectedTimeZone}
                             weekStartsOnMonday={weekStartsOnMonday}
                             onWeekStartToggle={handleWeekStartToggle}
                         />
                     )}
                     {viewMode === 'year' && (
-                        <YearView
+                         <YearView
                             currentDate={currentDate}
-                            availability={availability}
+                            availability={combinedAvailability}
                             onCellClick={handleCellClick}
                             onCellHover={handleCellHover}
                             selectedTimeZone={selectedTimeZone}
                             isPainting={isPainting}
                             startPainting={startPainting}
-                            onMouseLeave={stopPainting}
-                        />
+                            stopPainting={stopPainting}
+                         />
                     )}
                 </>
-
             ) : (
                 <div className="timezone-message">Please select a time zone to view the calendar.</div>
             )}

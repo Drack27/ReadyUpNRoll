@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react'; // Added useMemo
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './DayView.css';
 import moment from 'moment-timezone';
 import SunCalc from 'suncalc';
 import getTimeZoneCoordinates from './TimeZoneCoordinates';
 
-function DayView({ currentDate, availability, onCellClick, onCellHover, isPainting, startPainting, onMouseLeave, selectedTimeZone }) {
+function DayView({ currentDate, availability, onCellClick, onCellHover, isPainting, startPainting, stopPainting, selectedTimeZone }) { // Removed onMouseLeave
     const [isNarrow, setIsNarrow] = useState(window.innerWidth <= 768);
     const [sunrise, setSunrise] = useState(6 * 60); // Default: 6 AM
     const [sunset, setSunset] = useState(18 * 60); // Default: 6 PM
     const [timeZoneData, setTimeZoneData] = useState(getTimeZoneCoordinates());
-    const calendarRef = useRef(null); // Ref for the calendar container
+    const calendarRef = useRef(null);
 
     useEffect(() => {
         const handleResize = () => {
@@ -17,7 +17,7 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
         };
 
         window.addEventListener('resize', handleResize);
-        handleResize(); // Call immediately
+        handleResize();
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
@@ -38,9 +38,9 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
                 }
             } catch (err) {
                 console.error("Error looking up lat and long: ", err);
-                latitude = 0;
+                latitude = 0;  // Default values if lookup fails
                 longitude = 0;
-                return; // Exit if no coordinates
+                return; // Exit
             }
 
             const year = moment(currentDate).year();
@@ -57,7 +57,7 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
         updateSunriseSunset();
     }, [selectedTimeZone, currentDate, timeZoneData]);
 
-    const timeSlots = useMemo(() => { // Use useMemo here
+    const timeSlots = useMemo(() => {
         let slots = [];
         const startDate = moment(currentDate).tz(selectedTimeZone).startOf('day');
 
@@ -68,13 +68,7 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
             }
         }
         return slots;
-    }, [currentDate, selectedTimeZone]); // Dependencies for useMemo
-
-    const isCellSelected = (time) => {
-        const dateString = time.clone().tz(selectedTimeZone).format('YYYY-MM-DD');
-        const timeString = time.clone().tz(selectedTimeZone).format('HH:mm');
-        return availability[dateString] && availability[dateString].includes(timeString);
-    };
+    }, [currentDate, selectedTimeZone]);
 
     const getTimeOfDayColor = (time) => {
         const hour = time.hour();
@@ -115,15 +109,33 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
 
         return (totalMinutes < sunrise || totalMinutes >= sunset) ? 'white' : 'black';
     };
+    const dateString = moment(currentDate).tz(selectedTimeZone).format('YYYY-MM-DD'); //Moved for efficiency
 
-    let lastHoveredCell = null; // Keep track of the last hovered cell
+    const getCellStyle = (time) => {
+        const timeString = time.format('HH:mm');
+        const isAvailable = availability[dateString]?.includes(timeString);
+
+        let className = 'calendar-cell';
+        let style = {
+            backgroundColor: getTimeOfDayColor(time),
+            color: getTextColor(time),
+        };
+
+        if (isAvailable) {
+          className += ' available'; //Always give 'available' class if it is in availability
+        }
+
+        return { className, style };
+    };
+
+
+    let lastHoveredCell = null;
 
     return (
         <>
             <h3 className="day-view-heading">{currentDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
             <div
                 className={`availability-calendar day-view ${isNarrow ? 'narrow-view' : 'wide-view'}`}
-                onMouseLeave={onMouseLeave}
                 ref={calendarRef}
                 onMouseMove={(e) => {
                     e.preventDefault();
@@ -135,9 +147,9 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
                         const timeString = element.dataset.time;
                         if (timeString) {
                             try {
-                                const currentTime = moment(timeString, 'YYYY-MM-DDTHH:mm:ss.SSSZ').tz(selectedTimeZone); // Parse ISO string correctly
-                                if (!lastHoveredCell || !lastHoveredCell.isSame(currentTime)) { // Check if it's the same cell
-                                    onCellHover(currentTime.toDate()); // Pass Date object
+                                const currentTime = moment(timeString, 'YYYY-MM-DDTHH:mm:ss.SSSZ').tz(selectedTimeZone);
+                                if (!lastHoveredCell || !lastHoveredCell.isSame(currentTime)) {
+                                    onCellHover(currentTime.toDate());
                                     lastHoveredCell = currentTime;
                                 }
                             } catch (error) {
@@ -157,9 +169,9 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
                         const timeString = element.dataset.time;
                         if (timeString) {
                             try{
-                                const currentTime = moment(timeString, 'YYYY-MM-DDTHH:mm:ss.SSSZ').tz(selectedTimeZone); // Parse ISO string
-                                 if (!lastHoveredCell || !lastHoveredCell.isSame(currentTime)) { // Check for same cell
-                                    onCellHover(currentTime.toDate());  // Pass Date object
+                                const currentTime = moment(timeString, 'YYYY-MM-DDTHH:mm:ss.SSSZ').tz(selectedTimeZone);
+                                if (!lastHoveredCell || !lastHoveredCell.isSame(currentTime)) {
+                                    onCellHover(currentTime.toDate());
                                     lastHoveredCell = currentTime;
                                 }
                             } catch (error) {
@@ -174,22 +186,21 @@ function DayView({ currentDate, availability, onCellClick, onCellHover, isPainti
                     const hour = time.hour();
                     const minute = time.minute();
                     const isHourStart = minute === 0;
-                    const isSelected = isCellSelected(time);
-                    const timeString = time.toISOString(); // Use toISOString() for data-time
+                    const timeString = time.toISOString();
                     const isAmPmBorder = (hour === 11 && minute === 45) || (hour === 12 && minute === 0);
+                    const { className, style } = getCellStyle(time); // Get combined styles
 
                     return (
                         <div
                             key={timeString}
-                            className={`calendar-cell ${isSelected ? 'selected' : ''} ${isHourStart ? 'hour-start' : ''} ${isAmPmBorder ? 'am-pm-border' : ''}`}
+                            className={className}
                             onMouseDown={() => { startPainting(time.toDate()); onCellClick(time.toDate()); }}
-                            onMouseEnter={() => {onCellHover(time.toDate())}}
+                            onMouseEnter={() => { onCellHover(time.toDate()) }}
                             onTouchStart={() => { startPainting(time.toDate()); onCellClick(time.toDate()); }}
+                            onMouseUp={stopPainting} 
+                            onTouchEnd={stopPainting}
                             data-time={timeString}
-                            style={{
-                                backgroundColor: isSelected? '#4CAF50' : getTimeOfDayColor(time), //Simplified
-                                color: getTextColor(time)
-                            }}
+                            style={style}
                         >
                             <span className={`time-label ${isHourStart ? 'hour-label' : ''}`}>
                                 {isHourStart ? time.format('LT') : `:${time.format('mm')}`}

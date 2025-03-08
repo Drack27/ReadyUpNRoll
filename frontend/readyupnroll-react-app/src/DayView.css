@@ -34,8 +34,7 @@
     align-items: center;
     justify-content: center;
     user-select: none;
-    transition: background-color 0.2s ease;
-    /* Removed fixed height and aspect-ratio */
+    transition: background-color 0.2s ease, box-shadow 0.2s ease; /* Add box-shadow transition */
     aspect-ratio: 1 / 1;
 }
 
@@ -49,13 +48,15 @@
     z-index: 10; /* Ensure divider is visible */
 }
 
-.calendar-cell.selected {
-    /* No default background color - handled by inline styles */
-    color: white;
-}
-
 .calendar-cell:hover {
     background-color: #e9ecef; /* Keep the hover effect */
+}
+
+/* Add these new styles for pending changes */
+.calendar-cell.available {
+    /* background-color: #4CAF50;  Initial background, now handled inline */
+     box-shadow: inset 0 0 0 3px #4CAF50; /* Green border for submitted */
+    color: white; /* Or any other styling you prefer */
 }
 
 .time-label {
