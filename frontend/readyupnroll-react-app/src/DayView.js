@@ -5,6 +5,7 @@ import SunCalc from 'suncalc';
 import getTimeZoneCoordinates from './TimeZoneCoordinates';
 
 function DayView({ currentDate, availability, onCellClick, onCellHover, isPainting, startPainting, stopPainting, selectedTimeZone }) { // Removed onMouseLeave
+    console.log("DayView rendering. isPainting:", isPainting);
     const [isNarrow, setIsNarrow] = useState(window.innerWidth <= 768);
     const [sunrise, setSunrise] = useState(6 * 60); // Default: 6 AM
     const [sunset, setSunset] = useState(18 * 60); // Default: 6 PM

@@ -39,7 +39,7 @@ function AvailabilityCalendar({ currentDate, setViewMode, viewMode, handleNext, 
     const handleCellClick = (time) => {
       const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD');
       const timeString = moment(time).clone().tz(selectedTimeZone).format('HH:mm');
-      console.log("Clicked Cell:", dateString, timeString);
+      //console.log("Clicked Cell:", dateString, timeString);
 
       setPendingAvailability(prevPending => {
           const newPending = { ...prevPending };
@@ -57,18 +57,18 @@ function AvailabilityCalendar({ currentDate, setViewMode, viewMode, handleNext, 
           } else {
               newPending[dateString] = [timeString];
           }
-          console.log("handleCellClick - New Pending Availability (before set):", JSON.stringify(newPending, null, 2));
+          //console.log("handleCellClick - New Pending Availability (before set):", JSON.stringify(newPending, null, 2));
           return newPending;
       });
     };
 
-    const handleCellHover = useCallback(
-        throttle((time) => {
+
+    const handleCellHover = useCallback((time) => {
             if (!isPainting) return;
 
             const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD');
             const timeString = moment(time).clone().tz(selectedTimeZone).format('HH:mm');
-            console.log("Hovered Cell (while painting):", dateString, timeString);
+            //console.log("Hovered Cell (while painting):", dateString, timeString);
 
             setPendingAvailability(prevPending => {
                 const newPending = { ...prevPending };
@@ -88,15 +88,17 @@ function AvailabilityCalendar({ currentDate, setViewMode, viewMode, handleNext, 
                         }
                     }
                 }
-                console.log("handleCellHover - New Pending Availability (before set):", JSON.stringify(newPending, null, 2));
+                //console.log("handleCellHover - New Pending Availability (before set):", JSON.stringify(newPending, null, 2));
                 return newPending;
             });
-        }, 16, { trailing: true }),
-        [isPainting, paintMode, selectedTimeZone]
-    );
+    }, [isPainting, paintMode, selectedTimeZone])
+
+    const throttledHandleCellHover = throttle(handleCellHover, 50); // 50ms delay
 
     const startPainting = (time) => {
+        console.log("startPainting called.  Current isPainting:", isPainting); // Add this
         setIsPainting(true);
+        console.log("startPainting: isPainting set to true"); // Add this
         const dateString = moment(time).clone().tz(selectedTimeZone).format('YYYY-MM-DD');
         const timeString = moment(time).clone().tz(selectedTimeZone).format('HH:mm');
         setPaintMode(prevPaintMode => {
@@ -106,8 +108,10 @@ function AvailabilityCalendar({ currentDate, setViewMode, viewMode, handleNext, 
     };
 
     const stopPainting = () => {
+        console.log("stopPainting called.  Current isPainting:", isPainting); // Add this
         setIsPainting(false);
         setPaintMode(null);
+        console.log("stopPainting: isPainting set to false"); // Add this
     };
 
     useEffect(() => {
@@ -138,7 +142,7 @@ function AvailabilityCalendar({ currentDate, setViewMode, viewMode, handleNext, 
     const handleClearPending = () => {
         setPendingAvailability({});
     };
-
+/*
     useEffect(() => {
         const logInterval = setInterval(() => {
             console.log("Current Submitted Availability:", submittedAvailability);
@@ -147,6 +151,7 @@ function AvailabilityCalendar({ currentDate, setViewMode, viewMode, handleNext, 
 
         return () => clearInterval(logInterval);
     }, [submittedAvailability, pendingAvailability]);
+    */
 
     return (
         <div className={`availability-calendar-container ${viewMode === 'week' ? 'week-view-active' : ''}`}>
@@ -170,7 +175,7 @@ function AvailabilityCalendar({ currentDate, setViewMode, viewMode, handleNext, 
                             currentDate={currentDate}
                             availability={combinedAvailability}
                             onCellClick={handleCellClick}
-                            onCellHover={handleCellHover}
+                            onCellHover={throttledHandleCellHover}
                             isPainting={isPainting}
                             startPainting={startPainting}
                             stopPainting={stopPainting}
